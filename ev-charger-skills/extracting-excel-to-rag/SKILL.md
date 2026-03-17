@@ -2,6 +2,8 @@
 name: extracting-excel-to-rag
 description: |
   Extract structured knowledge from Excel/CSV/Google Sheets and output RAG-ready JSONL chunks. Use when user mentions Excel, XLSX, CSV, spreadsheet, tabular data, FMEA tables, error-code tables, data dictionaries, or converting tables to knowledge chunks for RAG.
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # Purpose

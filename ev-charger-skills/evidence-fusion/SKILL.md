@@ -1,6 +1,8 @@
 ---
 name: evidence-fusion
 description: Combine evidence from multiple sources into diagnostic results. Use for root cause analysis, action recommendation, ticket generation. Triggers on "fuse evidence", "combine results", "root cause analysis", "generate diagnosis", "create ticket from evidence", or when you have retrieval results that need analysis.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Skill: Evidence Fusion

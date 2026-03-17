@@ -1,6 +1,8 @@
 ---
 name: intent-parser
 description: Parses user natural language business descriptions into structured intent (business_type, goal, constraints, scope). Only does semantic understanding, no decision-making. Use when intent parsing, 意图解析, 解析业务意图, or extracting business intent from user descriptions in business-to-bpmn pipeline.
+bundle_scope: bpmn-agent
+risk_level: L1
 ---
 
 # Intent Parser

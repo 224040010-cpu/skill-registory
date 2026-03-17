@@ -1,6 +1,8 @@
 ---
 name: bpmn-element-mapper
 description: Maps process steps and DAG to BPMN 2.0 element types (startEvent, endEvent, task, exclusiveGateway, parallelGateway, intermediateEvent). Only does type mapping, does not determine task subtypes. Use when BPMN element mapping, 元素映射, BPMN类型分配, or assigning BPMN types from steps and DAG.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Element Mapper

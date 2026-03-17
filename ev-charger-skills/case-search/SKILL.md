@@ -1,6 +1,8 @@
 ---
 name: case-search
 description: Search historical EV charger cases by keywords, error codes, symptoms, or product models. Use when users want to find similar past issues, look up error codes, or search by symptoms. Triggers on "find similar case", "查找案例", "search cases", "历史问题", "similar issue", or case search requests.
+bundle_scope: diagnosis-agent
+risk_level: L1
 ---
 
 # Skill: Case Search

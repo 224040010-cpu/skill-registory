@@ -1,6 +1,8 @@
 ---
 name: parallel-optimizer
 description: Analyzes DAG for parallel execution feasibility, outputs execution plan with parallel groups. Only does topological analysis, does not change dependencies. Use when parallel optimization, 并行优化, 并行分析, or analyzing parallel execution in business-to-bpmn planning layer.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # Parallel Optimizer

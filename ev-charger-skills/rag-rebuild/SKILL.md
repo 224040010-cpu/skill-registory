@@ -2,6 +2,8 @@
 name: rag-rebuild
 description: |
   Rebuild local RAG knowledge base with 3-layer architecture: consolidation, knowledge graph, embeddings, and relationships. Use when user mentions "rebuild RAG", "update RAG", "regenerate production", "consolidate knowledge", "update embeddings", "build relationships", "refresh semantic index", "RAG pipeline", "relationship coverage", or after uploading new knowledge packages. Also use for checking RAG build status or offloading heavy work to EC2.
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # RAG Rebuild

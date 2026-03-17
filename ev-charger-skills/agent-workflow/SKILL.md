@@ -1,6 +1,8 @@
 ---
 name: agent-workflow
 description: Orchestrate EV charger support case pre-processing using all diagnostic tools. Use this skill when processing a complete support case, preparing expert summaries, automating case triage, or running the full diagnostic pipeline. Triggers on "process case", "案例处理", "expert report", "case analysis", "support ticket analysis", "pre-process ticket", or when a complete case needs automated analysis.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Skill: Agent-Expert Workflow

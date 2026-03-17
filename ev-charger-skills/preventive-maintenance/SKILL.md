@@ -1,6 +1,8 @@
 ---
 name: preventive-maintenance
 description: Preventive maintenance schedules and procedures for EV chargers based on 600+ historical failure cases. Use this skill when users need maintenance schedules, PM checklists, or want to prevent common failures. Triggers on "maintenance schedule", "预防性维护", "PM checklist", "维护计划", "prevent failures", "maintenance tasks", or maintenance planning requests.
+bundle_scope: ops-agent
+risk_level: L3
 ---
 
 # Skill: Preventive Maintenance Guide

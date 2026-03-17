@@ -2,6 +2,8 @@
 name: diagnosing-cellular-logs
 description: |
   Analyze EV charger cellular_log_for_AI.log files and output diagnostic results with root cause and recommended actions. Use when user mentions "cellular log", "蜂窝日志", "4G/5G问题", "网络注册失败", "ACMP离线", "SIM卡问题", "拨号失败", "充电桩离线", or attaches a cellular log file.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Purpose

@@ -1,6 +1,8 @@
 ---
 name: diagnostic-log-parser
 description: ETL skill - convert raw logs to structured JSONL for RAG ingestion. Use for DATA PIPELINE tasks like "parse logs", "extract faults", "log to JSON", "ingest logs". NOT for analyzing/diagnosing issues - use log-analyzer for that.
+bundle_scope: diagnosis-agent
+risk_level: L1
 ---
 
 # Purpose

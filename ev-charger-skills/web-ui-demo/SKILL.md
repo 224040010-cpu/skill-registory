@@ -1,6 +1,8 @@
 ---
 name: web-ui-demo
 description: Build beautiful demo web UIs for AI agents and applications. Use this skill when users mention "demo UI", "web interface", "test UI", "frontend demo", "chat interface", "Streamlit", "Gradio", "FastAPI UI", "interactive demo", or need to showcase an agent/API with a visual interface. Also triggers on "make it look good", "beautiful UI", "modern design", or requests to avoid generic AI aesthetics.
+bundle_scope: customer-agent
+risk_level: L1
 ---
 
 # Web UI Demo Builder

@@ -1,6 +1,8 @@
 ---
 name: image-extraction
 description: Extract text and knowledge from images, PDFs, screenshots, diagrams, and video frames for RAG. Combines OCR, vision analysis, and captioning. Use for any image-to-text or visual content processing. Triggers on "OCR", "image", "screenshot", "diagram", "PDF", "extract from image", "describe picture", "visual content", or video frame extraction.
+bundle_scope: diagnosis-agent
+risk_level: L1
 ---
 
 # Purpose

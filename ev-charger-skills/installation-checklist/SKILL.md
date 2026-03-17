@@ -1,6 +1,8 @@
 ---
 name: installation-checklist
 description: Installation and commissioning checklist for EV chargers based on 41+ installation-related cases. Use this skill when users are installing new chargers, commissioning equipment, or troubleshooting installation issues. Triggers on "installation checklist", "安装检查", "commissioning", "调试", "site setup", "new charger install", or installation-related questions.
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # Skill: Installation & Commissioning Checklist

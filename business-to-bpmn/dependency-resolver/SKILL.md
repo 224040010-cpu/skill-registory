@@ -1,6 +1,8 @@
 ---
 name: dependency-resolver
 description: Computes dependency relationships from step list, outputs DAG (nodes + directed edges). Only does dependency calculation, no optimization. Use when dependency resolution, 依赖计算, DAG生成, or building DAG from steps in business-to-bpmn planning layer.
+bundle_scope: bpmn-agent
+risk_level: L1
 ---
 
 # Dependency Resolver

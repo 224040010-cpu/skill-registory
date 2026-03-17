@@ -1,6 +1,8 @@
 ---
 name: entity-extractor
 description: Extracts key entities (roles, systems, data objects, triggers) from user description and intent structure. Only does entity identification, no association reasoning. Use when entity extraction, 实体抽取, 提取角色和系统, or extracting roles/systems/data objects/triggers in business-to-bpmn pipeline.
+bundle_scope: bpmn-agent
+risk_level: L1
 ---
 
 # Entity Extractor

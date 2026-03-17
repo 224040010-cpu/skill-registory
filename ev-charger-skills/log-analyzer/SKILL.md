@@ -1,6 +1,8 @@
 ---
 name: log-analyzer
 description: Analyze logs to diagnose issues - detect faults, match known issues, recommend solutions. Use when user has a log file and wants to know "what's wrong". Triggers on "analyze log", "日志分析", "what's wrong in this log", "find errors", "diagnose from log". NOT for ETL/parsing - use diagnostic-log-parser for that.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Skill: EV Charger Log Analyzer
