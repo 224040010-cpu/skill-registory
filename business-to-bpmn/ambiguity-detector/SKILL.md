@@ -1,6 +1,8 @@
 ---
 name: ambiguity-detector
 description: Based on intent and entity list, identifies ambiguities and generates user-facing clarification questions. Only identifies uncertain items, does not make assumptions. Use when ambiguity detection, 歧义检测, 澄清问题生成, or generating clarification questions before planning in business-to-bpmn pipeline.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # Ambiguity Detector

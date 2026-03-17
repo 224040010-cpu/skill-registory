@@ -1,6 +1,8 @@
 ---
 name: bpmn-task-classifier
 description: Determines task subtypes (userTask, serviceTask, scriptTask) for BPMN task elements based on entities and step context. Only classifies tasks, does not modify other elements. Use when task classification, 任务分类, task子类型, or assigning userTask/serviceTask/scriptTask.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Task Classifier

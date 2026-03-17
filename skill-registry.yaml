@@ -276,7 +276,7 @@ skills:
     owner_team: ev-charger
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: diagnosis-agent
     supported_models:
@@ -344,7 +344,7 @@ skills:
     owner_team: ev-charger
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: ops-agent
     supported_models:
@@ -361,7 +361,7 @@ skills:
     owner_team: ev-charger
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: diagnosis-agent
     supported_models:
@@ -473,7 +473,7 @@ skills:
     owner_team: bpmn
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: bpmn-agent
     supported_models:
@@ -524,7 +524,7 @@ skills:
     owner_team: bpmn
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: bpmn-agent
     supported_models:
@@ -558,7 +558,7 @@ skills:
     owner_team: bpmn
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: bpmn-agent
     supported_models:
@@ -575,7 +575,7 @@ skills:
     owner_team: bpmn
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: bpmn-agent
     supported_models:
@@ -660,7 +660,7 @@ skills:
     owner_team: bpmn
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: bpmn-agent
     supported_models:

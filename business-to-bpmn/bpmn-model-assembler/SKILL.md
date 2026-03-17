@@ -1,6 +1,8 @@
 ---
 name: bpmn-model-assembler
 description: Assembles complete BPMN process model from element mappings, task types, and DAG. Creates flowNodes and sequenceFlows with IDs, names, sourceRef, targetRef, and conditionExpressions. Only does model assembly, does not handle lanes or serialization. Use when BPMN model assembly, 模型组装, 构建BPMN模型, or building process from element map.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Model Assembler

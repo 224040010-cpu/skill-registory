@@ -1,6 +1,8 @@
 ---
 name: bpmn-diagram-optimizer
 description: Optimizes BPMN diagram layout, applies visual styling, and resolves label overlaps. Combines layout, styling, and label optimization into a single pass. Only modifies BPMNDI coordinates and visual attributes, does not change process logic. Use when diagram optimization, 布局优化, 视觉美化, 标签重叠, or BPMN美化.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Diagram Optimizer

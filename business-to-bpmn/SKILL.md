@@ -2,7 +2,9 @@
 name: business-to-bpmn
 description: |
   将用户自然语言业务描述直接转化为符合 BPMN 2.0 标准的工作流 XML（含泳道、消息流、自动布局与视觉美化），可在 bpmn.io 或 Camunda 中直接打开。
-  Use when the user describes a business scenario and wants a BPMN workflow — including phrases like "生成BPMN", "业务转工作流", "设计流程", "把需求转成BPMN", "审批流程", "自动化流程", "SOP转BPMN", "生成.bpmn文件", or any request to convert business descriptions into BPMN 2.0 XML. Also trigger on "帮我画个流程", "工作流标准化", "业务流程建模", "流程自动化", "我有个业务场景想变成工作流", even without explicitly mentioning "BPMN".
+  Use when the user describes a business scenario and wants a BPMN workflow — including phrases like "生成BPMN", "业务转工作流", "设计流程", "把需求转成BPMN", "审批流程", "自动化流程", "SOP转BPMN", "生成.bpmn文件", or requests that describe business scenarios to convert business descriptions into BPMN 2.0 XML. Also trigger on "帮我画个流程", "工作流标准化", "业务流程建模", "流程自动化", "我有个业务场景想变成工作流", even without explicitly mentioning "BPMN".
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # Purpose

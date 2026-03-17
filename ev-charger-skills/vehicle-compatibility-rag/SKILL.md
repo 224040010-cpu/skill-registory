@@ -1,6 +1,8 @@
 ---
 name: vehicle-compatibility-rag
 description: Vehicle-specific queries ONLY - compatibility checks, MAC identification, brand-specific known issues. Use ONLY when vehicle/car/brand is the focus. Triggers on "BMW", "Tesla", "VW", "vehicle compatible", "车型兼容", "MAC address", "identify vehicle", "which cars", or vehicle brand names.
+bundle_scope: customer-agent
+risk_level: L1
 ---
 
 # Skill: Vehicle Compatibility RAG

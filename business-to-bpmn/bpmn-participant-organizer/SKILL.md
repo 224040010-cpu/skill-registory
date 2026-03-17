@@ -1,6 +1,8 @@
 ---
 name: bpmn-participant-organizer
 description: Assigns process flow nodes to participants (pools) and lanes based on entity roles and systems. Creates message flows between different participants. Only handles participant organization, does not modify process logic. Use when swimlane assignment, 泳道分配, participant organization, 参与者组织, or organizing BPMN by pools and lanes.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Participant Organizer

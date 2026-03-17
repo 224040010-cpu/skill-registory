@@ -1,6 +1,8 @@
 ---
 name: knowledge-package-exporter
 description: Package RAG knowledge into a portable bundle with manifest, README, and validation. Use for "export", "bundle", "package", "share knowledge", "prepare for deployment". For deduplication before export, use rag-chunk-deduplicator first.
+bundle_scope: ops-agent
+risk_level: L1
 ---
 
 # Purpose

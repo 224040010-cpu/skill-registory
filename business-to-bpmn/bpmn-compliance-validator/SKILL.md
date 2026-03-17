@@ -1,6 +1,8 @@
 ---
 name: bpmn-compliance-validator
 description: Validates BPMN XML for both structural compliance (BPMN 2.0 schema) and logical consistency (no deadlocks, no orphan nodes, no data breaks). Combined structural and logical validation in one pass. Only validates, does not modify. Use when BPMN validation, 校验BPMN, 验证XML, or 合规检查.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # BPMN Compliance Validator

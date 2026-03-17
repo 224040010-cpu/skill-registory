@@ -1,6 +1,8 @@
 ---
 name: process-decomposer
 description: Decomposes business goal and entity list into ordered process steps with BPMN element hints. Only does step splitting and ordering, not implementation details. Use when step decomposition, 步骤拆解, 流程分解, or converting goal+entities to ordered steps in business-to-bpmn planning layer.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # Process Decomposer

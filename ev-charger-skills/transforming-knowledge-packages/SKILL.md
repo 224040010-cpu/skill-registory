@@ -1,6 +1,8 @@
 ---
 name: transforming-knowledge-packages
 description: Transform RAG chunks to KNOWLEDGE_PACKAGE schema v2 with required fields (knowledge_layer, freshness_level, unique titles). Use when user mentions "knowledge package", "RAG export", "transform chunks", "schema migration", "prepare for cloud RAG", "export to EC2", "layer_counts", "knowledge_layer", or asks to convert existing JSONL data to the standard package format.
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # Transforming Knowledge Packages

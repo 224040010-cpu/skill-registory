@@ -1,6 +1,8 @@
 ---
 name: ev-charger-knowledge
 description: Quick reference for EV charger error codes, product specs, and basic troubleshooting. Use as the FIRST skill for quick lookups. Triggers on "error code", "故障码", "what does code mean", "product model", "charger specs", or quick reference questions. For step-by-step troubleshooting use ev-charger-troubleshoot. For vehicle-specific issues use vehicle-compatibility-rag.
+bundle_scope: diagnosis-agent
+risk_level: L1
 ---
 
 # Skill: EV Charger Knowledge Base

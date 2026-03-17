@@ -1,6 +1,8 @@
 ---
 name: bpmn-xml-serializer
 description: Serializes BPMN process model (with participants, lanes, message flows) into BPMN 2.0 compliant XML string. Includes definitions root, process elements, collaboration, and basic BPMNDI diagram. Only does serialization, no validation or model modification. Use when BPMN XML serialization, XML生成, 序列化BPMN, or 导出XML.
+bundle_scope: bpmn-agent
+risk_level: L1
 ---
 
 # BPMN XML Serializer

@@ -1,6 +1,8 @@
 ---
 name: incremental-embeddings
 description: Fast embedding updates for RAG knowledge base - only encodes new/changed chunks. Use after uploading knowledge packages, running regenerate_cloud_production.sh, or when embeddings are outdated. Triggers on "update embeddings", "refresh embeddings", "incremental embed", "semantic index update".
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # Incremental Embedding Update

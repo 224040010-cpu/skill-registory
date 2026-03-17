@@ -1,6 +1,8 @@
 ---
 name: hardware-diagnostics
 description: Hardware diagnostics and field service guide for EV chargers. Use this skill when users need to diagnose hardware failures, replace components, or perform field repairs. Triggers on "hardware fault", "硬件故障", "replace component", "field service", "display repair", "contactor issue", "power supply problem", "burned terminal", or physical damage reports.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Skill: Hardware Diagnostics & Field Service

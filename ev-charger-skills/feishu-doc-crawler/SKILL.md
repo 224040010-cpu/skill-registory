@@ -1,6 +1,8 @@
 ---
 name: feishu-doc-crawler
 description: Extract structured content from Feishu wiki/docs pages for RAG pipelines. Use this skill when users mention Feishu, Lark, wiki crawling, document extraction, nested docs, multi-block layouts, or converting Feishu content into knowledge chunks. Trigger for "??", "Lark docs", "wiki pages", "linked documents", or any Feishu-related content extraction requests.
+bundle_scope: ops-agent
+risk_level: L1
 ---
 
 # Skill: Feishu Document Crawler

@@ -1,6 +1,8 @@
 ---
 name: bpmn-template-matcher
 description: Matches structured intent against BPMN workflow template library. Outputs candidate list and similarity scores. Only does template retrieval and scoring, no customization. Use when template matching, 模板匹配, 模板检索, or deciding whether to use a template shortcut in business-to-bpmn planning layer.
+bundle_scope: bpmn-agent
+risk_level: L1
 ---
 
 # BPMN Template Matcher
