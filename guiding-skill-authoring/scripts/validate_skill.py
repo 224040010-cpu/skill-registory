@@ -24,6 +24,7 @@ Exit codes:
 import sys
 import re
 import os
+import json
 from pathlib import Path
 
 # ─────────────────────────────────────────────
@@ -538,7 +539,7 @@ def check_name(parsed: dict) -> tuple[list, list]:
 # Main runner
 # ─────────────────────────────────────────────
 
-def validate(skill_path: str) -> int:
+def validate(skill_path: str, output_json: bool = False) -> int:
     path = Path(skill_path)
     if not path.exists():
         print(f"ERROR: File not found: {skill_path}")
@@ -618,6 +619,30 @@ def validate(skill_path: str) -> int:
             print(f"  [{dim}] {suggestion}")
         print()
 
+    # JSON output branch — emit structured result and return early
+    if output_json:
+        missing = [s for s in REQUIRED_BODY_SECTIONS if s not in parsed["body"]]
+        blocking = [i for _, i in all_issues]
+        blocking += [f"Missing required section: {s}" for s in missing]
+        if total >= 60 and not blocking:
+            result_code = "PASS"
+        elif total >= 45:
+            result_code = "PASS_WITH_REQUIRED_FIXES"
+        else:
+            result_code = "FAIL"
+        _warn_kw = ("missing", "no evals", "add ", "define ", "create ", "required", "must")
+        warnings = [s for _, s in all_suggestions if any(w in s.lower() for w in _warn_kw)]
+        suggestions = [s for _, s in all_suggestions if not any(w in s.lower() for w in _warn_kw)]
+        print(json.dumps({
+            "skill_name": parsed["frontmatter"].get("name", "<unnamed>"),
+            "score": total,
+            "result": result_code,
+            "blocking_issues": blocking,
+            "warnings": warnings,
+            "suggestions": suggestions,
+        }, indent=2, ensure_ascii=False))
+        return 0 if total >= 45 else 1
+
     # Check required sections
     missing_sections = [s for s in REQUIRED_BODY_SECTIONS if s not in parsed["body"]]
     if missing_sections:
@@ -637,7 +662,9 @@ def validate(skill_path: str) -> int:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <path/to/SKILL.md>")
+    positional = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = [a for a in sys.argv[1:] if a.startswith("--")]
+    if len(positional) != 1:
+        print(f"Usage: python {sys.argv[0]} <path/to/SKILL.md> [--json]")
         sys.exit(2)
-    sys.exit(validate(sys.argv[1]))
+    sys.exit(validate(positional[0], output_json="--json" in flags))
