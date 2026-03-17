@@ -1,0 +1,745 @@
+# skill-registry.yaml
+# Central Skill Registry — single source of truth for all platform skills.
+#
+# Status lifecycle:
+#   draft → submitted → approved | restricted | needs_revision
+#   approved → deprecated → retired
+#
+# Fields:
+#   skill_name      : matches directory name and SKILL.md frontmatter name
+#   display_name    : human-readable label
+#   purpose         : one-line description of what the skill enables
+#   owner_team      : team responsible for maintaining this skill
+#   version         : semver string
+#   status          : draft | submitted | approved | restricted | deprecated | retired
+#   risk_level      : L1 (read-only) | L2 (analysis) | L3 (write/create) | L4 (device control)
+#   dependencies    : list of other skill_names this skill depends on (empty = leaf)
+#   bundle_scope    : which agent bundle this skill belongs to
+#   supported_models: list of Claude model IDs tested and approved
+#   eval_status     : pending | passing | failing
+#   security_review : not_required | pending | approved | rejected
+#   path            : relative path to SKILL.md from registry root
+#   created_at      : ISO date of first registration
+#   last_reviewed   : ISO date of last governance review
+
+schema_version: "1.0.0"
+last_audited: "2026-03-17"
+
+skills:
+
+  # ─────────────────────────────────────────────
+  # EV Charger Skills — owner: ev-charger team
+  # ─────────────────────────────────────────────
+
+  - skill_name: agent-workflow
+    display_name: Agent Workflow
+    purpose: Defines the top-level orchestration workflow for the EV charger diagnosis agent
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/agent-workflow/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: case-search
+    display_name: Case Search
+    purpose: Searches historical fault cases and maintenance records for similar incidents
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/case-search/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: diagnostic-log-parser
+    display_name: Diagnostic Log Parser
+    purpose: Parses raw EV charger diagnostic logs into structured fault events
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/diagnostic-log-parser/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: diagnosing-cellular-logs
+    display_name: Diagnosing Cellular Logs
+    purpose: Diagnoses cellular connectivity issues in EV chargers from modem logs
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/diagnosing-cellular-logs/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: ev-charger-troubleshoot
+    display_name: EV Charger Troubleshoot
+    purpose: Guides technicians through structured fault isolation for EV charger hardware faults
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/ev-charger-troubleshoot/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: evidence-fusion
+    display_name: Evidence Fusion
+    purpose: Fuses multi-source diagnostic evidence (logs, metrics, cases) into a unified fault assessment
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/evidence-fusion/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: ev-charger-knowledge
+    display_name: EV Charger Knowledge
+    purpose: Knowledge bundle providing domain reference data for EV charger fault codes and SOPs
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/ev-charger-knowledge/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: failure-analytics
+    display_name: Failure Analytics
+    purpose: Analyzes fleet-level failure patterns to surface recurring fault trends and risk signals
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/failure-analytics/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: feishu-doc-crawler
+    display_name: Feishu Doc Crawler
+    purpose: Crawls Feishu documents to extract and index maintenance knowledge and SOPs
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/feishu-doc-crawler/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: hardware-diagnostics
+    display_name: Hardware Diagnostics
+    purpose: Runs structured hardware diagnostic checks on EV charger physical components
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/hardware-diagnostics/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: image-extraction
+    display_name: Image Extraction
+    purpose: Extracts diagnostic images and visual evidence from charger inspection reports
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/image-extraction/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: incremental-embeddings
+    display_name: Incremental Embeddings
+    purpose: Generates and updates vector embeddings incrementally for new knowledge documents
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/incremental-embeddings/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: installation-checklist
+    display_name: Installation Checklist
+    purpose: Guides technicians through EV charger installation verification steps and sign-offs
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/installation-checklist/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: knowledge-package-exporter
+    display_name: Knowledge Package Exporter
+    purpose: Exports structured knowledge packages from the RAG system for offline or external use
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/knowledge-package-exporter/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: log-analyzer
+    display_name: Log Analyzer
+    purpose: Analyzes EV charger system logs to identify error patterns and anomalies
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/log-analyzer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: preventive-maintenance
+    display_name: Preventive Maintenance
+    purpose: Creates scheduled preventive maintenance work orders for EV charger fleet based on usage data
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L3
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/preventive-maintenance/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: rag-chunk-deduplicator
+    display_name: RAG Chunk Deduplicator
+    purpose: Identifies and removes duplicate or near-duplicate chunks from the RAG knowledge base
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/rag-chunk-deduplicator/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: rag-rebuild
+    display_name: RAG Rebuild
+    purpose: Rebuilds the vector index for the knowledge base after bulk document updates
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/rag-rebuild/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: skill-creator
+    display_name: Skill Creator
+    purpose: Meta-skill for creating new skills from user requirements following platform authoring standards
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/skill-creator/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: ticket-log-join
+    display_name: Ticket Log Join
+    purpose: Joins work order ticket data with diagnostic log events for correlation analysis
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: diagnosis-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/ticket-log-join/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: transforming-knowledge-packages
+    display_name: Transforming Knowledge Packages
+    purpose: Transforms raw knowledge documents into structured packages ready for RAG ingestion
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/transforming-knowledge-packages/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: vehicle-compatibility-rag
+    display_name: Vehicle Compatibility RAG
+    purpose: Retrieves EV vehicle-to-charger compatibility information from the knowledge base
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: customer-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/vehicle-compatibility-rag/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: web-ui-demo
+    display_name: Web UI Demo
+    purpose: Demonstrates EV charger platform capabilities through an interactive web interface
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: customer-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/web-ui-demo/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: extracting-excel-to-rag
+    display_name: Extracting Excel to RAG
+    purpose: Extracts structured data from Excel maintenance records and ingests it into the RAG knowledge base
+    owner_team: ev-charger
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: ops-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: ev-charger-skills/extracting-excel-to-rag/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  # ─────────────────────────────────────────────
+  # Business-to-BPMN Skills — owner: bpmn team
+  # ─────────────────────────────────────────────
+
+  - skill_name: business-to-bpmn
+    display_name: Business to BPMN
+    purpose: Orchestrates the end-to-end conversion of business process descriptions into BPMN 2.0 diagrams
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies:
+      - intent-parser
+      - entity-extractor
+      - process-decomposer
+      - bpmn-model-assembler
+      - bpmn-xml-serializer
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: ambiguity-detector
+    display_name: Ambiguity Detector
+    purpose: Detects ambiguous or underspecified language in business process descriptions
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/ambiguity-detector/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-compliance-validator
+    display_name: BPMN Compliance Validator
+    purpose: Validates BPMN 2.0 XML against schema rules and structural correctness constraints
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-compliance-validator/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-diagram-optimizer
+    display_name: BPMN Diagram Optimizer
+    purpose: Optimizes BPMN diagram layout and simplifies redundant flow paths
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-diagram-optimizer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-element-mapper
+    display_name: BPMN Element Mapper
+    purpose: Maps extracted process entities to canonical BPMN 2.0 element types
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-element-mapper/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-model-assembler
+    display_name: BPMN Model Assembler
+    purpose: Assembles mapped BPMN elements into a coherent process model with correct flow connections
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-model-assembler/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-participant-organizer
+    display_name: BPMN Participant Organizer
+    purpose: Organizes process participants into BPMN lanes and pools based on role analysis
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-participant-organizer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-task-classifier
+    display_name: BPMN Task Classifier
+    purpose: Classifies extracted process tasks into BPMN task subtypes (user, service, manual, etc.)
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-task-classifier/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-template-matcher
+    display_name: BPMN Template Matcher
+    purpose: Matches detected process patterns to canonical BPMN process templates
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-template-matcher/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: bpmn-xml-serializer
+    display_name: BPMN XML Serializer
+    purpose: Serializes the assembled BPMN model into valid BPMN 2.0 XML output
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/bpmn-xml-serializer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: dependency-resolver
+    display_name: Dependency Resolver
+    purpose: Resolves ordering and dependency relationships between extracted process steps
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/dependency-resolver/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: entity-extractor
+    display_name: Entity Extractor
+    purpose: Extracts process entities (actors, systems, data objects, events) from business descriptions
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/entity-extractor/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: intent-coverage-evaluator
+    display_name: Intent Coverage Evaluator
+    purpose: Evaluates whether the generated BPMN model fully covers the original business intent
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/intent-coverage-evaluator/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: intent-parser
+    display_name: Intent Parser
+    purpose: Parses user intent from natural language business process descriptions into structured form
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/intent-parser/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: parallel-optimizer
+    display_name: Parallel Optimizer
+    purpose: Identifies sequential steps that can be parallelized and restructures them as parallel BPMN gateways
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/parallel-optimizer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  - skill_name: process-decomposer
+    display_name: Process Decomposer
+    purpose: Decomposes complex business processes into manageable sub-processes and phases
+    owner_team: bpmn
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: bpmn-agent
+    supported_models:
+      - claude-sonnet-4-6
+    eval_status: pending
+    security_review: not_required
+    path: business-to-bpmn/process-decomposer/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
+
+  # ─────────────────────────────────────────────
+  # Platform Meta-Skills — owner: platform team
+  # ─────────────────────────────────────────────
+
+  - skill_name: guiding-skill-authoring
+    display_name: Guiding Skill Authoring
+    purpose: Meta-skill that guides authors to create, validate, and submit well-structured platform skills
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: guiding-skill-authoring/SKILL.md
+    created_at: "2025-01-01"
+    last_reviewed: "2025-01-01"
