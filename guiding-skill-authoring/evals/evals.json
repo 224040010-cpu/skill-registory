@@ -1,0 +1,70 @@
+{
+  "skill_name": "guiding-skill-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我们想做一个skill，让用户说出充电桩编号后，自动查询它的实时状态并用语音播报出来。怎么开始？",
+      "expected_behavior": "触发 Phase 1 意图采集，引导用户明确触发场景、输入参数（充电桩编号）、输出格式（语音播报）、TTS 约束、所属 Agent；完成后给出一句话范围确认，然后进入 Phase 2 草稿生成",
+      "expected_output_signals": [
+        "询问触发条件（用户说什么会触发）",
+        "确认输出通过 TTS 播报",
+        "提示语音输出约束（不能有 markdown）",
+        "确认所属 Agent（如 customer-agent 或 diagnosis-agent）",
+        "识别合适的 MCP 工具（device-status-mcp:get_device_status）",
+        "建议命名如 querying-realtime-status 或类似"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我检查一下这个 skill 写得是否符合平台规范",
+      "expected_behavior": "引导用户提供 SKILL.md 路径或内容，然后指导运行 validate_skill.py 并解读输出报告；如果用户粘贴了 SKILL.md 内容，直接对照 7 个维度给出评分和修改建议",
+      "expected_output_signals": [
+        "询问 SKILL.md 文件路径或请用户粘贴内容",
+        "提示可运行 validate_skill.py 自动评分",
+        "给出 7 个维度的评估",
+        "指出 blocking issues（如有）",
+        "给出具体修改建议"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我们业务上有个流程：用户报修 → 系统查故障日志 → 自动诊断 → 生成工单 → 通知维修人员。这个能做成一个 skill 吗？",
+      "expected_behavior": "分析该流程跨越多个职责（诊断 + 创建工单 + 通知），判断不适合做成单一 skill；给出拆分建议（3个独立 skill），并解释 Skill 单一职责原则和 Skill 隔离规则",
+      "expected_output_signals": [
+        "识别出该流程包含多个不同性质的步骤",
+        "明确指出不适合做成单一 skill（违反单一职责）",
+        "给出拆分方案（至少列出 2-3 个独立 skill）",
+        "说明 Agent 层负责编排，skill 是叶节点",
+        "可选：给出每个拆分 skill 的初步命名建议"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "我要写一个 skill 让 AI 重启充电桩，用户说重启之后直接执行就好，不用确认",
+      "expected_behavior": "识别为 L4 设备控制操作，明确告知必须经过 Verify Gate 且需要用户二次确认，不能跳过；解释平台安全要求，引导在 Workflow 中加入 verify-gate-mcp:request_approval 步骤",
+      "expected_output_signals": [
+        "识别为 L4 高风险操作",
+        "明确说明不能跳过 Verify Gate",
+        "说明必须有用户二次确认步骤",
+        "给出包含 Verify Gate 的正确 Workflow 结构",
+        "标注 risk_level: L4 且 security review 为必须项"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "skill 可以在 workflow 里调用另一个 skill 吗？比如诊断 skill 完成后，自动触发工单 skill？",
+      "expected_behavior": "明确回答不可以，解释 skill 是叶节点、不能调用其他 skill；给出正确的架构模式（由 Agent Orchestrator 层先后调用两个独立 skill）",
+      "expected_output_signals": [
+        "明确回答：skill 不能调用另一个 skill",
+        "解释 skill isolation 规则",
+        "给出 Agent 编排层的正确模式图或描述",
+        "可选：说明如果需要这种模式应升级为 workflow 设计请求"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "skill_name": "web-ui-demo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a chat demo UI for my agent using Streamlit",
+      "expected_output": "A working Streamlit chat application with custom styling, session state management, and streaming support",
+      "files": [],
+      "assertions": [
+        "Uses st.chat_message and st.chat_input",
+        "Includes custom CSS for non-generic styling",
+        "Manages session state for chat history",
+        "Includes example prompts or suggestions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Build a beautiful web interface for my Cloud Agent API",
+      "expected_output": "A FastAPI application with embedded HTML chat UI featuring modern aesthetics",
+      "files": [],
+      "assertions": [
+        "Uses FastAPI with HTMLResponse",
+        "Includes WebSocket or SSE for streaming",
+        "Custom fonts (not Inter/Roboto)",
+        "Gradient backgrounds, not solid white",
+        "Responsive layout"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need a quick demo UI, make it look good not generic",
+      "expected_output": "Either Streamlit or Gradio demo with polished aesthetics avoiding AI slop",
+      "files": [],
+      "assertions": [
+        "Chooses appropriate framework",
+        "Applies frontend aesthetics principles",
+        "Avoids purple-on-white cliché",
+        "Uses distinctive typography"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Create a Gradio chat interface with dark theme",
+      "expected_output": "Gradio ChatInterface with custom dark theme and streaming support",
+      "files": [],
+      "assertions": [
+        "Uses gr.ChatInterface",
+        "Applies custom theme with dark colors",
+        "Includes example queries",
+        "Implements streaming via generator"
+      ]
+    }
+  ]
+}
