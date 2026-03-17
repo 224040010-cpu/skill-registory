@@ -1,0 +1,44 @@
+[
+  {
+    "id": "eval-01",
+    "description": "Multi-capability BPMN generation request should decompose into ≤3 skills",
+    "input": "我想做一个功能：用户描述一段业务流程，系统自动生成标准BPMN图，并优化并行步骤",
+    "expected_behavior": "Phase 1 produces scope summary. Phase 2 decomposes into ≥3 capabilities. Phase 3 classifies most as tool/workflow_step, ≤2 as skill. Phase 4 self-critique runs Check A and B. Output capability_plan.json with summary.skills ≤ 2.",
+    "expected_outputs": {
+      "summary.skills": {"max": 2},
+      "summary.tools": {"min": 1},
+      "capability_plan.json": "present"
+    },
+    "anti_pattern_check": "Should NOT produce 6+ skills"
+  },
+  {
+    "id": "eval-02",
+    "description": "Single-purpose request should pass through to guiding-skill-authoring directly",
+    "input": "我要写一个skill，用来查询EV充电桩的故障日志",
+    "expected_behavior": "Planning step recognizes this is a single, already-scoped capability. Produces a plan with exactly 1 skill. Immediately recommends routing to guiding-skill-authoring.",
+    "expected_outputs": {
+      "summary.skills": {"exact": 1},
+      "next_actions[0].action": "Start guiding-skill-authoring"
+    }
+  },
+  {
+    "id": "eval-03",
+    "description": "Over-fragmented bundle submission triggers self-critique merge",
+    "input": "我上传了8个skill，都是entity extraction相关的：extract-person, extract-org, extract-location, extract-date, extract-money, extract-product, validate-entities, deduplicate-entities",
+    "expected_behavior": "Self-Critique Check A fires (each ≤1 step). Check B fires (>70% overlap). Output: all reclassified as tool. summary.skills = 0. Anti-pattern Anti-Pattern 1 or 2 cited in findings.",
+    "expected_outputs": {
+      "summary.skills": {"exact": 0},
+      "self_critique_findings": {"min_checks_fired": 1}
+    }
+  },
+  {
+    "id": "eval-04",
+    "description": "Ambiguous requirement that cannot be scoped in one sentence",
+    "input": "帮我做一个智能助手",
+    "expected_behavior": "Phase 1 Step 1 fires all four clarifying questions. Planning does NOT proceed to Phase 2 until all four are answered. No capability_plan.json is emitted.",
+    "expected_outputs": {
+      "capability_plan.json": "not yet emitted",
+      "clarifying_questions_asked": {"exact": 4}
+    }
+  }
+]

@@ -110,6 +110,34 @@ Do not use these in skill workflows. Flag them as ⚠️ Tool needed if required
 
 ---
 
+## bpmn-tools
+
+BPMN generation pipeline tools for the `bpmn-agent` bundle. All tools are
+stateless transforms — they do not write to any device or external system.
+
+| Tool | Description | Key parameters | Returns |
+|------|-------------|----------------|---------|
+| `parse_business_intent` | Parses NL business description into structured intent | `user_description: str` | `{business_type, goal, constraints[], scope}` |
+| `extract_process_entities` | Extracts roles, systems, data objects, triggers | `user_description: str, intent: IntentOutput` | `{roles[], systems[], data_objects[], triggers[]}` |
+| `detect_description_ambiguity` | Identifies ambiguities and generates clarification questions | `intent: IntentOutput, entities: EntityOutput` | `{has_ambiguity: bool, ambiguity_points[], clarification_questions[]}` |
+| `match_bpmn_template` | Looks up BPMN template library for a matching pattern | `intent: IntentOutput` | `{candidates[], best_match}` |
+| `decompose_process_steps` | Decomposes goal + entities into ordered steps with BPMN hints | `goal: str, entities: EntityOutput, template_hint?: TemplateCandidate` | `{steps[]}` |
+| `resolve_step_dependencies` | Builds dependency DAG from step preconditions | `steps: Step[]` | `{dag: {nodes[], edges[]}}` |
+| `identify_parallel_steps` | Finds parallelizable step groups in the DAG | `steps: Step[], dag: DAG` | `{parallel_groups[], annotated_steps[]}` |
+| `map_steps_to_bpmn_elements` | Maps steps + DAG to BPMN 2.0 element types with IDs | `steps: Step[], dag: DAG` | `{element_map[]}` |
+| `classify_bpmn_task_types` | Assigns userTask/serviceTask/scriptTask subtypes | `element_map: ElementMapping[], steps: Step[]` | `{classified_elements[]}` |
+| `assign_bpmn_participants` | Groups elements into pools and lanes by actor/system | `classified_elements: ElementMapping[], entities: EntityOutput` | `{participants[], lanes[], message_flows[]}` |
+| `assemble_bpmn_model` | Builds ProcessModel object from classified elements | `classified_elements: ElementMapping[], participants: Participant[], lanes: Lane[], message_flows: MessageFlow[]` | `ProcessModel` |
+| `serialize_bpmn_xml` | Serializes ProcessModel to BPMN 2.0 XML string | `process: ProcessModel, participants: Participant[], lanes: Lane[], message_flows: MessageFlow[]` | `{bpmn_xml: str}` |
+| `optimize_bpmn_layout` | Applies orthogonal layout, color styling, label deconfliction | `bpmn_xml: str` | `{optimized_xml: str, layout_stats}` |
+| `validate_bpmn_structural` | Runs 12 structural + logical checks on BPMN XML | `bpmn_xml: str` | `{valid: bool, errors[], warnings[]}` |
+| `evaluate_intent_coverage` | Compares BPMN elements against original intent + entities | `bpmn_xml: str, intent: IntentOutput, entities: EntityOutput` | `{coverage_score: float, covered_items[], missing_items[], recommendations[]}` |
+
+**Risk level contribution:** L2 (analytical transforms, no device or DB writes)  
+**Full I/O schemas:** See `business-to-bpmn/tools/tool-catalog.md`
+
+---
+
 ## Adding a New Tool
 
 If your skill needs a capability that is not listed above:

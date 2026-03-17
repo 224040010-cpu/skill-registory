@@ -1,0 +1,264 @@
+# tool-registry.yaml
+# Central Tool Registry — single source of truth for all platform MCP tools.
+#
+# Lifecycle: draft → submitted → approved → deprecated → retired
+#
+# Fields:
+#   tool_name     : unique identifier (kebab-case verb-noun)
+#   display_name  : human-readable label
+#   category      : parsing | transformation | validation | execution | retrieval | computation
+#   risk_level    : L0 (pure computation) | L1 (read) | L2 (analysis) | L3 (write) | L4 (external)
+#   side_effects  : none | read | write | external
+#   idempotent    : true | false
+#   owner_team    : team responsible for implementation
+#   service       : MCP server name (must match mcp-tool-catalog.md)
+#   status        : draft | submitted | approved | deprecated | retired
+#   path          : relative path to TOOL.md from registry root
+#   created_at    : ISO date of first registration
+#   last_reviewed : ISO date of last governance review
+#   called_by_skills: known skill_names that call this tool
+
+schema_version: "1.0.0"
+last_audited: "2026-03-17"
+
+tools:
+
+  # ─────────────────────────────────────────────
+  # bpmn-tools — owner: bpmn team
+  # Service: bpmn-tools MCP server
+  # Source: business-to-bpmn capability planning 2026-03-17
+  # ─────────────────────────────────────────────
+
+  - tool_name: parse-business-intent
+    display_name: Parse Business Intent
+    category: parsing
+    risk_level: L1
+    side_effects: read
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/parse-business-intent/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: extract-process-entities
+    display_name: Extract Process Entities
+    category: parsing
+    risk_level: L1
+    side_effects: read
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/extract-process-entities/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: detect-description-ambiguity
+    display_name: Detect Description Ambiguity
+    category: validation
+    risk_level: L1
+    side_effects: read
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/detect-description-ambiguity/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: match-bpmn-template
+    display_name: Match BPMN Template
+    category: retrieval
+    risk_level: L1
+    side_effects: read
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/match-bpmn-template/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: decompose-process-steps
+    display_name: Decompose Process Steps
+    category: transformation
+    risk_level: L2
+    side_effects: read
+    idempotent: false
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/decompose-process-steps/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: resolve-step-dependencies
+    display_name: Resolve Step Dependencies
+    category: computation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/resolve-step-dependencies/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: identify-parallel-steps
+    display_name: Identify Parallel Steps
+    category: computation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/identify-parallel-steps/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - decomposing-business-process
+
+  - tool_name: map-steps-to-bpmn-elements
+    display_name: Map Steps to BPMN Elements
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/map-steps-to-bpmn-elements/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: classify-bpmn-task-types
+    display_name: Classify BPMN Task Types
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/classify-bpmn-task-types/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: assign-bpmn-participants
+    display_name: Assign BPMN Participants
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/assign-bpmn-participants/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: assemble-bpmn-model
+    display_name: Assemble BPMN Model
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/assemble-bpmn-model/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: serialize-bpmn-xml
+    display_name: Serialize BPMN XML
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/serialize-bpmn-xml/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: optimize-bpmn-layout
+    display_name: Optimize BPMN Layout
+    category: transformation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/optimize-bpmn-layout/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+
+  - tool_name: validate-bpmn-structural
+    display_name: Validate BPMN Structural
+    category: validation
+    risk_level: L0
+    side_effects: none
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/validate-bpmn-structural/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - validating-bpmn-compliance
+
+  - tool_name: evaluate-intent-coverage
+    display_name: Evaluate Intent Coverage
+    category: validation
+    risk_level: L1
+    side_effects: read
+    idempotent: true
+    owner_team: bpmn
+    service: bpmn-tools
+    status: approved
+    path: business-to-bpmn/tools/evaluate-intent-coverage/TOOL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+    called_by_skills:
+      - converting-business-to-bpmn
+      - validating-bpmn-compliance

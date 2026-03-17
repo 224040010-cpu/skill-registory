@@ -442,21 +442,18 @@ skills:
 
   # ─────────────────────────────────────────────
   # Business-to-BPMN Skills — owner: bpmn team
+  # Rearchitected 2026-03-17: 16 skills → 3 skills + 13 MCP tools
+  # Tool definitions: business-to-bpmn/tools/tool-catalog.md
   # ─────────────────────────────────────────────
 
-  - skill_name: business-to-bpmn
-    display_name: Business to BPMN
-    purpose: Orchestrates the end-to-end conversion of business process descriptions into BPMN 2.0 diagrams
+  - skill_name: converting-business-to-bpmn
+    display_name: Converting Business to BPMN
+    purpose: End-to-end orchestration skill that takes a natural language business description and produces a complete BPMN 2.0 XML file by sequencing 13 atomic tools across 5 pipeline layers (understanding, planning, modeling, rendering, validation)
     owner_team: bpmn
-    version: "1.0.0"
+    version: "2.0.0"
     status: approved
     risk_level: L2
-    dependencies:
-      - intent-parser
-      - entity-extractor
-      - process-decomposer
-      - bpmn-model-assembler
-      - bpmn-xml-serializer
+    dependencies: []
     bundle_scope: bpmn-agent
     supported_models:
       - claude-sonnet-4-6
@@ -465,11 +462,11 @@ skills:
     security_review: not_required
     path: business-to-bpmn/SKILL.md
     created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
+    last_reviewed: "2026-03-17"
 
-  - skill_name: ambiguity-detector
-    display_name: Ambiguity Detector
-    purpose: Detects ambiguous or underspecified language in business process descriptions
+  - skill_name: decomposing-business-process
+    display_name: Decomposing Business Process
+    purpose: Independently-triggerable planning skill that breaks a business description into a structured process plan (ordered steps, dependency DAG, parallel groups, BPMN hints) without generating BPMN XML — useful for process review, estimation, or iteration before committing to full BPMN generation
     owner_team: bpmn
     version: "1.0.0"
     status: approved
@@ -480,13 +477,13 @@ skills:
       - claude-sonnet-4-6
     eval_status: pending
     security_review: not_required
-    path: business-to-bpmn/ambiguity-detector/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
+    path: business-to-bpmn/decomposing-business-process/SKILL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
 
-  - skill_name: bpmn-compliance-validator
-    display_name: BPMN Compliance Validator
-    purpose: Validates BPMN 2.0 XML against schema rules and structural correctness constraints
+  - skill_name: validating-bpmn-compliance
+    display_name: Validating BPMN Compliance
+    purpose: Independently-triggerable validation skill that checks any BPMN 2.0 XML for structural compliance (namespaces, required elements, ID uniqueness) and logical consistency (no orphans, dead ends, deadlocks, gateway arity violations), with optional intent coverage evaluation against original requirements
     owner_team: bpmn
     version: "1.0.0"
     status: approved
@@ -497,234 +494,49 @@ skills:
       - claude-sonnet-4-6
     eval_status: pending
     security_review: not_required
-    path: business-to-bpmn/bpmn-compliance-validator/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-diagram-optimizer
-    display_name: BPMN Diagram Optimizer
-    purpose: Optimizes BPMN diagram layout and simplifies redundant flow paths
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-diagram-optimizer/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-element-mapper
-    display_name: BPMN Element Mapper
-    purpose: Maps extracted process entities to canonical BPMN 2.0 element types
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-element-mapper/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-model-assembler
-    display_name: BPMN Model Assembler
-    purpose: Assembles mapped BPMN elements into a coherent process model with correct flow connections
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-model-assembler/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-participant-organizer
-    display_name: BPMN Participant Organizer
-    purpose: Organizes process participants into BPMN lanes and pools based on role analysis
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-participant-organizer/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-task-classifier
-    display_name: BPMN Task Classifier
-    purpose: Classifies extracted process tasks into BPMN task subtypes (user, service, manual, etc.)
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-task-classifier/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-template-matcher
-    display_name: BPMN Template Matcher
-    purpose: Matches detected process patterns to canonical BPMN process templates
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L1
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-template-matcher/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: bpmn-xml-serializer
-    display_name: BPMN XML Serializer
-    purpose: Serializes the assembled BPMN model into valid BPMN 2.0 XML output
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L1
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/bpmn-xml-serializer/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: dependency-resolver
-    display_name: Dependency Resolver
-    purpose: Resolves ordering and dependency relationships between extracted process steps
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L1
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/dependency-resolver/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: entity-extractor
-    display_name: Entity Extractor
-    purpose: Extracts process entities (actors, systems, data objects, events) from business descriptions
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L1
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/entity-extractor/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: intent-coverage-evaluator
-    display_name: Intent Coverage Evaluator
-    purpose: Evaluates whether the generated BPMN model fully covers the original business intent
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/intent-coverage-evaluator/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: intent-parser
-    display_name: Intent Parser
-    purpose: Parses user intent from natural language business process descriptions into structured form
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L1
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/intent-parser/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: parallel-optimizer
-    display_name: Parallel Optimizer
-    purpose: Identifies sequential steps that can be parallelized and restructures them as parallel BPMN gateways
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/parallel-optimizer/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
-
-  - skill_name: process-decomposer
-    display_name: Process Decomposer
-    purpose: Decomposes complex business processes into manageable sub-processes and phases
-    owner_team: bpmn
-    version: "1.0.0"
-    status: approved
-    risk_level: L2
-    dependencies: []
-    bundle_scope: bpmn-agent
-    supported_models:
-      - claude-sonnet-4-6
-    eval_status: pending
-    security_review: not_required
-    path: business-to-bpmn/process-decomposer/SKILL.md
-    created_at: "2025-01-01"
-    last_reviewed: "2025-01-01"
+    path: business-to-bpmn/validating-bpmn-compliance/SKILL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
 
   # ─────────────────────────────────────────────
   # Platform Meta-Skills — owner: platform team
   # ─────────────────────────────────────────────
+
+  - skill_name: capability-planning
+    display_name: Capability Planning
+    purpose: Phase 0 meta-skill that decomposes a broad requirement into atomic capabilities, classifies each as skill/tool/workflow_step, runs self-critique to prevent skill explosion, and produces a structured capability_plan.json before any skill generation begins
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: capability-planning/SKILL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
+
+  - skill_name: guiding-tool-authoring
+    display_name: Guiding Tool Authoring
+    purpose: Meta-skill that guides authors through defining, validating, and registering atomic MCP Tool specs — the Tool Generator parallel to guiding-skill-authoring, used when capability-planning classifies a capability as type tool
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L1
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: guiding-tool-authoring/SKILL.md
+    created_at: "2026-03-17"
+    last_reviewed: "2026-03-17"
 
   - skill_name: guiding-skill-authoring
     display_name: Guiding Skill Authoring

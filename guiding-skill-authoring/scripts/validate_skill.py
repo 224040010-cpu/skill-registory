@@ -45,6 +45,24 @@ REGISTERED_MCP_SERVERS = {
         "send_feishu_message", "send_sms", "send_in_app_notification",
     ],
     "verify-gate-mcp": ["request_approval"],
+    # bpmn-tools: registered 2026-03-17 — see tool-registry.yaml + mcp-tool-catalog.md
+    "bpmn-tools": [
+        "parse_business_intent",
+        "extract_process_entities",
+        "detect_description_ambiguity",
+        "match_bpmn_template",
+        "decompose_process_steps",
+        "resolve_step_dependencies",
+        "identify_parallel_steps",
+        "map_steps_to_bpmn_elements",
+        "classify_bpmn_task_types",
+        "assign_bpmn_participants",
+        "assemble_bpmn_model",
+        "serialize_bpmn_xml",
+        "optimize_bpmn_layout",
+        "validate_bpmn_structural",
+        "evaluate_intent_coverage",
+    ],
 }
 
 CONTROL_TOOLS = {
@@ -57,6 +75,7 @@ VALID_RISK_LEVELS = {"L1", "L2", "L3", "L4"}
 
 VALID_AGENTS = {
     "diagnosis-agent", "customer-agent", "ops-agent", "energy-agent",
+    "bpmn-agent", "platform",
 }
 
 MARKDOWN_PATTERNS = [

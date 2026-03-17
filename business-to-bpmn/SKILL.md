@@ -1,92 +1,180 @@
 ---
-name: business-to-bpmn
+name: converting-business-to-bpmn
+bundle_scope: bpmn-agent
+risk_level: L2
 description: |
   将用户自然语言业务描述直接转化为符合 BPMN 2.0 标准的工作流 XML（含泳道、消息流、自动布局与视觉美化），可在 bpmn.io 或 Camunda 中直接打开。
   Use when the user describes a business scenario and wants a BPMN workflow — including phrases like "生成BPMN", "业务转工作流", "设计流程", "把需求转成BPMN", "审批流程", "自动化流程", "SOP转BPMN", "生成.bpmn文件", or requests that describe business scenarios to convert business descriptions into BPMN 2.0 XML. Also trigger on "帮我画个流程", "工作流标准化", "业务流程建模", "流程自动化", "我有个业务场景想变成工作流", even without explicitly mentioning "BPMN".
-bundle_scope: bpmn-agent
-risk_level: L2
+  Do NOT use when the user only wants a process breakdown without BPMN XML — use decomposing-business-process instead.
+  Do NOT use when the user wants to validate an existing BPMN file — use validating-bpmn-compliance instead.
 ---
 
 # Purpose
 
-本 Skill 负责**编排**「业务描述 → BPMN 2.0 工作流」全链路流水线：按 5 层分层策略调用 15 个原子 skill，从自然语言直达可执行 BPMN XML，无需中间格式转换。
+End-to-end orchestration skill: takes a natural language business description
+and produces a complete `.bpmn` file. Internally orchestrates 13 atomic tools
+across 5 pipeline layers.
+
+**This skill is the entry point.** Two related skills exist for specific subtasks:
+- `decomposing-business-process` — for process planning only (no XML output)
+- `validating-bpmn-compliance` — for validating any BPMN file
+
+---
 
 # Trigger
 
 **Use this Skill when:**
-- 用户提供业务场景描述，期望得到 BPMN 标准工作流
-- 用户要求将业务规则、SOP、审批流程转为 BPMN 2.0 XML
-- 用户提到「从需求生成 BPMN」「业务流程建模」「生成 .bpmn 文件」等
+- User provides business scenario description and wants a BPMN workflow file
+- User asks for "生成BPMN", "业务转工作流", "SOP转BPMN", "生成.bpmn文件"
+- User describes a business process: approvals, alerts, data sync, order processing
 
 **Do NOT use this Skill when:**
-- 用户已有 Mermaid 流程图想转 BPMN（应使用 flowchart-to-bpmn）
-- 用户只想生成 JSON/YAML 工作流定义，不需要 BPMN 格式（应使用 workflow-from-business）
-- 用户要修改或调试已有 .bpmn 文件
+- User already has a Mermaid flowchart to convert to BPMN (different domain)
+- User only wants a JSON/YAML workflow definition without BPMN format
+- User wants to edit or debug an existing `.bpmn` file
+- User only wants the process steps without the BPMN XML → use `decomposing-business-process`
+
+---
 
 # Architecture
 
-5 层 15 技能流水线，直达 BPMN 2.0 输出：
+5 pipeline layers, 13 tools:
 
 ```
-用户业务描述
-    ↓
-[Layer 1: 理解层]  intent-parser → entity-extractor → ambiguity-detector
-    ↓                                    ↑ (有歧义则返回用户澄清后重跑)
-[Layer 2: 规划层]  bpmn-template-matcher → process-decomposer → dependency-resolver → parallel-optimizer
-    ↓               ↓ (命中模板则跳过 decomposer/resolver/optimizer)
-[Layer 3: BPMN建模层]  bpmn-element-mapper → bpmn-task-classifier → bpmn-model-assembler → bpmn-participant-organizer
-    ↓
-[Layer 4: BPMN渲染层]  bpmn-xml-serializer → bpmn-diagram-optimizer
-    ↓
-[Layer 5: 验证层]  bpmn-compliance-validator → intent-coverage-evaluator
-    ↓                    ↑ (不通过则回到对应层修正)
-输出 .bpmn 文件
+User Business Description
+    │
+[Layer 1: 理解层]
+    ├── T-01 parse-business-intent
+    ├── T-02 extract-process-entities
+    └── T-03 detect-description-ambiguity ──► clarify if needed, re-run layer
+    │
+[Layer 2: 规划层]
+    ├── T-04 match-bpmn-template
+    └── if no template: T-05 decompose-process-steps
+                      → T-06 resolve-step-dependencies
+                      → T-07 identify-parallel-steps
+    │
+[Layer 3: BPMN建模层]
+    ├── T-08 map-steps-to-bpmn-elements
+    ├── T-09 classify-bpmn-task-types
+    ├── T-11 assign-bpmn-participants
+    └── T-10 assemble-bpmn-model
+    │
+[Layer 4: BPMN渲染层]
+    ├── T-12 serialize-bpmn-xml
+    └── T-13 optimize-bpmn-layout
+    │
+[Layer 5: 验证层]
+    └── validating-bpmn-compliance (skill) ──► if errors: fix and re-run
+    │
+Output: .bpmn file
 ```
+
+---
 
 # Workflow
 
-- [ ] Step 1：**理解层** — 依次调用 intent-parser → entity-extractor → ambiguity-detector；若返回澄清问题则呈现给用户，等待回复后重跑理解层
-- [ ] Step 2：**规划层** — 调用 bpmn-template-matcher；若命中高相似度模板（≥0.8）则以模板为基础进入 Step 3，否则依次调用 process-decomposer → dependency-resolver → parallel-optimizer
-- [ ] Step 3：**BPMN建模层** — 调用 bpmn-element-mapper 将步骤映射为 BPMN 元素，再调用 bpmn-task-classifier 确定任务子类型，然后 bpmn-model-assembler 组装流程模型，最后 bpmn-participant-organizer 分配泳道与池
-- [ ] Step 4：**BPMN渲染层** — 调用 bpmn-xml-serializer 序列化为 BPMN 2.0 XML，再调用 bpmn-diagram-optimizer 执行自动布局、视觉美化和标签优化
-- [ ] Step 5：**验证层** — 调用 bpmn-compliance-validator 做结构与逻辑校验，调用 intent-coverage-evaluator 评估意图覆盖度；若有严重错误或覆盖度 < 0.7 则回到对应层修正后重跑后续步骤
-- [ ] Step 6：**输出** — 将最终 .bpmn 文件写入指定目录，附验证摘要
+[ ] Step 1: **理解层** — Parse intent, extract entities, check ambiguity
+    - Call `bpmn-tools:parse_business_intent(user_description)` → intent
+    - Call `bpmn-tools:extract_process_entities(user_description, intent)` → entities
+    - Call `bpmn-tools:detect_description_ambiguity(intent, entities)` → ambiguity check
+    - If `has_ambiguity: true`: present clarification questions to user, wait for response,
+      then re-run Step 1 with updated description
+    - If `has_ambiguity: false`: proceed to Step 2
+    - Error path: if parse fails (empty/non-business description) → return
+      "无法识别业务描述，请提供更具体的流程说明"
 
-# Key Design Decisions
+[ ] Step 2: **规划层** — Choose template shortcut or decompose from scratch
+    - Call `bpmn-tools:match_bpmn_template(intent)` → template match result
+    - If `best_match.similarity_score ≥ 0.8`:
+      - Use template step structure as the starting steps → skip Steps 2b–2d
+    - If no match (`best_match: null` or score < 0.5):
+      - Call `bpmn-tools:decompose_process_steps(goal, entities)` → steps
+      - Call `bpmn-tools:resolve_step_dependencies(steps)` → dag
+      - Call `bpmn-tools:identify_parallel_steps(steps, dag)` → annotated steps
 
-**为什么不复用 workflow-from-business + flowchart-to-bpmn？**
-- 两组串联需 27 个 skill（13 + 14），中间经过 JSON/Mermaid 格式转换，信息损失大
-- 规划层不感知 BPMN 语义（如网关类型、事件类型），导致后期大量修正
-- 本 skill 组让规划层直接产出 BPMN-aware 的步骤定义，减少从 15 个 skill 一步到位
+[ ] Step 3: **BPMN建模层** — Map, classify, assign, assemble
+    - Call `bpmn-tools:map_steps_to_bpmn_elements(steps, dag)` → element_map
+    - Call `bpmn-tools:classify_bpmn_task_types(element_map, steps)` → classified_elements
+    - Call `bpmn-tools:assign_bpmn_participants(classified_elements, entities)` → participants, lanes
+    - Call `bpmn-tools:assemble_bpmn_model(classified_elements, participants, lanes, message_flows)`
+      → process_model
+    - Error path: if element_map is empty → return "步骤列表为空，无法建模，请重新描述业务流程"
 
-**为什么合并渲染子步骤？**
-- 原 flowchart-to-bpmn 将布局、样式、标签分为 3 个独立 skill，实际运行中三者高度耦合
-- 合并为 bpmn-diagram-optimizer 单一 skill，减少层间传递开销，同时保持内部分步处理
+[ ] Step 4: **BPMN渲染层** — Serialize and optimize
+    - Call `bpmn-tools:serialize_bpmn_xml(process_model, participants, lanes, message_flows)`
+      → raw_bpmn_xml
+    - Call `bpmn-tools:optimize_bpmn_layout(raw_bpmn_xml)` → optimized_bpmn_xml
+    - Error path: if serialization fails (invalid model structure) → log error and return
+      raw_bpmn_xml without layout optimization
 
-# References
+[ ] Step 5: **验证层** — Validate compliance and intent coverage
+    - Call `bpmn-tools:validate_bpmn_structural(optimized_bpmn_xml)` → structural_report
+    - Call `bpmn-tools:evaluate_intent_coverage(optimized_bpmn_xml, intent, entities)`
+      → coverage_report
+    - If structural_report has severity `error`:
+      - Identify error layer (structural → re-run Step 4; logical → re-run Step 3)
+      - Retry maximum 2 times; if still failing return bpmn_xml with error report appended
+    - If `coverage_report.coverage_score < 0.7`:
+      - Add missing_items as additional steps, re-run Steps 3–4–5 once
+    - If validation passes: write `.bpmn` file to output directory
 
-- 能力概述与编排策略：See `references/overview.md`
-- 各原子 skill 输入输出与职责：See `references/api-reference.md`
-- 异常处理与常见问题：See `references/troubleshooting.md`
+[ ] Step 6: **Output** — Deliver result to user
+    - Write `<process_name>.bpmn` to the requested output path (default: current directory)
+    - Present summary:
+      - Total elements (tasks, gateways, events)
+      - Lanes and participants
+      - Validation: passed / N warnings
+      - Intent coverage score
+    - If any warnings remain: list them for the user's awareness
+
+---
 
 # Examples
 
 **Example 1 — 充电桩告警处理流程:**
-Input: "设计一个充电桩告警诊断与自恢复流程：设备端检测到异常后上报告警，云端Agent分析告警类型，低风险的自动执行恢复命令，高风险的转人工确认后再执行，执行后验证恢复结果并生成报告"
-Output: charging-alarm.bpmn，含 startEvent（告警触发）、serviceTask（告警分析）、exclusiveGateway（风险级别判断）、userTask（人工确认）、serviceTask（执行恢复）、serviceTask（结果验证）、endEvent，2 个泳道（设备端/云端Agent），消息流连接
+
+Input:
+> 设计一个充电桩告警诊断与自恢复流程：设备端检测到异常后上报告警，云端Agent分析告警类型，低风险的自动执行恢复命令，高风险的转人工确认后再执行，执行后验证恢复结果并生成报告
+
+Output: `charging-alarm.bpmn`
+- 10 elements: startEvent, 5× serviceTask, userTask, exclusiveGateway, endEvent
+- 2 lanes: 设备端, 云端Agent
+- Validation: passed
 
 **Example 2 — 工单审批流程:**
-Input: "员工提交工单，主管审批，不通过则退回修改，通过后系统自动分配工程师"
-Output: work-order.bpmn，含 startEvent、userTask（提交工单）、userTask（主管审批）、exclusiveGateway（通过/不通过）、serviceTask（自动分配）、endEvent，回环路径（退回→重新提交）
+
+Input:
+> 员工提交工单，主管审批，不通过则退回修改，通过后系统自动分配工程师
+
+Output: `work-order.bpmn`
+- 7 elements: startEvent, 2× userTask, exclusiveGateway, serviceTask, endEvent
+- Loop-back path: 退回→重新提交
+- Validation: passed
+
+---
 
 # Constraints
 
-- 理解层必须先完成再进入规划层，因为实体和意图是 BPMN 元素映射的基础，跳过会导致泳道分配错误、任务类型误判
-- 每个原子 skill 专注自身职责，skill 间通过结构化数据传递，不直接调用其他 skill
-- 引用深度仅一层（本 SKILL.md → references/*.md），避免上下文膨胀
+- Layer 1 must complete before Layer 2 — intent and entities are required by all downstream tools
+- Ambiguity must be resolved before planning — never skip the T-03 ambiguity check
+- Maximum 2 retry attempts on validation failure — if still failing after 2 retries, return the partial BPMN with the full error report appended
+- All tool calls use `bpmn-tools:` server prefix — do NOT invent tool names outside `tools/tool-catalog.md`
+- Output is a `.bpmn` file (BPMN 2.0 XML) — never deliver raw JSON or YAML as the primary output
+- This skill is WRITE-ONLY for `.bpmn` files — it does not modify any registry, database, or platform state
+- Output path defaults to current working directory if not specified by user
+- NEVER invoke `decomposing-business-process` or `validating-bpmn-compliance` skills as sub-skills — call their underlying tools directly (`bpmn-tools:validate_bpmn_structural`, etc.)
 
-# Dependencies
+**Required output fields:**
+- File path of the generated `.bpmn` file
+- Summary: element count, lane count, validation status, coverage score
 
-Environment: Cursor IDE (filesystem access required)
-Required packages: None (pure XML generation)
-MCP servers required: None
+---
+
+# References
+
+- Tool catalog: `tools/tool-catalog.md` — all 13 tool definitions and I/O schemas
+- Process planning only: `decomposing-business-process/SKILL.md`
+- BPMN validation: `validating-bpmn-compliance/SKILL.md`
+- Bundle overview: `references/overview.md`
+- Error handling guide: `references/troubleshooting.md`

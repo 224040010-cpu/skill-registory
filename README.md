@@ -1,6 +1,6 @@
-# Skill Registry — 五阶段闭环治理体系
+# Skill & Tool Registry — 双轨能力治理体系
 
-> **Skill 从"能写出来"到"能稳定进入平台并长期可治理"的完整机制**
+> **能力从"业务需求"到"可稳定调用的平台资产"的完整规划、生成、校验与治理机制**
 
 ---
 
@@ -8,12 +8,15 @@
 
 - [体系概览](#体系概览)
 - [仓库结构](#仓库结构)
-- [五阶段详解](#五阶段详解)
-  - [Phase 1 生成](#phase-1--生成)
-  - [Phase 2 本地校验](#phase-2--本地校验-authoring-gate)
+- [七阶段详解](#七阶段详解)
+  - [Phase 0 能力规划](#phase-0--能力规划capability-planning)
+  - [Phase 1S Skill 生成](#phase-1s--skill-生成)
+  - [Phase 1T Tool 生成](#phase-1t--tool-生成)
+  - [Phase 2 本地校验](#phase-2--本地校验authoring-gate)
   - [Phase 3 Registry 注册](#phase-3--registry-注册)
-  - [Phase 4 准入门禁](#phase-4--准入门禁-admission-gate)
+  - [Phase 4 准入门禁](#phase-4--准入门禁admission-gate)
   - [Phase 5 持续治理](#phase-5--持续治理)
+- [两类资产的本质区别](#两类资产的本质区别)
 - [两类 Gate 的本质区别](#两类-gate-的本质区别)
 - [工作流操作手册](#工作流操作手册)
   - [提交者：上传新 Bundle](#提交者上传新-bundle)
@@ -28,29 +31,56 @@
 ## 体系概览
 
 ```
-Phase 1  生成          Phase 2  本地校验       Phase 3  Registry 注册
-  │                       │                       │
-  │ guiding-skill-         │ validate_skill.py     │ skill-registry.yaml
-  │ authoring              │ (7维度评分)            │ (status: draft)
-  │                       │                       │
-  ▼                       ▼                       ▼
-Phase 4  准入门禁      Phase 5  持续治理
-  │                       │
-  │ admission_gate.py     │ governance_audit.py
-  │ (5项检查)              │ (4类巡检)
-  │                       │
-  ▼                       ▼
-status: approved      daily/weekly report
-                      manual_review_queue.json
+                    ┌─────────────────────┐
+                    │   Phase 0           │
+                    │ capability-planning │
+                    │ (decompose+classify) │
+                    │ → capability_plan   │
+                    └──────────┬──────────┘
+                               │
+               ┌───────────────┼───────────────┐
+               ↓ type=skill                    ↓ type=tool
+   ┌───────────────────────┐       ┌────────────────────────┐
+   │  Phase 1S             │       │  Phase 1T              │
+   │ guiding-skill-        │       │ guiding-tool-          │
+   │ authoring             │       │ authoring              │
+   │ → SKILL.md            │       │ → TOOL.md              │
+   └──────────┬────────────┘       └───────────┬────────────┘
+              │                                │
+   ┌──────────▼────────────┐       ┌───────────▼────────────┐
+   │  Phase 2S             │       │  Phase 2T              │
+   │ validate_skill.py     │       │ validate_tool.py       │
+   │ (7维度 / 70分)         │       │ (5维度 / 50分)          │
+   └──────────┬────────────┘       └───────────┬────────────┘
+              │                                │
+   ┌──────────▼────────────┐       ┌───────────▼────────────┐
+   │  Phase 3              │       │  Phase 3T              │
+   │ skill-registry.yaml   │       │ tool-registry.yaml     │
+   │ (status: draft)       │       │ + mcp-tool-catalog     │
+   └──────────┬────────────┘       └────────────────────────┘
+              │
+   ┌──────────▼────────────┐
+   │  Phase 4              │
+   │ admission_gate.py     │
+   │ (5项准入检查)           │
+   └──────────┬────────────┘
+              │
+   ┌──────────▼────────────┐
+   │  Phase 5              │
+   │ governance_audit.py   │
+   │ (4类持续巡检)           │
+   └───────────────────────┘
 ```
 
-**三个核心问题**
+**五个核心问题**
 
 | 问题 | 解决阶段 |
 |------|---------|
-| Skill 写出来但结构不完整、边界不清、描述不可路由 | Phase 1 + Phase 2 |
-| Skill 写得像样但不适合进入平台 | Phase 4 |
-| Skill 进入仓库后会漂移、重复、过期、失效 | Phase 5 |
+| 一个业务需求被过度拆分成大量碎片化 Skill | **Phase 0** |
+| 什么该是 Skill，什么该是 Tool，什么该是 Workflow | **Phase 0** |
+| Skill 写出来但结构不完整、边界不清、描述不可路由 | Phase 1S + Phase 2S |
+| Tool 没有明确接口定义、风险未声明、无法被工程实现 | Phase 1T + Phase 2T |
+| Skill/Tool 进入仓库后会漂移、重复、过期、失效 | Phase 4 + Phase 5 |
 
 ---
 
@@ -59,20 +89,35 @@ status: approved      daily/weekly report
 ```
 skill-registry/
 │
-├── skill-registry.yaml              # Phase 3: 中央注册表（41 个 Skill）
+├── skill-registry.yaml              # Skill 中央注册表（30 个 Skill）
+├── tool-registry.yaml               # Tool 中央注册表（15 个 Tool）✦ NEW
 ├── skill-intake.ps1                 # 管理员准入工作流脚本
 │
-├── guiding-skill-authoring/         # Phase 1: 生成指导 meta-skill
+├── capability-planning/             # Phase 0: 能力规划 meta-skill
+│   ├── SKILL.md
+│   ├── evals/evals.json
+│   └── references/
+│       ├── classification-guide.md  # skill/tool/workflow_step 判定示例
+│       └── anti-patterns.md         # 6类常见碎片化反模式
+│
+├── guiding-skill-authoring/         # Phase 1S: Skill 生成指导 meta-skill
 │   ├── SKILL.md
 │   ├── scripts/
-│   │   └── validate_skill.py        # Phase 2: 7维度评分校验器
-│   ├── references/
-│   │   ├── validation-rubric.md
-│   │   ├── mcp-tool-catalog.md
-│   │   ├── naming-guide.md
-│   │   └── platform-constraints.md
-│   └── assets/
-│       └── skill-template.md
+│   │   └── validate_skill.py        # Phase 2S: 7维度评分校验器
+│   └── references/
+│       ├── validation-rubric.md
+│       ├── mcp-tool-catalog.md      # 注册 MCP 服务端（含 bpmn-tools）
+│       ├── naming-guide.md
+│       └── platform-constraints.md
+│
+├── guiding-tool-authoring/          # Phase 1T: Tool 生成指导 meta-skill ✦ NEW
+│   ├── SKILL.md
+│   ├── scripts/
+│   │   └── validate_tool.py         # Phase 2T: 5维度工具规格校验器
+│   ├── assets/
+│   │   └── tool-template.md         # TOOL.md 可填写模板
+│   └── references/
+│       └── tool-governance.md       # 风险矩阵、命名规范、Admission规则
 │
 ├── skill-admission-review/          # Phase 4: 准入门禁 meta-skill
 │   ├── SKILL.md
@@ -89,9 +134,9 @@ skill-registry/
 │       └── governance-policy.md
 │
 ├── scripts/                         # 批量工具
-│   ├── batch_admission.py           # 批量运行准入检查
-│   ├── batch_fix_frontmatter.py     # 批量修复 frontmatter 字段
-│   └── fix_risk_levels.py           # 批量升级 risk_level
+│   ├── batch_admission.py
+│   ├── batch_fix_frontmatter.py
+│   └── fix_risk_levels.py
 │
 ├── reports/                         # 自动生成的报告
 │   ├── admission_<bundle>.txt
@@ -99,29 +144,86 @@ skill-registry/
 │   └── manual_review_queue.json
 │
 ├── ev-charger-skills/               # 已入库 Bundle（24 个 Skill）
-└── business-to-bpmn/                # 已入库 Bundle（16 个 Skill）
+└── business-to-bpmn/                # 已入库 Bundle（3 个 Skill + 15 个 Tool）✦ 重构
+    ├── SKILL.md                     # converting-business-to-bpmn（主编排 Skill）
+    ├── decomposing-business-process/SKILL.md  # 可独立触发的流程规划 Skill
+    ├── validating-bpmn-compliance/SKILL.md    # 可独立触发的 BPMN 校验 Skill
+    ├── capability_plan.json         # 重构依据（能力规划产出物）
+    ├── tools/
+    │   ├── tool-catalog.md          # 15 个工具规格文档
+    │   ├── parse-business-intent/TOOL.md
+    │   └── validate-bpmn-structural/TOOL.md
+    └── references/
 ```
 
 **Git 分支结构**
 
 ```
-master                          ← 平台基础设施 + 已入库 Skill
+master                          ← 平台基础设施 + 已入库资产
 incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orphan branch）
 ```
 
 ---
 
-## 五阶段详解
+## 七阶段详解
 
-### Phase 1 · 生成
+### Phase 0 · 能力规划（Capability Planning）
 
-**目标**：把"业务想法"转成"结构化 Skill 草稿"
+**目标**：在生成任何 Skill 或 Tool 之前，先将业务需求拆解为原子能力单元，判定每个单元的形态，防止碎片化和架构污染。
 
-**执行者**：`guiding-skill-authoring/SKILL.md`（meta-skill，由 AI Agent 调用）
+**执行者**：`capability-planning/SKILL.md`（meta-skill）
+
+**判定决策树**
+
+```
+能否被用户独立触发？
+├── 否 → workflow_step（放在 Agent 编排层，不生成任何资产）
+└── 是 → 是否需要多步推理/条件分支？
+          ├── 否 → TOOL ──► Phase 1T（guiding-tool-authoring）
+          └── 是 → 是否跨场景可复用？
+                    ├── 否 → workflow_step
+                    └── 是 → SKILL ──► Phase 1S（guiding-skill-authoring）
+```
+
+**Self-Critique 五项防碎片化检查**
+
+| 检查 | 触发条件 | 动作 |
+|------|---------|------|
+| A — Tool 伪装成 Skill | skill 只有 ≤1 步且无错误处理 | 降级为 tool |
+| B — 过度拆分 | 两个 skill 描述重叠 >70% | 合并 |
+| C — 触发依赖 | skill 只能由另一 skill 触发 | 降级为 workflow_step |
+| D — Agent 边界越界 | skill 涉及多个 bundle_scope | 按 agent 拆分 |
+| E — 数量爆炸 | skill 总数 >7 | 重新审视分类 |
+
+**产出**：`capability_plan.json`
+
+```json
+{
+  "summary": { "skills": 2, "tools": 5, "workflow_steps": 3 },
+  "capabilities": [
+    { "id": "cap-01", "final_type": "skill", "name": "converting-business-to-bpmn" },
+    { "id": "cap-04", "final_type": "tool",  "name": "parse-business-intent" }
+  ],
+  "next_actions": [
+    { "capability_id": "cap-01", "action": "Start guiding-skill-authoring" },
+    { "capability_id": "cap-04", "action": "Start guiding-tool-authoring" }
+  ]
+}
+```
+
+**真实案例**：`business-to-bpmn` bundle 经 Phase 0 规划后，从 16 个"Skill"重构为 **3 个真正的 Skill + 13 个 MCP Tool**，消除了 13 个流水线步骤被错误注册为 Skill 的问题。
+
+> **这一层回答**："要写几个 Skill，几个 Tool，哪些根本不该是任何资产"
+
+---
+
+### Phase 1S · Skill 生成
+
+**目标**：把一个已确认为 skill 类型的能力，转成结构化 SKILL.md 草稿
+
+**执行者**：`guiding-skill-authoring/SKILL.md`（meta-skill）
 
 **8 问意图采集**
-
-在生成草稿前，先通过结构化问卷确认：
 
 1. 这个 Skill 解决什么业务问题？
 2. 触发场景是什么？（用户说什么时调用）
@@ -132,21 +234,72 @@ incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orp
 7. 需要哪些输入参数？
 8. 输出什么？
 
-**产出**
-
-- 一份完整的 `SKILL.md` 草稿（含 frontmatter + 四节 body）
-- 职责范围确认句
-- 初步 `risk_level` 和 `bundle_scope`
-- `skill-registry.yaml` stanza 草稿
+**产出**：`SKILL.md`（含 frontmatter + Purpose / Trigger / Workflow / Constraints 四节）
 
 > **这一层只回答**："这个 Skill 能不能被写出来、怎么写出来"
-> **不回答**："它该不该进平台"
+
+---
+
+### Phase 1T · Tool 生成
+
+**目标**：把一个已确认为 tool 类型的能力，转成完整的 TOOL.md 规格文档
+
+**执行者**：`guiding-tool-authoring/SKILL.md`（meta-skill）
+
+**前置拒绝测试**（任一命中则拒绝进入此阶段）
+
+```
+[ ] 能力需要多步推理或条件分支          → SKILL，不是 Tool
+[ ] 能力有自然语言用户触发              → SKILL，不是 Tool
+[ ] 能力编排其他工具或 Skill            → SKILL 或 Workflow
+[ ] 能力输出依赖跨轮对话上下文          → SKILL，不是 Tool
+```
+
+**Tool 风险等级**
+
+| Level | side_effects | 典型场景 |
+|---|---|---|
+| L0 | none | 纯计算：序列化、格式转换、图算法 |
+| L1 | read | 读数据库、索引检索、状态查询 |
+| L2 | read | LLM 推理、复杂分析（非确定性） |
+| L3 | write | 创建/更新记录、发送通知 |
+| L4 | external | 设备命令、支付、OTA 推送 |
+
+**产出**：`TOOL.md`（纯 YAML 接口规格，含 input_schema / output_schema / errors / risk / usage）
+
+```yaml
+tool_name: parse-business-intent
+category: parsing
+risk:
+  level: L1
+  side_effects: read
+  idempotent: true
+input_schema:
+  type: object
+  required: [user_description]
+  properties:
+    user_description: { type: string, description: "..." }
+output_schema:
+  type: object
+  properties:
+    business_type: { type: string, ... }
+    goal: { type: string, ... }
+errors:
+  - code: INVALID_INPUT
+    message: "..."
+    retryable: false
+  - code: EXECUTION_FAILED
+    message: "..."
+    retryable: true
+```
+
+> **这一层回答**："这个 Tool 的接口是什么、风险是什么、谁来实现"
 
 ---
 
 ### Phase 2 · 本地校验（Authoring Gate）
 
-**目标**：在提交前挡住结构性错误
+#### Phase 2S — Skill 校验
 
 **执行者**：`guiding-skill-authoring/scripts/validate_skill.py`
 
@@ -156,88 +309,84 @@ incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orp
 |---|------|------|-----------|
 | 1 | Trigger Clarity | 10 | 第三人称、`Use when`、`Do NOT use when`、模糊词惩罚 |
 | 2 | Workflow Executability | 10 | `[ ] Step N:` 格式、`server:tool_name()` 调用、异常分支 |
-| 3 | MCP Tool Compliance | 10 | 工具引用注册验证、L4 需有 Verify Gate |
-| 4 | Input/Output Contract | 10 | 明确输入参数、输出定义、TTS 约束（若声明 voice 平台） |
+| 3 | MCP Tool Compliance | 10 | 工具引用注册验证（对照 mcp-tool-catalog.md）、L4 需 Verify Gate |
+| 4 | Input/Output Contract | 10 | 明确输入参数、输出定义、TTS 约束（若 voice 平台） |
 | 5 | Constraints & Safety | 10 | `# Constraints` 节、NEVER 声明、作用域声明、必填输出字段 |
 | 6 | Single Responsibility | 10 | 无连词过载、无跨 Skill 调用、无混合输出类型 |
 | 7 | Testability | 10 | 输入输出示例、边界案例、`evals/evals.json` |
 
-**判定标准**
-
-```
-≥ 60 / 70  → PASS（可提交）
-≥ 45 / 70  → PASS_WITH_REQUIRED_FIXES（有条件通过，须修复 blocking issues）
-< 45 / 70  → FAIL（打回修改）
-有任何 blocking issue → 不得提交
-```
-
-**使用方法**
+**判定标准**：≥ 60 PASS / ≥ 45 CONDITIONAL / < 45 FAIL
 
 ```bash
-# 标准输出（人类可读）
 python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md
-
-# JSON 输出（用于自动化）
 python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md --json
 ```
 
-**JSON 输出格式**
+#### Phase 2T — Tool 校验
 
-```json
-{
-  "skill_name": "diagnosing-charger-faults",
-  "score": 61,
-  "result": "PASS",
-  "blocking_issues": [],
-  "warnings": ["Add an error or edge case example"],
-  "suggestions": ["[Meta-skill] Dim 3 exempt..."]
-}
+**执行者**：`guiding-tool-authoring/scripts/validate_tool.py`
+
+**5 个评分维度（满分 50）**
+
+| # | 维度 | 满分 | 核心检查项 |
+|---|------|------|-----------|
+| 1 | Naming & Description | 10 | kebab-case + verb-noun 命名、描述非模糊、≤120字符 |
+| 2 | Schema Integrity | 10 | 所有 input/output 字段有 type + description、无 `type: any` |
+| 3 | Risk & Safety | 10 | risk_level 与 side_effects 一致性（矩阵校验）、L3/L4 需 requires_approval |
+| 4 | Error Contract | 10 | ≥2 错误码、UPPER_SNAKE_CASE、retryable 标注、含 input + system 两类错误 |
+| 5 | Atomicity & Reusability | 10 | 非流程编排、implementation.endpoint 已声明、called_by_skills 非空 |
+
+**判定标准**：≥ 45 PASS / ≥ 40 CONDITIONAL / < 40 FAIL
+
+```bash
+python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md
+python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md --json
 ```
-
-> **这一层是创作质量门**：检查 Skill 写得对不对，不判断该不该进平台。
 
 ---
 
 ### Phase 3 · Registry 注册
 
-**目标**：让 Skill 进入统一管理系统，而不是散落在仓库里
-
-**文件**：`skill-registry.yaml`
-
-**必填字段**
+#### Skill Registry（skill-registry.yaml）
 
 ```yaml
-- skill_name: diagnosing-charger-faults     # 与目录名和 SKILL.md name 一致
-  display_name: "Diagnosing Charger Faults"
+- skill_name: converting-business-to-bpmn
+  display_name: Converting Business to BPMN
   purpose: "一句话描述，用于路由匹配"
-  owner_team: ev-charger
-  version: "1.0.0"
-  status: draft                              # 初始状态
-  risk_level: L2                             # L1-L4
-  dependencies: []                           # 依赖的其他 Skill
-  bundle_scope: diagnosis-agent              # 所属 Agent
-  supported_models:
-    - claude-sonnet-4-6
-  eval_status: pending                       # pending | passing | failing
-  security_review: not_required              # L4 必须为 pending 或 approved
-  path: ev-charger-skills/diagnosing-charger-faults/SKILL.md
+  owner_team: bpmn
+  version: "2.0.0"
+  status: draft           # 初始状态
+  risk_level: L2
+  bundle_scope: bpmn-agent
+  supported_models: [claude-sonnet-4-6]
+  eval_status: pending
+  path: business-to-bpmn/SKILL.md
   created_at: "2026-03-17"
   last_reviewed: "2026-03-17"
 ```
 
-**状态生命周期**
+Skill 状态生命周期：`draft → submitted → approved → deprecated → retired`
 
+#### Tool Registry（tool-registry.yaml）
+
+```yaml
+- tool_name: parse-business-intent
+  category: parsing
+  risk_level: L1
+  side_effects: read
+  idempotent: true
+  owner_team: bpmn
+  service: bpmn-tools        # MCP 服务名
+  status: approved
+  path: business-to-bpmn/tools/parse-business-intent/TOOL.md
+  called_by_skills:
+    - converting-business-to-bpmn
+    - decomposing-business-process
 ```
-draft → submitted → approved
-                 → restricted
-                 → needs_revision
-approved → deprecated → retired
-```
 
-**注册时机**
+Tool 状态生命周期：`draft → submitted → approved → deprecated → retired`
 
-建议通过 Authoring Gate 后以 `draft` 状态先入 Registry，再走 Admission Gate。
-**不要等批准后才登记**——否则会失去统一跟踪能力。
+**注册时机**：通过 Authoring Gate 后以 `draft` 状态先入 Registry，再走 Admission Gate。
 
 > **这一层是资产登记，不是上线批准。**
 
@@ -245,7 +394,7 @@ approved → deprecated → retired
 
 ### Phase 4 · 准入门禁（Admission Gate）
 
-**目标**：从平台视角判断"这个 Skill 该不该正式进入平台"
+**目标**：从平台视角判断"这个 Skill 该不该正式进入平台"（仅适用于 Skill）
 
 **执行者**：`skill-admission-review/scripts/admission_gate.py`
 
@@ -254,47 +403,23 @@ approved → deprecated → retired
 | # | 检查项 | 关键判定 |
 |---|--------|---------|
 | 1 | **全局冲突检查** | 同名 → REJECT；编辑距离 ≤2 → WARNING；Jaccard 相似度 >0.65 → REQUIRES_REVIEW |
-| 2 | **Agent 边界检查** | `bundle_scope` 缺失/无效 → REJECT；跨 Agent 词汇污染 → REQUIRES_REVIEW/WARNING |
-| 3 | **风险等级检查** | Workflow 节中含设备控制词但非 L4 → REJECT；L1 含写操作词 → REQUIRES_REVIEW |
+| 2 | **Agent 边界检查** | `bundle_scope` 缺失/无效 → REJECT；跨 Agent 词汇污染 → REQUIRES_REVIEW |
+| 3 | **风险等级检查** | 设备控制词但非 L4 → REJECT；L1 含写操作词 → REQUIRES_REVIEW |
 | 4 | **路由治理检查** | 描述过短/无触发子句/含模糊词 → WARNING；描述过宽泛 → REQUIRES_REVIEW |
-| 5 | **形态合理性检查** | 调用其他 Skill → REJECT；步骤过少无异常处理 → WARNING（建议注册为 MCP Tool） |
+| 5 | **形态合理性检查** | 调用其他 Skill → REJECT；步骤过少无异常处理 → WARNING |
 
 **4 种准入决策**
 
-| 决策 | 含义 | 建议操作 |
-|------|------|---------|
+| 决策 | 含义 | 操作 |
+|------|------|------|
 | `PASS` | 可正式进入 Registry | 更新 `status: approved` |
-| `PASS_WITH_WARNINGS` | 可进入，有治理提醒 | 更新为 `approved` 或 `restricted`，跟踪 warnings |
-| `REQUIRES_REVIEW` | 需人工审核 | 更新为 `needs_revision`，指派审核 |
+| `PASS_WITH_WARNINGS` | 可进入，有治理提醒 | 更新为 `approved / restricted` |
+| `REQUIRES_REVIEW` | 需人工审核 | 更新为 `needs_revision` |
 | `REJECT` | 不适合准入 | 保持 `draft`，返回修改意见 |
 
-**使用方法**
-
 ```bash
-# 单个 Skill
 python skill-admission-review/scripts/admission_gate.py <skill>/SKILL.md --registry skill-registry.yaml
-
-# 整个 Bundle（批量）
 python scripts/batch_admission.py ev-charger-skills business-to-bpmn
-```
-
-**JSON 输出格式**
-
-```json
-{
-  "skill_name": "diagnosing-charger-faults",
-  "decision": "PASS_WITH_WARNINGS",
-  "reasons": ["Moderate description overlap with 'log-analyzer' (Jaccard=0.47)"],
-  "recommended_actions": ["Verify these skills have clearly distinct trigger conditions"],
-  "neighbor_skills": ["log-analyzer"],
-  "check_details": {
-    "global_conflict": "WARNING",
-    "agent_boundary": "PASS",
-    "risk_level": "PASS",
-    "routing_governance": "PASS",
-    "form_factor": "PASS"
-  }
-}
 ```
 
 > **这一层是平台治理门**：检查 Skill 该不该进，不管 Skill 写得对不对。
@@ -311,37 +436,48 @@ python scripts/batch_admission.py ev-charger-skills business-to-bpmn
 
 | 类型 | 检查内容 | 严重级别 |
 |------|---------|---------|
-| **仓库一致性** | 仓库有而 Registry 无；Registry 有而仓库无；name 字段与 registry 不一致 | HIGH / WARNING |
-| **元数据健康** | 必填字段缺失；`purpose` 过短/含模糊词；命名不规范；Eval 长期 pending；`eval_status: failing` | HIGH / WARNING |
-| **冲突漂移** | 已上线 Skill 间 purpose 相似度漂移（Jaccard 持续监控）；同命名家族过载 | HIGH / WARNING |
-| **生命周期** | 审查超期（180天）；L4 安全审查逾期（30天）→ CRITICAL；failing evals 90天无处理；上线满一年无复查 | CRITICAL / HIGH / WARNING |
-
-**报告输出**
+| 仓库一致性 | 仓库有而 Registry 无；name 字段漂移 | HIGH / WARNING |
+| 元数据健康 | 必填字段缺失；purpose 过短/模糊；命名不规范 | HIGH / WARNING |
+| 冲突漂移 | 已上线 Skill 间 purpose 相似度持续监控 | HIGH / WARNING |
+| 生命周期 | 审查超期（180天）；L4 安全审查逾期（30天）→ CRITICAL | CRITICAL / HIGH |
 
 ```bash
 python skill-governance-agent/scripts/governance_audit.py \
   --registry skill-registry.yaml \
   --skills-root . \
   --output reports/ \
-  [--update-timestamp]
+  --update-timestamp
 ```
 
-生成两个文件：
+生成：`reports/governance_report_YYYYMMDD.json` + `reports/manual_review_queue.json`
 
-- `reports/governance_report_YYYYMMDD.json` — 完整巡检报告
-- `reports/manual_review_queue.json` — 需人工处理的 HIGH/CRITICAL 项
+---
 
-**自动操作白名单**（脚本可直接执行，无需人工确认）
+## 两类资产的本质区别
 
-- 更新 `last_audited` 时间戳
-- 生成 governance report
-- 生成 manual_review_queue
+```
+                  SKILL                         TOOL
+                  ─────────────────────         ──────────────────────
+触发方式           用户自然语言意图              Skill 代码中的程序调用
+步骤数量           多步骤（有条件分支）           单步原子操作
+规格文件           SKILL.md（YAML + Markdown）   TOOL.md（纯 YAML）
+校验工具           validate_skill.py（70分）     validate_tool.py（50分）
+注册位置           skill-registry.yaml           tool-registry.yaml
+调用格式           由 Agent Router 路由           server:tool_name()
+可被路由           是                            否（只能被 Skill 调用）
+```
 
-**禁止自动执行**（必须人工操作）
+**一个业务功能的正常形态**：
 
-- 删除 Skill
-- 修改 description / risk_level / bundle_scope
-- 自动批准上线
+```
+用户请求
+  ↓ 路由
+SKILL（多步推理）
+  ↓ 调用
+TOOL-1 → TOOL-2 → TOOL-3（原子操作）
+  ↓
+输出
+```
 
 ---
 
@@ -351,15 +487,13 @@ python skill-governance-agent/scripts/governance_audit.py \
                   Authoring Gate              Admission Gate
                   ─────────────────           ──────────────────
 视角              作者视角                    平台视角
-目标              检查 Skill 写得对不对        检查 Skill 该不该进
+目标              检查写得对不对              检查该不该进
 关注点            结构、模板、规范             冲突、风险、生态合理性
 时机              草稿阶段（提交前）           注册/提交阶段
 工具              validate_skill.py           admission_gate.py
-输出              分数 + blocking issues      准入决策 + 状态流转
 输出格式          score: 0-70                 PASS/WARN/REVIEW/REJECT
 ```
 
-一句话概括：
 > **Authoring Gate 保证能写，Admission Gate 保证该进。**
 
 ---
@@ -375,19 +509,22 @@ git clone https://github.com/hazezhang/skill-registry.git
 cd skill-registry
 ```
 
-2. **创建 orphan 提交分支**（只含 bundle，不含平台文件）
+2. **（推荐）先进行能力规划**
+
+在本地用 `capability-planning/SKILL.md` 确认 bundle 中哪些是 Skill、哪些是 Tool，
+产出 `capability_plan.json` 作为开发依据，避免提交后被大量打回。
+
+3. **创建 orphan 提交分支**（只含 bundle，不含平台文件）
 
 ```bash
 git checkout --orphan incoming/<my-bundle>
-git rm -rf .                    # 清空暂存区，从零开始
-
-# 放入你的 bundle 目录
+git rm -rf .
 git add <my-bundle>/
 git commit -m "feat: submit <my-bundle> bundle for admission review"
 git push origin incoming/<my-bundle>
 ```
 
-3. **等待管理员运行准入流程**
+4. **等待管理员运行准入流程**
 
 如有修改意见，在同一分支上提交修复后再次 push 即可。
 
@@ -406,10 +543,10 @@ git push origin master
 
 脚本执行流程：
 
-1. 检验 `incoming/<bundle>` 分支存在（本地或远端）
+1. 检验 `incoming/<bundle>` 分支存在
 2. 通过 `git worktree` 在隔离目录读取 bundle 内容
 3. 批量运行所有 Skill 的准入检查，报告写入 `reports/`
-4. 若无 REJECT/REQUIRES_REVIEW：复制 bundle 到工作区并提交
+4. 若无 REJECT/REQUIRES_REVIEW：复制 bundle 并提交到 master
 5. 若有阻塞项：输出修改指引，不污染 master
 
 ---
@@ -417,14 +554,12 @@ git push origin master
 ### 管理员：日常治理巡检
 
 ```bash
-# 全库巡检
 python skill-governance-agent/scripts/governance_audit.py \
   --registry skill-registry.yaml \
   --skills-root . \
   --output reports/ \
   --update-timestamp
 
-# 查看需人工处理的项
 cat reports/manual_review_queue.json
 ```
 
@@ -436,17 +571,14 @@ cat reports/manual_review_queue.json
 [提交者创建草稿]
       │
       ▼
-   draft ──── Phase 2 校验（validate_skill.py）──── 分数 < 45 → 打回修改
+   draft ──── Phase 2S 校验（validate_skill.py）──── 分数 < 45 → 打回
       │
       ▼ 通过校验
   submitted ── Phase 4 准入（admission_gate.py）
       │
       ├── PASS ──────────────────────────► approved
-      │
       ├── PASS_WITH_WARNINGS ────────────► approved / restricted
-      │
       ├── REQUIRES_REVIEW ───────────────► needs_revision（人工审核）
-      │
       └── REJECT ────────────────────────► draft（返回修改）
 
 [Phase 5 持续治理触发]
@@ -457,15 +589,31 @@ approved ───────────────────────�
 
 ## 工具速查
 
+**Skill 相关**
+
 | 场景 | 命令 |
 |------|------|
-| 校验单个 Skill（人类可读） | `python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md` |
+| 校验单个 Skill | `python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md` |
 | 校验单个 Skill（JSON） | `python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md --json` |
 | 准入检查单个 Skill | `python skill-admission-review/scripts/admission_gate.py <skill>/SKILL.md --registry skill-registry.yaml` |
-| 批量准入检查整个 Bundle | `python scripts/batch_admission.py ev-charger-skills` |
+| 批量准入检查 Bundle | `python scripts/batch_admission.py ev-charger-skills` |
 | 运行完整准入流程 | `.\skill-intake.ps1 -Bundle <bundle>` |
-| 准入通过后合并到 master | `.\skill-intake.ps1 -Bundle <bundle> -MergeIfPass` |
-| 验证注册表条目数 | `python -c "import yaml; d=yaml.safe_load(open('skill-registry.yaml')); print(len(d['skills']))"` |
+| 准入通过后合并 | `.\skill-intake.ps1 -Bundle <bundle> -MergeIfPass` |
+
+**Tool 相关**
+
+| 场景 | 命令 |
+|------|------|
+| 校验单个 Tool | `python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md` |
+| 校验单个 Tool（JSON） | `python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md --json` |
+| 查看已注册 Tool 列表 | `python -c "import yaml; [print(t['tool_name']) for t in yaml.safe_load(open('tool-registry.yaml',encoding='utf-8'))['tools']]"` |
+
+**Registry 相关**
+
+| 场景 | 命令 |
+|------|------|
+| 查看 Skill 总数 | `python -c "import yaml; d=yaml.safe_load(open('skill-registry.yaml',encoding='utf-8')); print(len(d['skills']))"` |
+| 查看 Tool 总数 | `python -c "import yaml; d=yaml.safe_load(open('tool-registry.yaml',encoding='utf-8')); print(len(d['tools']))"` |
 | 全库治理巡检 | `python skill-governance-agent/scripts/governance_audit.py --registry skill-registry.yaml --skills-root . --output reports/` |
 | 批量修复 frontmatter（预览） | `python scripts/batch_fix_frontmatter.py --dry-run --bundles <bundle>` |
 | 批量修复 frontmatter（执行） | `python scripts/batch_fix_frontmatter.py --bundles <bundle>` |
@@ -478,33 +626,33 @@ approved ───────────────────────�
 
 | 项目 | 描述 |
 |------|------|
+| Tool Admission Gate 缺失 | Tool 目前只有 validate_tool.py 校验，没有等同于 admission_gate.py 的平台准入门禁 |
+| governance_audit.py 仅覆盖 Skill | 持续治理巡检尚未扩展到 tool-registry.yaml |
+| skill-registry.yaml 状态字段 | 所有 30 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
 | validate_skill.py 结果词汇 | 输出 `PASS_WITH_REQUIRED_FIXES`，与 Admission Gate 的 `PASS_WITH_WARNINGS` 词汇不统一 |
-| validate_skill.py 解析器 | 自定义简易 YAML 解析器，多行 description 会被合并为单行，影响少数情况下的评分准确性 |
-| skill-registry.yaml 状态字段 | 所有 41 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
-| batch_admission.py 输出 | 仅控制台输出，无 `--output` / `--json` flag；`--registry` 路径硬编码 |
+| batch_admission.py | 仅控制台输出，无 `--output json` flag |
 | skill-intake.ps1 | 仅支持本地手动运行，尚无 GitHub Actions / CI 集成 |
-| batch_fix_frontmatter.py | 仅注入 `bundle_scope` 和 `risk_level` 两个字段，无 `--field` 选择器 |
 
 ### 计划改进
 
+- [ ] 为 Tool 增加 Admission Gate（检查接口重复、服务注册、风险一致性）
+- [ ] `governance_audit.py` 扩展支持 `tool-registry.yaml` 巡检
 - [ ] 统一两个 Gate 的结果词汇表
-- [ ] `batch_admission.py` 增加 `--output json` flag，支持结构化报告落文件
-- [ ] `skill-intake.ps1` 增加 GitHub Actions workflow，实现 PR 自动触发准入检查
-- [ ] Registry 状态字段开始反映真实生命周期（已有机制，需落实到操作流程）
-- [ ] `governance_audit.py` 增加 `--since` 参数，支持增量巡检
+- [ ] `batch_admission.py` 增加 `--output json` flag
+- [ ] `skill-intake.ps1` 增加 GitHub Actions workflow
+- [ ] Registry 状态字段开始反映真实生命周期
 
 ---
 
 ## 依赖
 
 ```bash
-# 必需
 python >= 3.10
-
-# 推荐（部分脚本有内置 fallback）
 pip install pyyaml
 ```
 
 ---
 
-*README 自动生成于 2026-03-17，基于当前仓库状态完整审计。*
+*README 更新于 2026-03-17，反映双轨能力治理体系当前完整状态。*
+*Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
+*Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*
