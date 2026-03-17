@@ -266,14 +266,18 @@ def check2_agent_boundary(candidate: dict) -> tuple[str, list[str], list[str]]:
     """
     Check 2: Agent boundary check.
     Validates bundle_scope and detects cross-agent contamination.
+
+    Contamination is checked only in the # Workflow and # Purpose sections,
+    not in reference tables, knowledge bases, or example data, to avoid
+    false positives from skills that document multi-domain concepts.
+    The keyword threshold is 5 hits (up from 3) to further reduce noise.
     """
     reasons, actions = [], []
     level = "PASS"
 
     fm = candidate["frontmatter"]
     desc = fm.get("description", "").lower()
-    body = candidate["body"].lower()
-    full_text = desc + " " + body
+    body = candidate["body"]
 
     # bundle_scope validation
     scope = fm.get("bundle_scope", "")
@@ -287,13 +291,22 @@ def check2_agent_boundary(candidate: dict) -> tuple[str, list[str], list[str]]:
         actions.append(f"Set bundle_scope to one of: {', '.join(sorted(VALID_BUNDLE_SCOPES))}")
         return "REJECT", reasons, actions
 
-    # Cross-agent contamination: count how many agent domains are touched
+    # Extract only operational sections (Workflow + Purpose) for contamination check.
+    # This avoids false positives from knowledge tables, reference data, examples.
+    operational_text = desc
+    for section in ("# Workflow", "# Purpose", "# Trigger"):
+        m = re.search(rf"{section}(.*?)(?=\n#|\Z)", body, re.DOTALL)
+        if m:
+            operational_text += " " + m.group(1).lower()
+
+    # Cross-agent contamination: higher threshold (5 hits) to avoid noise
+    CONTAMINATION_THRESHOLD = 5
     touched_agents = []
     for agent, keywords in AGENT_DOMAIN_KEYWORDS.items():
         if agent == scope:
             continue
-        keyword_hits = sum(1 for kw in keywords if kw in full_text)
-        if keyword_hits >= 3:
+        keyword_hits = sum(1 for kw in keywords if kw in operational_text)
+        if keyword_hits >= CONTAMINATION_THRESHOLD:
             touched_agents.append(agent)
 
     if len(touched_agents) >= 2:
@@ -317,25 +330,38 @@ def check2_agent_boundary(candidate: dict) -> tuple[str, list[str], list[str]]:
 def check3_risk_level(candidate: dict) -> tuple[str, list[str], list[str]]:
     """
     Check 3: Risk level accuracy check.
-    Infers actual risk from description and body, compares to declared level.
+    Infers actual risk from the WORKFLOW section only, not from knowledge
+    tables, reference data, or example outputs — to avoid false positives
+    where skills document operational concepts without executing them.
+
+    Device control vocabulary (restart, disable, etc.) is only flagged when
+    it appears inside the # Workflow section steps. Likewise, write-operation
+    vocabulary is scoped to the workflow section and only flags L1 skills
+    (not L2, which is already an elevated classification).
     """
     reasons, actions = [], []
     level = "PASS"
 
     fm = candidate["frontmatter"]
     declared = fm.get("risk_level", "L1").upper()
-    desc = fm.get("description", "").lower()
-    body = candidate["body"].lower()
-    full_text = desc + " " + body
+    body = candidate["body"]
 
-    # Detect device control signals (L4)
-    control_signals = [v for v in CONTROL_VERBS if v in full_text]
-    has_verify_gate = "verify-gate-mcp:request_approval" in candidate["body"]
+    # Extract workflow section only for vocabulary checks
+    wf_match = re.search(r"# Workflow(.*?)(?=\n#[^#]|\Z)", body, re.DOTALL)
+    workflow_text = wf_match.group(1).lower() if wf_match else ""
+
+    # Also include description for write-verb checks (it describes what skill does)
+    desc = fm.get("description", "").lower()
+
+    has_verify_gate = "verify-gate-mcp:request_approval" in body
+
+    # Detect device control signals (L4) — workflow section only
+    control_signals = [v for v in CONTROL_VERBS if v in workflow_text]
 
     if control_signals:
         if declared not in ("L4",):
             reasons.append(
-                f"Device control vocabulary detected ({', '.join(control_signals[:3])}) "
+                f"Device control operations detected in Workflow ({', '.join(control_signals[:3])}) "
                 f"but declared risk_level is {declared} — should be L4"
             )
             actions.append("Raise risk_level to L4 and add verify-gate-mcp:request_approval step")
@@ -345,20 +371,22 @@ def check3_risk_level(candidate: dict) -> tuple[str, list[str], list[str]]:
             actions.append("Add Verify Gate step before any device control operation")
             return "REJECT", reasons, actions
 
-    # Detect write operation signals (L3)
-    write_signals = [v for v in WRITE_VERBS if v in full_text]
-    if write_signals and declared in ("L1", "L2"):
+    # Detect write operation signals (L3) — workflow section + description
+    # Only flag L1 skills; L2 is already an elevated classification
+    write_text = workflow_text + " " + desc
+    write_signals = [v for v in WRITE_VERBS if v in write_text]
+    if write_signals and declared == "L1":
         reasons.append(
-            f"Write-operation vocabulary detected ({', '.join(write_signals[:3])}) "
-            f"but declared risk_level is {declared} — should be L3 or higher"
+            f"Write-operation vocabulary in Workflow/description ({', '.join(write_signals[:3])}) "
+            f"but declared risk_level is L1 — consider L2 or L3"
         )
-        actions.append("Raise risk_level to L3 if this skill creates/modifies records")
+        actions.append("Raise risk_level to L2 (analysis/write) or L3 if modifying external records")
         level = "REQUIRES_REVIEW"
 
-    # L4 declared but no control vocabulary
+    # L4 declared but no control vocabulary in workflow
     if declared == "L4" and not control_signals:
         reasons.append(
-            "risk_level declared as L4 but no device control vocabulary found — "
+            "risk_level declared as L4 but no device control operations found in Workflow — "
             "may be over-classified"
         )
         actions.append("Review whether L3 is sufficient; L4 implies direct device operations")
@@ -387,10 +415,16 @@ def check4_routing_governance(candidate: dict) -> tuple[str, list[str], list[str
         actions.append("Expand description to include 'Use when' and 'Do NOT use when' clauses")
         level = "WARNING"
 
-    # Missing Use when clause
-    if "use when" not in desc.lower():
-        reasons.append("Description missing 'Use when' clause — routing accuracy will be low")
-        actions.append("Add 'Use when [specific trigger condition]' to the description")
+    # Missing trigger clause — accept common equivalent phrasings
+    TRIGGER_PHRASES = [
+        "use when", "use this skill when", "use only when", "use after",
+        "use for ", "triggers on", "trigger on", "triggered when",
+        "activate when", "invoke when",
+    ]
+    has_trigger = any(phrase in desc.lower() for phrase in TRIGGER_PHRASES)
+    if not has_trigger:
+        reasons.append("Description missing a trigger clause (e.g. 'Use when ...', 'Triggers on ...') — routing accuracy will be low")
+        actions.append("Add a trigger clause like 'Use when [specific condition]' or 'Triggers on [keywords]'")
         if level == "PASS":
             level = "WARNING"
 

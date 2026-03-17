@@ -141,11 +141,16 @@ def check_dim1_trigger(parsed: dict) -> tuple[int, list, list]:
     else:
         score += 2
 
-    # Use when clause
-    if "Use when" in desc or "use when" in desc:
+    # Trigger clause — accept common equivalent phrasings
+    TRIGGER_PHRASES = [
+        "use when", "use this skill when", "use only when", "use after",
+        "use for ", "triggers on", "trigger on", "triggered when",
+        "activate when", "invoke when",
+    ]
+    if any(p in desc.lower() for p in TRIGGER_PHRASES):
         score += 3
     else:
-        issues.append("Description missing 'Use when' clause — skill may never trigger")
+        issues.append("Description missing a trigger clause ('Use when', 'Triggers on', etc.) — skill may never trigger")
 
     # Do NOT use when clause
     if "Do NOT use when" in desc or "Do not use when" in desc or "do not use when" in desc:

@@ -1,6 +1,8 @@
 ---
 name: rag-chunk-deduplicator
 description: Detect and merge near-duplicate chunks across JSONL files for RAG pipelines. Use this skill when users mention deduplication, finding duplicates, merging similar chunks, cleaning knowledge bases, reducing redundancy, or optimizing RAG retrieval quality. Trigger for "duplicate detection", "similar chunks", "merge overlapping", "clean up knowledge", or any data quality improvement requests.
+bundle_scope: ops-agent
+risk_level: L1
 ---
 
 # Purpose

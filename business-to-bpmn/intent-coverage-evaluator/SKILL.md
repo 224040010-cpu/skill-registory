@@ -1,6 +1,8 @@
 ---
 name: intent-coverage-evaluator
 description: Evaluates whether the generated BPMN workflow covers the original user intent. Compares workflow elements against extracted intent and entities. Only evaluates, does not modify. Use when coverage evaluation, 覆盖度评估, 意图对齐, or 需求覆盖.
+bundle_scope: bpmn-agent
+risk_level: L2
 ---
 
 # Intent Coverage Evaluator

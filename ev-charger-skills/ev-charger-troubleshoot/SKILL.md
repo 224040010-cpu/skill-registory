@@ -1,6 +1,8 @@
 ---
 name: ev-charger-troubleshoot
 description: Interactive step-by-step troubleshooting for EV charger issues. Use this skill when users need guided diagnosis with decision trees. Triggers on "step-by-step", "guide me through", "troubleshoot", "故障排除", "diagnose", "what should I check", or when user needs systematic diagnosis (not just quick lookup).
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Skill: EV Charger Troubleshooting

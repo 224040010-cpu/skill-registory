@@ -1,6 +1,8 @@
 ---
 name: failure-analytics
 description: Analyze failure patterns, regional trends, and improvement opportunities for EV chargers. Use this skill when users want failure statistics, trend analysis, regional breakdown, product reliability data, or quality improvement insights. Triggers on "failure analysis", "故障统计", "trend report", "regional issues", "reliability data", "质量分析", or "improvement opportunities".
+bundle_scope: ops-agent
+risk_level: L2
 ---
 
 # Skill: Failure Pattern Analytics

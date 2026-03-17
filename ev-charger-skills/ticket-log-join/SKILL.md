@@ -1,6 +1,8 @@
 ---
 name: ticket-log-join
 description: Join ticket data with device logs and classify issues. Use this skill when users mention linking tickets to logs, log classification, module/severity mapping, generating RAG-ready ticket+log summaries, correlating device events across time windows, or matching logs by serial number aliases. Trigger even for "find related logs", "device history", or "fault timeline" requests.
+bundle_scope: diagnosis-agent
+risk_level: L2
 ---
 
 # Purpose
