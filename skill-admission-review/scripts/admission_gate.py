@@ -555,12 +555,21 @@ def run_admission(skill_path: str, registry_path: str = "skill-registry.yaml") -
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    registry_arg = next(
-        (sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--registry"),
-        "skill-registry.yaml",
-    )
-    if len(args) != 1:
+    registry_arg = "skill-registry.yaml"
+    skip_next = False
+    positional = []
+    for i, a in enumerate(sys.argv[1:], 1):
+        if skip_next:
+            skip_next = False
+            continue
+        if a == "--registry":
+            if i + 1 < len(sys.argv):
+                registry_arg = sys.argv[i + 1]
+                skip_next = True
+        elif not a.startswith("--"):
+            positional.append(a)
+
+    if len(positional) != 1:
         print(f"Usage: python {sys.argv[0]} <path/to/SKILL.md> [--registry skill-registry.yaml]")
         sys.exit(2)
-    sys.exit(run_admission(args[0], registry_arg))
+    sys.exit(run_admission(positional[0], registry_arg))
