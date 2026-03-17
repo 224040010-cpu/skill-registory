@@ -1,32 +1,36 @@
 <#
 .SYNOPSIS
-    Skill Intake Workflow — Create an incoming review branch and run admission checks.
+    Skill Intake Workflow — Pull a bundle from an incoming branch and run admission checks.
 
 .DESCRIPTION
+    Incoming branches are orphan branches containing ONLY the skill bundle directory.
+    Submitters never see platform infrastructure files; they just push their bundle.
+
+    This script stays on master throughout. It uses git worktree to read the
+    incoming branch in isolation, copies the bundle into the master workspace,
+    runs admission checks, and — if all checks pass — commits the bundle to master.
+
     Usage:
         .\skill-intake.ps1 -Bundle ev-charger-skills
         .\skill-intake.ps1 -Bundle business-to-bpmn -MergeIfPass
 
-    Steps:
-        1. Create branch  incoming/<bundle-name>  from master
-        2. Run batch admission checks on all SKILL.md files in the bundle
-        3. Save report to reports/admission_<bundle>.txt
-        4. Commit report to the incoming branch
-        5. (Optional) If all checks pass, merge back to master automatically
-
-    Merge to master only happens when:
-        - All skills are PASS or PASS_WITH_WARNINGS
-        - The -MergeIfPass flag is set
-        - No REJECT or REQUIRES_REVIEW results exist
+    Submitter workflow (external contributor):
+        git clone https://github.com/hazezhang/skill-registry.git
+        git checkout --orphan incoming/<my-bundle>
+        git rm -rf .
+        # add only your bundle directory
+        git add <my-bundle>/
+        git commit -m "feat: submit <my-bundle> bundle"
+        git push origin incoming/<my-bundle>
 
 .PARAMETER Bundle
-    Directory name of the skill bundle to intake (e.g. ev-charger-skills).
+    Name of the skill bundle directory (= incoming branch suffix).
 
 .PARAMETER MergeIfPass
-    Automatically merge to master if all admission checks pass.
+    Copy bundle to master and commit if all admission checks pass.
 
-.PARAMETER SkipIfBranchExists
-    Skip branch creation if incoming/<bundle> already exists (useful for re-runs).
+.PARAMETER SkipWorktreeCleanup
+    Keep the temporary worktree after the run (useful for debugging).
 #>
 
 param(
@@ -35,137 +39,170 @@ param(
 
     [switch]$MergeIfPass,
 
-    [switch]$SkipIfBranchExists
+    [switch]$SkipWorktreeCleanup
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$BranchName   = "incoming/$Bundle"
-$ReportDir    = "reports"
-$ReportFile   = "$ReportDir/admission_$Bundle.txt"
-$Registry     = "skill-registry.yaml"
-$AdmissionScript = "skill-admission-review/scripts/admission_gate.py"
-$BatchScript  = "scripts/batch_admission.py"
+$BranchName      = "incoming/$Bundle"
+$WorktreePath    = ".intake-worktree"
+$ReportDir       = "reports"
+$ReportFile      = "$ReportDir/admission_$Bundle.txt"
+$Registry        = "skill-registry.yaml"
+$BatchScript     = "scripts/batch_admission.py"
 
 function Write-Header([string]$msg) {
     Write-Host ""
-    Write-Host "=" * 64
+    Write-Host ("=" * 64)
     Write-Host "  $msg"
-    Write-Host "=" * 64
+    Write-Host ("=" * 64)
 }
+
+# ── Prerequisites ────────────────────────────────────────────────
 
 function Confirm-Prerequisites {
-    if (-not (Test-Path $Bundle)) {
-        Write-Error "Bundle directory '$Bundle' not found."
+    # Must be on master
+    $current = git rev-parse --abbrev-ref HEAD
+    if ($current -ne "master") {
+        Write-Error "Must be on master branch. Current branch: $current"
         exit 1
     }
-    if (-not (Test-Path $Registry)) {
-        Write-Error "Registry '$Registry' not found. Run from workspace root."
+
+    # Incoming branch must exist (local or remote)
+    $localBranch  = git branch --list $BranchName
+    $remoteBranch = git ls-remote --heads origin $BranchName
+    if (-not $localBranch -and -not $remoteBranch) {
+        Write-Error "Branch '$BranchName' not found locally or on remote."
+        Write-Host ""
+        Write-Host "  Submitter steps to create it:"
+        Write-Host "    git checkout --orphan $BranchName"
+        Write-Host "    git rm -rf ."
+        Write-Host "    git add $Bundle/"
+        Write-Host "    git commit -m `"feat: submit $Bundle bundle`""
+        Write-Host "    git push origin $BranchName"
         exit 1
     }
-    if (-not (Test-Path $AdmissionScript)) {
-        Write-Error "Admission script not found at $AdmissionScript"
-        exit 1
+
+    # Fetch latest if remote-only
+    if (-not $localBranch -and $remoteBranch) {
+        git fetch origin "${BranchName}:${BranchName}"
+        Write-Host "[OK] Fetched '$BranchName' from remote."
     }
-    $skillFiles = Get-ChildItem -Path $Bundle -Recurse -Filter "SKILL.md"
-    if ($skillFiles.Count -eq 0) {
-        Write-Error "No SKILL.md files found under '$Bundle'."
-        exit 1
-    }
-    Write-Host "[OK] Prerequisites satisfied. Found $($skillFiles.Count) SKILL.md files."
+
+    Write-Host "[OK] Branch '$BranchName' found."
 }
 
-function New-IntakeBranch {
-    $existing = git branch --list $BranchName
-    if ($existing) {
-        if ($SkipIfBranchExists) {
-            Write-Host "[SKIP] Branch '$BranchName' already exists, staying on it."
-            git checkout $BranchName | Out-Null
-            return
-        }
-        Write-Host "[INFO] Branch '$BranchName' already exists — checking out."
-        git checkout $BranchName
-    } else {
-        # Always branch from master so incoming reflects current platform state
-        $current = git rev-parse --abbrev-ref HEAD
-        if ($current -ne "master") {
-            git checkout master
-        }
-        git checkout -b $BranchName
-        Write-Host "[OK] Created branch '$BranchName' from master."
+# ── Worktree: checkout orphan branch in isolation ────────────────
+
+function New-BundleWorktree {
+    # Remove stale worktree if present
+    if (Test-Path $WorktreePath) {
+        git worktree remove --force $WorktreePath 2>$null
+        Remove-Item -Recurse -Force $WorktreePath -ErrorAction SilentlyContinue
+    }
+
+    git worktree add $WorktreePath $BranchName
+    Write-Host "[OK] Worktree at '$WorktreePath' checked out from '$BranchName'."
+
+    # Verify bundle directory exists in the worktree
+    if (-not (Test-Path "$WorktreePath\$Bundle")) {
+        git worktree remove --force $WorktreePath
+        Write-Error "Branch '$BranchName' does not contain a '$Bundle' directory."
+        exit 1
     }
 }
+
+# ── Copy bundle into master workspace for admission check ────────
+
+function Copy-BundleToWorkspace {
+    # Remove existing bundle dir if present (will be replaced by incoming)
+    if (Test-Path $Bundle) {
+        Remove-Item -Recurse -Force $Bundle
+    }
+    Copy-Item "$WorktreePath\$Bundle" -Destination $Bundle -Recurse
+    Write-Host "[OK] Bundle '$Bundle' copied from worktree to workspace."
+}
+
+function Remove-BundleFromWorkspace {
+    if (Test-Path $Bundle) {
+        Remove-Item -Recurse -Force $Bundle
+    }
+}
+
+# ── Admission checks ─────────────────────────────────────────────
 
 function Invoke-AdmissionChecks {
-    Write-Header "Running admission checks for bundle: $Bundle"
+    Write-Header "Admission checks: $Bundle"
     New-Item -ItemType Directory -Force -Path $ReportDir | Out-Null
 
     $env:PYTHONIOENCODING = "utf-8"
     python $BatchScript $Bundle *> $ReportFile
 
-    # Count outcomes from report
-    $content = Get-Content $ReportFile -Raw
-    $passCount    = ([regex]::Matches($content, '\[OK\]')).Count
-    $warnCount    = ([regex]::Matches($content, '\[~\]')).Count
-    $rejectCount  = ([regex]::Matches($content, '\[X\]')).Count
+    $content    = Get-Content $ReportFile -Raw
+    $passCount  = ([regex]::Matches($content, '\[OK\]')).Count
+    $warnCount  = ([regex]::Matches($content, '\[~\]')).Count
+    $rejectCount= ([regex]::Matches($content, '\[X\]')).Count
 
-    Write-Host ""
     Write-Host (Get-Content $ReportFile -Raw)
 
     return @{ pass = $passCount; warn = $warnCount; reject = $rejectCount }
 }
 
-function Save-ReportToGit {
-    git add $ReportFile
+# ── Commit bundle to master ───────────────────────────────────────
+
+function Commit-BundleToMaster {
     $ts = Get-Date -Format "yyyy-MM-dd"
-    git commit -m "chore(intake): admission report for $Bundle [$ts]"
-    Write-Host "[OK] Report committed to branch '$BranchName'."
+    git add "$Bundle/"
+    git add "$ReportFile"
+    git commit -m "feat: admit $Bundle bundle [$ts] — admission checks passed"
+    Write-Host "[OK] '$Bundle' committed to master."
 }
 
-function Invoke-MergeToMaster([hashtable]$counts) {
-    if ($counts.reject -gt 0) {
-        Write-Host ""
-        Write-Host "[BLOCKED] Cannot merge: $($counts.reject) skill(s) REJECTED."
-        Write-Host "          Fix the issues above, commit on '$BranchName', then re-run."
-        return $false
+# ── Cleanup worktree ──────────────────────────────────────────────
+
+function Remove-Worktree {
+    if (-not $SkipWorktreeCleanup) {
+        git worktree remove --force $WorktreePath 2>$null
+        Remove-Item -Recurse -Force $WorktreePath -ErrorAction SilentlyContinue
+        Write-Host "[OK] Worktree cleaned up."
     }
-
-    Write-Host ""
-    Write-Host "[OK] All skills pass admission ($($counts.pass) PASS, $($counts.warn) with warnings)."
-
-    if (-not $MergeIfPass) {
-        Write-Host "[INFO] Branch '$BranchName' is ready. Run with -MergeIfPass to merge."
-        return $false
-    }
-
-    git checkout master
-    git merge --no-ff $BranchName -m "feat: admit $Bundle skills (all admission checks pass)"
-    Write-Host "[OK] '$BranchName' merged into master."
-    return $true
 }
 
-# ─── Main ───────────────────────────────────────────────────────────────────
+# ── Main ──────────────────────────────────────────────────────────
 
 Write-Header "Skill Intake: $Bundle"
 
 Confirm-Prerequisites
-New-IntakeBranch
+New-BundleWorktree
+Copy-BundleToWorkspace
 $counts = Invoke-AdmissionChecks
-Save-ReportToGit
-$merged = Invoke-MergeToMaster $counts
+Remove-Worktree
 
 Write-Host ""
-if ($merged) {
-    Write-Host "[DONE] $Bundle admitted and merged to master."
-} elseif ($counts.reject -gt 0) {
-    Write-Host "[ACTION REQUIRED]"
-    Write-Host "  1. Fix issues on branch '$BranchName'"
-    Write-Host "  2. Commit your changes"
-    Write-Host "  3. Re-run:  .\skill-intake.ps1 -Bundle $Bundle -MergeIfPass"
+
+if ($counts.reject -gt 0) {
+    # Admission failed — remove bundle copy, do not pollute master
+    Remove-BundleFromWorkspace
+    Write-Host "[BLOCKED] $($counts.reject) skill(s) REJECTED. Bundle NOT added to master."
+    Write-Host ""
+    Write-Host "  Next steps for submitter:"
+    Write-Host "    1. Fix issues on branch '$BranchName'"
+    Write-Host "    2. git push origin $BranchName"
+    Write-Host "    3. Re-run:  .\skill-intake.ps1 -Bundle $Bundle -MergeIfPass"
+} elseif (-not $MergeIfPass) {
+    # Admission passed but no auto-merge requested — keep copy for inspection
+    Write-Host "[READY] All checks pass ($($counts.pass) PASS, $($counts.warn) warnings)."
+    Write-Host "  Bundle files are in workspace for inspection."
+    Write-Host "  To commit to master, re-run with -MergeIfPass:"
+    Write-Host "    .\skill-intake.ps1 -Bundle $Bundle -MergeIfPass"
+    # Clean up workspace copy since we're not committing
+    Remove-BundleFromWorkspace
 } else {
-    Write-Host "[READY TO MERGE]"
-    Write-Host "  Review the warnings, then run:"
-    Write-Host "  .\skill-intake.ps1 -Bundle $Bundle -MergeIfPass"
+    # Admission passed and auto-merge requested
+    Commit-BundleToMaster
+    Write-Host ""
+    Write-Host "[DONE] '$Bundle' admitted and committed to master."
+    Write-Host "  Run: git push origin master"
 }
 Write-Host ""
