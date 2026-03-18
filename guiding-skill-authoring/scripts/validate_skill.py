@@ -222,8 +222,10 @@ def check_dim2_workflow(parsed: dict) -> tuple[int, list, list]:
         issues.append("No '# Workflow' section found — workflow is required")
         return 0, issues, suggestions
 
-    # Extract workflow section
-    workflow_match = re.search(r"# Workflow(.*?)(?=\n#|\Z)", body, re.DOTALL)
+    # Extract workflow section — stop only at the next top-level heading
+    # (# followed by a non-# character), so ## Phase / ## Step sub-sections
+    # inside the workflow are included in the extracted slice.
+    workflow_match = re.search(r"# Workflow(.*?)(?=\n# [^#]|\Z)", body, re.DOTALL)
     workflow = workflow_match.group(1) if workflow_match else ""
 
     if is_meta:
