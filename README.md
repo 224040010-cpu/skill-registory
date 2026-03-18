@@ -493,30 +493,48 @@ python tool-admission-review/scripts/admission_gate_tool.py \
 > **Check 4 是唯一无条件 REJECT**：零消费者的 Tool 直接拒绝，不论其他检查是否通过。
 
 
-### Phase 5 · 持续治理
+### Phase 5 · 持续治理（双轨）
 
-**目标**：让治理从一次性准入变成持续过程
+**目标**：让治理从一次性准入变成持续过程，覆盖 Skill 和 Tool 两轨以及跨轨一致性
 
 **执行者**：`skill-governance-agent/scripts/governance_audit.py`
 
-**4 类巡检**
+**10 项巡检（三组）**
 
-| 类型 | 检查内容 | 严重级别 |
-|------|---------|---------|
-| 仓库一致性 | 仓库有而 Registry 无；name 字段漂移 | HIGH / WARNING |
-| 元数据健康 | 必填字段缺失；purpose 过短/模糊；命名不规范 | HIGH / WARNING |
-| 冲突漂移 | 已上线 Skill 间 purpose 相似度持续监控 | HIGH / WARNING |
-| 生命周期 | 审查超期（180天）；L4 安全审查逾期（30天）→ CRITICAL | CRITICAL / HIGH |
+| 组 | 检查 | 检查内容 | 严重级别 |
+|----|------|---------|---------|
+| Skill | S1 仓库一致性 | 仓库有而 Registry 无；name 字段漂移 | HIGH / WARNING |
+| Skill | S2 元数据健康 | 必填字段缺失；purpose 过短/模糊；命名不规范 | HIGH / WARNING |
+| Skill | S3 冲突漂移 | 已上线 Skill 间 purpose 相似度监控；family_overload | HIGH / WARNING |
+| Skill | S4 生命周期 | 审查超期（180天）；L4 安全审查逾期（30天）→ CRITICAL | CRITICAL / HIGH |
+| Tool | T1 Tool 仓库一致性 | tool-registry 有而无 TOOL.md；name 字段漂移 | HIGH / WARNING |
+| Tool | T2 Tool 元数据健康 | 必填字段；category/risk_level/side_effects 一致性 | HIGH / WARNING |
+| Tool | T3 Tool 生命周期 | 审查超期；L3/L4 工具 60 天高频巡检 | CRITICAL / HIGH |
+| Tool | T4 消费者完整性 | 零消费者 → HIGH；单消费者 → WARNING；引用失效 skill | HIGH / WARNING |
+| Cross | X1 死亡工具引用 | Skill 调用不存在于 tool-registry 的工具 | HIGH |
+| Cross | X2 废弃工具使用 | Skill 调用已 deprecated/retired 的工具 | HIGH |
+| Cross | X3 风险继承缺口 | 调用 L4 Tool 的 Skill 自身 risk_level < L4 | HIGH |
 
 ```bash
+# 完整双轨巡检
+python skill-governance-agent/scripts/governance_audit.py \
+  --registry skill-registry.yaml \
+  --tool-registry tool-registry.yaml \
+  --skills-root . \
+  --output reports/ \
+  --update-timestamp
+
+# 仅 Skill（向后兼容）
 python skill-governance-agent/scripts/governance_audit.py \
   --registry skill-registry.yaml \
   --skills-root . \
   --output reports/ \
-  --update-timestamp
+  --skills-only
 ```
 
 生成：`reports/governance_report_YYYYMMDD.json` + `reports/manual_review_queue.json`
+
+报告结构新增 `by_asset_type`：`{ skill: N, tool: N, cross: N }`
 
 ---
 
@@ -720,7 +738,7 @@ approved ───────────────────────�
 |------|------|
 | 查看 Skill 总数 | `python -c "import yaml; d=yaml.safe_load(open('skill-registry.yaml',encoding='utf-8')); print(len(d['skills']))"` |
 | 查看 Tool 总数 | `python -c "import yaml; d=yaml.safe_load(open('tool-registry.yaml',encoding='utf-8')); print(len(d['tools']))"` |
-| 全库治理巡检 | `python skill-governance-agent/scripts/governance_audit.py --registry skill-registry.yaml --skills-root . --output reports/` |
+| 全库治理巡检（双轨） | `python skill-governance-agent/scripts/governance_audit.py --registry skill-registry.yaml --tool-registry tool-registry.yaml --skills-root . --output reports/` |
 | 批量修复 frontmatter（预览） | `python scripts/batch_fix_frontmatter.py --dry-run --bundles <bundle>` |
 | 批量修复 frontmatter（执行） | `python scripts/batch_fix_frontmatter.py --bundles <bundle>` |
 
@@ -732,7 +750,6 @@ approved ───────────────────────�
 
 | 项目 | 描述 |
 |------|------|
-| governance_audit.py 仅覆盖 Skill | 持续治理巡检尚未扩展到 tool-registry.yaml |
 | skill-registry.yaml 状态字段 | 所有 30 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
 | validate_skill.py 结果词汇 | 输出 `PASS_WITH_REQUIRED_FIXES`，与 Admission Gate 的 `PASS_WITH_WARNINGS` 词汇不统一 |
 | batch_admission.py | 仅控制台输出，无 `--output json` flag |
@@ -741,7 +758,7 @@ approved ───────────────────────�
 ### 计划改进
 
 - [x] ~~为 Tool 增加 Admission Gate~~ — **已完成** `tool-admission-review/scripts/admission_gate_tool.py`
-- [ ] `governance_audit.py` 扩展支持 `tool-registry.yaml` 巡检
+- [x] ~~`governance_audit.py` 扩展支持 `tool-registry.yaml`~~ — **已完成** S1-S4 + T1-T4 + X1-X3
 - [ ] 统一两个 Gate 的结果词汇表
 - [ ] `batch_admission.py` 增加 `--output json` flag
 - [ ] `skill-intake.ps1` 增加 GitHub Actions workflow
@@ -758,6 +775,6 @@ pip install pyyaml
 
 ---
 
-*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T Tool 准入 + 资产升降级规则）。*
+*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T + Phase 5 双轨治理 + 资产升降级规则）。*
 *Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
 *Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*

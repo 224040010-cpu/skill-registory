@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-03-18T09:47:34.219627",
+  "requires_human_action": 14,
+  "queue": [
+    {
+      "asset_type": "skill",
+      "asset_name": "converting-business-to-bpmn",
+      "skill_name": "converting-business-to-bpmn",
+      "code": "s1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Skill 'converting-business-to-bpmn' is in registry (path: business-to-bpmn/SKILL.md) but directory not found in filesystem",
+      "action": "Verify the skill directory exists or remove/update the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "evaluate-intent-coverage",
+      "skill_name": "evaluate-intent-coverage",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'evaluate-intent-coverage' is in tool-registry (path: business-to-bpmn/tools/evaluate-intent-coverage/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "match-bpmn-template",
+      "skill_name": "match-bpmn-template",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'match-bpmn-template' is in tool-registry (path: business-to-bpmn/tools/match-bpmn-template/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "map-steps-to-bpmn-elements",
+      "skill_name": "map-steps-to-bpmn-elements",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'map-steps-to-bpmn-elements' is in tool-registry (path: business-to-bpmn/tools/map-steps-to-bpmn-elements/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assemble-bpmn-model",
+      "skill_name": "assemble-bpmn-model",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'assemble-bpmn-model' is in tool-registry (path: business-to-bpmn/tools/assemble-bpmn-model/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "extract-process-entities",
+      "skill_name": "extract-process-entities",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'extract-process-entities' is in tool-registry (path: business-to-bpmn/tools/extract-process-entities/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "resolve-step-dependencies",
+      "skill_name": "resolve-step-dependencies",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'resolve-step-dependencies' is in tool-registry (path: business-to-bpmn/tools/resolve-step-dependencies/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "classify-bpmn-task-types",
+      "skill_name": "classify-bpmn-task-types",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'classify-bpmn-task-types' is in tool-registry (path: business-to-bpmn/tools/classify-bpmn-task-types/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assign-bpmn-participants",
+      "skill_name": "assign-bpmn-participants",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'assign-bpmn-participants' is in tool-registry (path: business-to-bpmn/tools/assign-bpmn-participants/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "optimize-bpmn-layout",
+      "skill_name": "optimize-bpmn-layout",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'optimize-bpmn-layout' is in tool-registry (path: business-to-bpmn/tools/optimize-bpmn-layout/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "decompose-process-steps",
+      "skill_name": "decompose-process-steps",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'decompose-process-steps' is in tool-registry (path: business-to-bpmn/tools/decompose-process-steps/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "identify-parallel-steps",
+      "skill_name": "identify-parallel-steps",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'identify-parallel-steps' is in tool-registry (path: business-to-bpmn/tools/identify-parallel-steps/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "detect-description-ambiguity",
+      "skill_name": "detect-description-ambiguity",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'detect-description-ambiguity' is in tool-registry (path: business-to-bpmn/tools/detect-description-ambiguity/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "serialize-bpmn-xml",
+      "skill_name": "serialize-bpmn-xml",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'serialize-bpmn-xml' is in tool-registry (path: business-to-bpmn/tools/serialize-bpmn-xml/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    }
+  ]
+}

@@ -1,0 +1,910 @@
+{
+  "generated_at": "2026-03-18T09:47:34.216799",
+  "summary": {
+    "total_findings": 98,
+    "by_severity": {
+      "INFO": 0,
+      "WARNING": 84,
+      "HIGH": 14,
+      "CRITICAL": 0
+    },
+    "by_asset_type": {
+      "skill": 79,
+      "tool": 19,
+      "cross": 0
+    },
+    "by_code": {
+      "s1_missing_in_fs": 1,
+      "s1_missing_in_registry": 3,
+      "s2_eval_stale": 25,
+      "s4_review_overdue": 25,
+      "s4_stale_approved": 25,
+      "t1_missing_in_fs": 13,
+      "t4_single_consumer": 6
+    }
+  },
+  "findings": [
+    {
+      "asset_type": "skill",
+      "asset_name": "converting-business-to-bpmn",
+      "skill_name": "converting-business-to-bpmn",
+      "code": "s1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Skill 'converting-business-to-bpmn' is in registry (path: business-to-bpmn/SKILL.md) but directory not found in filesystem",
+      "action": "Verify the skill directory exists or remove/update the registry entry"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "business-to-bpmn",
+      "skill_name": "business-to-bpmn",
+      "code": "s1_missing_in_registry",
+      "severity": "WARNING",
+      "message": "Directory 'business-to-bpmn' has a SKILL.md but is not in skill-registry.yaml",
+      "action": "Register this skill with status: draft, or remove the directory"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "skill-admission-review",
+      "skill_name": "skill-admission-review",
+      "code": "s1_missing_in_registry",
+      "severity": "WARNING",
+      "message": "Directory 'skill-admission-review' has a SKILL.md but is not in skill-registry.yaml",
+      "action": "Register this skill with status: draft, or remove the directory"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "skill-governance-agent",
+      "skill_name": "skill-governance-agent",
+      "code": "s1_missing_in_registry",
+      "severity": "WARNING",
+      "message": "Directory 'skill-governance-agent' has a SKILL.md but is not in skill-registry.yaml",
+      "action": "Register this skill with status: draft, or remove the directory"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "agent-workflow",
+      "skill_name": "agent-workflow",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "case-search",
+      "skill_name": "case-search",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnostic-log-parser",
+      "skill_name": "diagnostic-log-parser",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnosing-cellular-logs",
+      "skill_name": "diagnosing-cellular-logs",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-troubleshoot",
+      "skill_name": "ev-charger-troubleshoot",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "evidence-fusion",
+      "skill_name": "evidence-fusion",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-knowledge",
+      "skill_name": "ev-charger-knowledge",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "failure-analytics",
+      "skill_name": "failure-analytics",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "feishu-doc-crawler",
+      "skill_name": "feishu-doc-crawler",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "hardware-diagnostics",
+      "skill_name": "hardware-diagnostics",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "image-extraction",
+      "skill_name": "image-extraction",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "incremental-embeddings",
+      "skill_name": "incremental-embeddings",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "installation-checklist",
+      "skill_name": "installation-checklist",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "knowledge-package-exporter",
+      "skill_name": "knowledge-package-exporter",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "log-analyzer",
+      "skill_name": "log-analyzer",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "preventive-maintenance",
+      "skill_name": "preventive-maintenance",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-chunk-deduplicator",
+      "skill_name": "rag-chunk-deduplicator",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-rebuild",
+      "skill_name": "rag-rebuild",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "skill-creator",
+      "skill_name": "skill-creator",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ticket-log-join",
+      "skill_name": "ticket-log-join",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "transforming-knowledge-packages",
+      "skill_name": "transforming-knowledge-packages",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "vehicle-compatibility-rag",
+      "skill_name": "vehicle-compatibility-rag",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "web-ui-demo",
+      "skill_name": "web-ui-demo",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "extracting-excel-to-rag",
+      "skill_name": "extracting-excel-to-rag",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "guiding-skill-authoring",
+      "skill_name": "guiding-skill-authoring",
+      "code": "s2_eval_stale",
+      "severity": "WARNING",
+      "message": "eval_status=pending and last_reviewed was 441 days ago",
+      "action": "Run evals or create evals/evals.json"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "agent-workflow",
+      "skill_name": "agent-workflow",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "agent-workflow",
+      "skill_name": "agent-workflow",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "case-search",
+      "skill_name": "case-search",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "case-search",
+      "skill_name": "case-search",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnostic-log-parser",
+      "skill_name": "diagnostic-log-parser",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnostic-log-parser",
+      "skill_name": "diagnostic-log-parser",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnosing-cellular-logs",
+      "skill_name": "diagnosing-cellular-logs",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "diagnosing-cellular-logs",
+      "skill_name": "diagnosing-cellular-logs",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-troubleshoot",
+      "skill_name": "ev-charger-troubleshoot",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-troubleshoot",
+      "skill_name": "ev-charger-troubleshoot",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "evidence-fusion",
+      "skill_name": "evidence-fusion",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "evidence-fusion",
+      "skill_name": "evidence-fusion",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-knowledge",
+      "skill_name": "ev-charger-knowledge",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ev-charger-knowledge",
+      "skill_name": "ev-charger-knowledge",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "failure-analytics",
+      "skill_name": "failure-analytics",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "failure-analytics",
+      "skill_name": "failure-analytics",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "feishu-doc-crawler",
+      "skill_name": "feishu-doc-crawler",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "feishu-doc-crawler",
+      "skill_name": "feishu-doc-crawler",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "hardware-diagnostics",
+      "skill_name": "hardware-diagnostics",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "hardware-diagnostics",
+      "skill_name": "hardware-diagnostics",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "image-extraction",
+      "skill_name": "image-extraction",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "image-extraction",
+      "skill_name": "image-extraction",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "incremental-embeddings",
+      "skill_name": "incremental-embeddings",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "incremental-embeddings",
+      "skill_name": "incremental-embeddings",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "installation-checklist",
+      "skill_name": "installation-checklist",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "installation-checklist",
+      "skill_name": "installation-checklist",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "knowledge-package-exporter",
+      "skill_name": "knowledge-package-exporter",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "knowledge-package-exporter",
+      "skill_name": "knowledge-package-exporter",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "log-analyzer",
+      "skill_name": "log-analyzer",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "log-analyzer",
+      "skill_name": "log-analyzer",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "preventive-maintenance",
+      "skill_name": "preventive-maintenance",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "preventive-maintenance",
+      "skill_name": "preventive-maintenance",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-chunk-deduplicator",
+      "skill_name": "rag-chunk-deduplicator",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-chunk-deduplicator",
+      "skill_name": "rag-chunk-deduplicator",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-rebuild",
+      "skill_name": "rag-rebuild",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "rag-rebuild",
+      "skill_name": "rag-rebuild",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "skill-creator",
+      "skill_name": "skill-creator",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "skill-creator",
+      "skill_name": "skill-creator",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ticket-log-join",
+      "skill_name": "ticket-log-join",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "ticket-log-join",
+      "skill_name": "ticket-log-join",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "transforming-knowledge-packages",
+      "skill_name": "transforming-knowledge-packages",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "transforming-knowledge-packages",
+      "skill_name": "transforming-knowledge-packages",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "vehicle-compatibility-rag",
+      "skill_name": "vehicle-compatibility-rag",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "vehicle-compatibility-rag",
+      "skill_name": "vehicle-compatibility-rag",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "web-ui-demo",
+      "skill_name": "web-ui-demo",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "web-ui-demo",
+      "skill_name": "web-ui-demo",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "extracting-excel-to-rag",
+      "skill_name": "extracting-excel-to-rag",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "extracting-excel-to-rag",
+      "skill_name": "extracting-excel-to-rag",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "guiding-skill-authoring",
+      "skill_name": "guiding-skill-authoring",
+      "code": "s4_review_overdue",
+      "severity": "WARNING",
+      "message": "Skill not reviewed in 441 days (threshold: 180)",
+      "action": "Schedule a governance review and update last_reviewed"
+    },
+    {
+      "asset_type": "skill",
+      "asset_name": "guiding-skill-authoring",
+      "skill_name": "guiding-skill-authoring",
+      "code": "s4_stale_approved",
+      "severity": "WARNING",
+      "message": "Skill approved but not reviewed in over a year (441 days)",
+      "action": "Perform yearly review — verify skill is still relevant and functional"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "evaluate-intent-coverage",
+      "skill_name": "evaluate-intent-coverage",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'evaluate-intent-coverage' is in tool-registry (path: business-to-bpmn/tools/evaluate-intent-coverage/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "match-bpmn-template",
+      "skill_name": "match-bpmn-template",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'match-bpmn-template' is in tool-registry (path: business-to-bpmn/tools/match-bpmn-template/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "map-steps-to-bpmn-elements",
+      "skill_name": "map-steps-to-bpmn-elements",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'map-steps-to-bpmn-elements' is in tool-registry (path: business-to-bpmn/tools/map-steps-to-bpmn-elements/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assemble-bpmn-model",
+      "skill_name": "assemble-bpmn-model",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'assemble-bpmn-model' is in tool-registry (path: business-to-bpmn/tools/assemble-bpmn-model/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "extract-process-entities",
+      "skill_name": "extract-process-entities",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'extract-process-entities' is in tool-registry (path: business-to-bpmn/tools/extract-process-entities/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "resolve-step-dependencies",
+      "skill_name": "resolve-step-dependencies",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'resolve-step-dependencies' is in tool-registry (path: business-to-bpmn/tools/resolve-step-dependencies/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "classify-bpmn-task-types",
+      "skill_name": "classify-bpmn-task-types",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'classify-bpmn-task-types' is in tool-registry (path: business-to-bpmn/tools/classify-bpmn-task-types/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assign-bpmn-participants",
+      "skill_name": "assign-bpmn-participants",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'assign-bpmn-participants' is in tool-registry (path: business-to-bpmn/tools/assign-bpmn-participants/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "optimize-bpmn-layout",
+      "skill_name": "optimize-bpmn-layout",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'optimize-bpmn-layout' is in tool-registry (path: business-to-bpmn/tools/optimize-bpmn-layout/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "decompose-process-steps",
+      "skill_name": "decompose-process-steps",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'decompose-process-steps' is in tool-registry (path: business-to-bpmn/tools/decompose-process-steps/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "identify-parallel-steps",
+      "skill_name": "identify-parallel-steps",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'identify-parallel-steps' is in tool-registry (path: business-to-bpmn/tools/identify-parallel-steps/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "detect-description-ambiguity",
+      "skill_name": "detect-description-ambiguity",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'detect-description-ambiguity' is in tool-registry (path: business-to-bpmn/tools/detect-description-ambiguity/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "serialize-bpmn-xml",
+      "skill_name": "serialize-bpmn-xml",
+      "code": "t1_missing_in_fs",
+      "severity": "HIGH",
+      "message": "Tool 'serialize-bpmn-xml' is in tool-registry (path: business-to-bpmn/tools/serialize-bpmn-xml/TOOL.md) but no TOOL.md found in filesystem",
+      "action": "Create the TOOL.md file or remove the registry entry"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "map-steps-to-bpmn-elements",
+      "skill_name": "map-steps-to-bpmn-elements",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "classify-bpmn-task-types",
+      "skill_name": "classify-bpmn-task-types",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assign-bpmn-participants",
+      "skill_name": "assign-bpmn-participants",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "assemble-bpmn-model",
+      "skill_name": "assemble-bpmn-model",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "serialize-bpmn-xml",
+      "skill_name": "serialize-bpmn-xml",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    },
+    {
+      "asset_type": "tool",
+      "asset_name": "optimize-bpmn-layout",
+      "skill_name": "optimize-bpmn-layout",
+      "code": "t4_single_consumer",
+      "severity": "WARNING",
+      "message": "Tool has only 1 consumer: 'converting-business-to-bpmn'. Single-consumer tools may be premature abstractions — consider demoting to workflow_step inside that skill.",
+      "action": "Verify reuse plan or annotate TOOL.md with planned future consumers"
+    }
+  ]
+}
