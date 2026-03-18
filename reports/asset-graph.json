@@ -1,0 +1,1083 @@
+{
+  "nodes": {
+    "skill:agent-workflow": {
+      "type": "skill",
+      "id": "skill:agent-workflow",
+      "name": "agent-workflow",
+      "display": "Agent Workflow",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/agent-workflow/SKILL.md"
+    },
+    "skill:case-search": {
+      "type": "skill",
+      "id": "skill:case-search",
+      "name": "case-search",
+      "display": "Case Search",
+      "bundle": "diagnosis-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/case-search/SKILL.md"
+    },
+    "skill:diagnostic-log-parser": {
+      "type": "skill",
+      "id": "skill:diagnostic-log-parser",
+      "name": "diagnostic-log-parser",
+      "display": "Diagnostic Log Parser",
+      "bundle": "diagnosis-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/diagnostic-log-parser/SKILL.md"
+    },
+    "skill:diagnosing-cellular-logs": {
+      "type": "skill",
+      "id": "skill:diagnosing-cellular-logs",
+      "name": "diagnosing-cellular-logs",
+      "display": "Diagnosing Cellular Logs",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/diagnosing-cellular-logs/SKILL.md"
+    },
+    "skill:ev-charger-troubleshoot": {
+      "type": "skill",
+      "id": "skill:ev-charger-troubleshoot",
+      "name": "ev-charger-troubleshoot",
+      "display": "EV Charger Troubleshoot",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/ev-charger-troubleshoot/SKILL.md"
+    },
+    "skill:evidence-fusion": {
+      "type": "skill",
+      "id": "skill:evidence-fusion",
+      "name": "evidence-fusion",
+      "display": "Evidence Fusion",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/evidence-fusion/SKILL.md"
+    },
+    "skill:ev-charger-knowledge": {
+      "type": "skill",
+      "id": "skill:ev-charger-knowledge",
+      "name": "ev-charger-knowledge",
+      "display": "EV Charger Knowledge",
+      "bundle": "diagnosis-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/ev-charger-knowledge/SKILL.md"
+    },
+    "skill:failure-analytics": {
+      "type": "skill",
+      "id": "skill:failure-analytics",
+      "name": "failure-analytics",
+      "display": "Failure Analytics",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/failure-analytics/SKILL.md"
+    },
+    "skill:feishu-doc-crawler": {
+      "type": "skill",
+      "id": "skill:feishu-doc-crawler",
+      "name": "feishu-doc-crawler",
+      "display": "Feishu Doc Crawler",
+      "bundle": "ops-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/feishu-doc-crawler/SKILL.md"
+    },
+    "skill:hardware-diagnostics": {
+      "type": "skill",
+      "id": "skill:hardware-diagnostics",
+      "name": "hardware-diagnostics",
+      "display": "Hardware Diagnostics",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/hardware-diagnostics/SKILL.md"
+    },
+    "skill:image-extraction": {
+      "type": "skill",
+      "id": "skill:image-extraction",
+      "name": "image-extraction",
+      "display": "Image Extraction",
+      "bundle": "diagnosis-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/image-extraction/SKILL.md"
+    },
+    "skill:incremental-embeddings": {
+      "type": "skill",
+      "id": "skill:incremental-embeddings",
+      "name": "incremental-embeddings",
+      "display": "Incremental Embeddings",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/incremental-embeddings/SKILL.md"
+    },
+    "skill:installation-checklist": {
+      "type": "skill",
+      "id": "skill:installation-checklist",
+      "name": "installation-checklist",
+      "display": "Installation Checklist",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/installation-checklist/SKILL.md"
+    },
+    "skill:knowledge-package-exporter": {
+      "type": "skill",
+      "id": "skill:knowledge-package-exporter",
+      "name": "knowledge-package-exporter",
+      "display": "Knowledge Package Exporter",
+      "bundle": "ops-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/knowledge-package-exporter/SKILL.md"
+    },
+    "skill:log-analyzer": {
+      "type": "skill",
+      "id": "skill:log-analyzer",
+      "name": "log-analyzer",
+      "display": "Log Analyzer",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/log-analyzer/SKILL.md"
+    },
+    "skill:preventive-maintenance": {
+      "type": "skill",
+      "id": "skill:preventive-maintenance",
+      "name": "preventive-maintenance",
+      "display": "Preventive Maintenance",
+      "bundle": "ops-agent",
+      "risk": "L3",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/preventive-maintenance/SKILL.md"
+    },
+    "skill:rag-chunk-deduplicator": {
+      "type": "skill",
+      "id": "skill:rag-chunk-deduplicator",
+      "name": "rag-chunk-deduplicator",
+      "display": "RAG Chunk Deduplicator",
+      "bundle": "ops-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/rag-chunk-deduplicator/SKILL.md"
+    },
+    "skill:rag-rebuild": {
+      "type": "skill",
+      "id": "skill:rag-rebuild",
+      "name": "rag-rebuild",
+      "display": "RAG Rebuild",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/rag-rebuild/SKILL.md"
+    },
+    "skill:skill-creator": {
+      "type": "skill",
+      "id": "skill:skill-creator",
+      "name": "skill-creator",
+      "display": "Skill Creator",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/skill-creator/SKILL.md"
+    },
+    "skill:ticket-log-join": {
+      "type": "skill",
+      "id": "skill:ticket-log-join",
+      "name": "ticket-log-join",
+      "display": "Ticket Log Join",
+      "bundle": "diagnosis-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/ticket-log-join/SKILL.md"
+    },
+    "skill:transforming-knowledge-packages": {
+      "type": "skill",
+      "id": "skill:transforming-knowledge-packages",
+      "name": "transforming-knowledge-packages",
+      "display": "Transforming Knowledge Packages",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/transforming-knowledge-packages/SKILL.md"
+    },
+    "skill:vehicle-compatibility-rag": {
+      "type": "skill",
+      "id": "skill:vehicle-compatibility-rag",
+      "name": "vehicle-compatibility-rag",
+      "display": "Vehicle Compatibility RAG",
+      "bundle": "customer-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/vehicle-compatibility-rag/SKILL.md"
+    },
+    "skill:web-ui-demo": {
+      "type": "skill",
+      "id": "skill:web-ui-demo",
+      "name": "web-ui-demo",
+      "display": "Web UI Demo",
+      "bundle": "customer-agent",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/web-ui-demo/SKILL.md"
+    },
+    "skill:extracting-excel-to-rag": {
+      "type": "skill",
+      "id": "skill:extracting-excel-to-rag",
+      "name": "extracting-excel-to-rag",
+      "display": "Extracting Excel to RAG",
+      "bundle": "ops-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "ev-charger",
+      "eval": "pending",
+      "path": "ev-charger-skills/extracting-excel-to-rag/SKILL.md"
+    },
+    "skill:converting-business-to-bpmn": {
+      "type": "skill",
+      "id": "skill:converting-business-to-bpmn",
+      "name": "converting-business-to-bpmn",
+      "display": "Converting Business to BPMN",
+      "bundle": "bpmn-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "bpmn",
+      "eval": "pending",
+      "path": "business-to-bpmn/SKILL.md"
+    },
+    "skill:decomposing-business-process": {
+      "type": "skill",
+      "id": "skill:decomposing-business-process",
+      "name": "decomposing-business-process",
+      "display": "Decomposing Business Process",
+      "bundle": "bpmn-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "bpmn",
+      "eval": "pending",
+      "path": "business-to-bpmn/decomposing-business-process/SKILL.md"
+    },
+    "skill:validating-bpmn-compliance": {
+      "type": "skill",
+      "id": "skill:validating-bpmn-compliance",
+      "name": "validating-bpmn-compliance",
+      "display": "Validating BPMN Compliance",
+      "bundle": "bpmn-agent",
+      "risk": "L2",
+      "status": "approved",
+      "owner": "bpmn",
+      "eval": "pending",
+      "path": "business-to-bpmn/validating-bpmn-compliance/SKILL.md"
+    },
+    "skill:capability-planning": {
+      "type": "skill",
+      "id": "skill:capability-planning",
+      "name": "capability-planning",
+      "display": "Capability Planning",
+      "bundle": "platform",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "platform",
+      "eval": "pending",
+      "path": "capability-planning/SKILL.md"
+    },
+    "skill:guiding-tool-authoring": {
+      "type": "skill",
+      "id": "skill:guiding-tool-authoring",
+      "name": "guiding-tool-authoring",
+      "display": "Guiding Tool Authoring",
+      "bundle": "platform",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "platform",
+      "eval": "pending",
+      "path": "guiding-tool-authoring/SKILL.md"
+    },
+    "skill:tool-admission-review": {
+      "type": "skill",
+      "id": "skill:tool-admission-review",
+      "name": "tool-admission-review",
+      "display": "Tool Admission Review",
+      "bundle": "platform",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "platform",
+      "eval": "pending",
+      "path": "tool-admission-review/SKILL.md"
+    },
+    "skill:guiding-skill-authoring": {
+      "type": "skill",
+      "id": "skill:guiding-skill-authoring",
+      "name": "guiding-skill-authoring",
+      "display": "Guiding Skill Authoring",
+      "bundle": "platform",
+      "risk": "L1",
+      "status": "approved",
+      "owner": "platform",
+      "eval": "pending",
+      "path": "guiding-skill-authoring/SKILL.md"
+    },
+    "tool:parse-business-intent": {
+      "type": "tool",
+      "id": "tool:parse-business-intent",
+      "name": "parse-business-intent",
+      "display": "Parse Business Intent",
+      "service": "bpmn-tools",
+      "risk": "L1",
+      "category": "parsing",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "tool:extract-process-entities": {
+      "type": "tool",
+      "id": "tool:extract-process-entities",
+      "name": "extract-process-entities",
+      "display": "Extract Process Entities",
+      "service": "bpmn-tools",
+      "risk": "L1",
+      "category": "parsing",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "tool:detect-description-ambiguity": {
+      "type": "tool",
+      "id": "tool:detect-description-ambiguity",
+      "name": "detect-description-ambiguity",
+      "display": "Detect Description Ambiguity",
+      "service": "bpmn-tools",
+      "risk": "L1",
+      "category": "validation",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "tool:match-bpmn-template": {
+      "type": "tool",
+      "id": "tool:match-bpmn-template",
+      "name": "match-bpmn-template",
+      "display": "Match BPMN Template",
+      "service": "bpmn-tools",
+      "risk": "L1",
+      "category": "retrieval",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "tool:decompose-process-steps": {
+      "type": "tool",
+      "id": "tool:decompose-process-steps",
+      "name": "decompose-process-steps",
+      "display": "Decompose Process Steps",
+      "service": "bpmn-tools",
+      "risk": "L2",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "tool:resolve-step-dependencies": {
+      "type": "tool",
+      "id": "tool:resolve-step-dependencies",
+      "name": "resolve-step-dependencies",
+      "display": "Resolve Step Dependencies",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "computation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:identify-parallel-steps": {
+      "type": "tool",
+      "id": "tool:identify-parallel-steps",
+      "name": "identify-parallel-steps",
+      "display": "Identify Parallel Steps",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "computation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:map-steps-to-bpmn-elements": {
+      "type": "tool",
+      "id": "tool:map-steps-to-bpmn-elements",
+      "name": "map-steps-to-bpmn-elements",
+      "display": "Map Steps to BPMN Elements",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:classify-bpmn-task-types": {
+      "type": "tool",
+      "id": "tool:classify-bpmn-task-types",
+      "name": "classify-bpmn-task-types",
+      "display": "Classify BPMN Task Types",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:assign-bpmn-participants": {
+      "type": "tool",
+      "id": "tool:assign-bpmn-participants",
+      "name": "assign-bpmn-participants",
+      "display": "Assign BPMN Participants",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:assemble-bpmn-model": {
+      "type": "tool",
+      "id": "tool:assemble-bpmn-model",
+      "name": "assemble-bpmn-model",
+      "display": "Assemble BPMN Model",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:serialize-bpmn-xml": {
+      "type": "tool",
+      "id": "tool:serialize-bpmn-xml",
+      "name": "serialize-bpmn-xml",
+      "display": "Serialize BPMN XML",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:optimize-bpmn-layout": {
+      "type": "tool",
+      "id": "tool:optimize-bpmn-layout",
+      "name": "optimize-bpmn-layout",
+      "display": "Optimize BPMN Layout",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "transformation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:validate-bpmn-structural": {
+      "type": "tool",
+      "id": "tool:validate-bpmn-structural",
+      "name": "validate-bpmn-structural",
+      "display": "Validate BPMN Structural",
+      "service": "bpmn-tools",
+      "risk": "L0",
+      "category": "validation",
+      "status": "approved",
+      "side_effects": "none"
+    },
+    "tool:evaluate-intent-coverage": {
+      "type": "tool",
+      "id": "tool:evaluate-intent-coverage",
+      "name": "evaluate-intent-coverage",
+      "display": "Evaluate Intent Coverage",
+      "service": "bpmn-tools",
+      "risk": "L1",
+      "category": "validation",
+      "status": "approved",
+      "side_effects": "read"
+    },
+    "service:bpmn-tools": {
+      "type": "service",
+      "id": "service:bpmn-tools",
+      "name": "bpmn-tools"
+    },
+    "bundle:customer-agent": {
+      "type": "bundle",
+      "id": "bundle:customer-agent",
+      "name": "customer-agent"
+    },
+    "bundle:bpmn-agent": {
+      "type": "bundle",
+      "id": "bundle:bpmn-agent",
+      "name": "bpmn-agent"
+    },
+    "bundle:ops-agent": {
+      "type": "bundle",
+      "id": "bundle:ops-agent",
+      "name": "ops-agent"
+    },
+    "bundle:platform": {
+      "type": "bundle",
+      "id": "bundle:platform",
+      "name": "platform"
+    },
+    "bundle:diagnosis-agent": {
+      "type": "bundle",
+      "id": "bundle:diagnosis-agent",
+      "name": "diagnosis-agent"
+    }
+  },
+  "edges": [
+    {
+      "src": "skill:agent-workflow",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:case-search",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:diagnostic-log-parser",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:diagnosing-cellular-logs",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:ev-charger-troubleshoot",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:evidence-fusion",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:ev-charger-knowledge",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:failure-analytics",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:feishu-doc-crawler",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:hardware-diagnostics",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:image-extraction",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:incremental-embeddings",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:installation-checklist",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:knowledge-package-exporter",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:log-analyzer",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:preventive-maintenance",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:rag-chunk-deduplicator",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:rag-rebuild",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:skill-creator",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:ticket-log-join",
+      "dst": "bundle:diagnosis-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:transforming-knowledge-packages",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:vehicle-compatibility-rag",
+      "dst": "bundle:customer-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:web-ui-demo",
+      "dst": "bundle:customer-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:extracting-excel-to-rag",
+      "dst": "bundle:ops-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "bundle:bpmn-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "bundle:bpmn-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:validating-bpmn-compliance",
+      "dst": "bundle:bpmn-agent",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:capability-planning",
+      "dst": "bundle:platform",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:guiding-tool-authoring",
+      "dst": "bundle:platform",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:tool-admission-review",
+      "dst": "bundle:platform",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "skill:guiding-skill-authoring",
+      "dst": "bundle:platform",
+      "rel": "in_bundle"
+    },
+    {
+      "src": "tool:parse-business-intent",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:extract-process-entities",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:detect-description-ambiguity",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:match-bpmn-template",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:decompose-process-steps",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:resolve-step-dependencies",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:identify-parallel-steps",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:map-steps-to-bpmn-elements",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:classify-bpmn-task-types",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:assign-bpmn-participants",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:assemble-bpmn-model",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:serialize-bpmn-xml",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:optimize-bpmn-layout",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:validate-bpmn-structural",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "tool:evaluate-intent-coverage",
+      "dst": "service:bpmn-tools",
+      "rel": "belongs_to"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:parse-business-intent",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:parse-business-intent",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:extract-process-entities",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:extract-process-entities",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:detect-description-ambiguity",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:detect-description-ambiguity",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:match-bpmn-template",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:match-bpmn-template",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:decompose-process-steps",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:decompose-process-steps",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:resolve-step-dependencies",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:resolve-step-dependencies",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:identify-parallel-steps",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:decomposing-business-process",
+      "dst": "tool:identify-parallel-steps",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:map-steps-to-bpmn-elements",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:classify-bpmn-task-types",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:assign-bpmn-participants",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:assemble-bpmn-model",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:serialize-bpmn-xml",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:optimize-bpmn-layout",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:validate-bpmn-structural",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:validating-bpmn-compliance",
+      "dst": "tool:validate-bpmn-structural",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:converting-business-to-bpmn",
+      "dst": "tool:evaluate-intent-coverage",
+      "rel": "calls"
+    },
+    {
+      "src": "skill:validating-bpmn-compliance",
+      "dst": "tool:evaluate-intent-coverage",
+      "rel": "calls"
+    }
+  ],
+  "stats": {
+    "total_nodes": 52,
+    "total_edges": 70,
+    "skills": 31,
+    "tools": 15,
+    "services": 1,
+    "bundles": 5
+  },
+  "index": {
+    "skills_by_bundle": {
+      "diagnosis-agent": [
+        "agent-workflow",
+        "case-search",
+        "diagnostic-log-parser",
+        "diagnosing-cellular-logs",
+        "ev-charger-troubleshoot",
+        "evidence-fusion",
+        "ev-charger-knowledge",
+        "hardware-diagnostics",
+        "image-extraction",
+        "log-analyzer",
+        "ticket-log-join"
+      ],
+      "ops-agent": [
+        "failure-analytics",
+        "feishu-doc-crawler",
+        "incremental-embeddings",
+        "installation-checklist",
+        "knowledge-package-exporter",
+        "preventive-maintenance",
+        "rag-chunk-deduplicator",
+        "rag-rebuild",
+        "skill-creator",
+        "transforming-knowledge-packages",
+        "extracting-excel-to-rag"
+      ],
+      "customer-agent": [
+        "vehicle-compatibility-rag",
+        "web-ui-demo"
+      ],
+      "bpmn-agent": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process",
+        "validating-bpmn-compliance"
+      ],
+      "platform": [
+        "capability-planning",
+        "guiding-tool-authoring",
+        "tool-admission-review",
+        "guiding-skill-authoring"
+      ]
+    },
+    "tools_by_service": {
+      "bpmn-tools": [
+        "parse-business-intent",
+        "extract-process-entities",
+        "detect-description-ambiguity",
+        "match-bpmn-template",
+        "decompose-process-steps",
+        "resolve-step-dependencies",
+        "identify-parallel-steps",
+        "map-steps-to-bpmn-elements",
+        "classify-bpmn-task-types",
+        "assign-bpmn-participants",
+        "assemble-bpmn-model",
+        "serialize-bpmn-xml",
+        "optimize-bpmn-layout",
+        "validate-bpmn-structural",
+        "evaluate-intent-coverage"
+      ]
+    },
+    "tool_consumers": {
+      "parse-business-intent": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "extract-process-entities": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "detect-description-ambiguity": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "match-bpmn-template": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "decompose-process-steps": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "resolve-step-dependencies": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "identify-parallel-steps": [
+        "converting-business-to-bpmn",
+        "decomposing-business-process"
+      ],
+      "map-steps-to-bpmn-elements": [
+        "converting-business-to-bpmn"
+      ],
+      "classify-bpmn-task-types": [
+        "converting-business-to-bpmn"
+      ],
+      "assign-bpmn-participants": [
+        "converting-business-to-bpmn"
+      ],
+      "assemble-bpmn-model": [
+        "converting-business-to-bpmn"
+      ],
+      "serialize-bpmn-xml": [
+        "converting-business-to-bpmn"
+      ],
+      "optimize-bpmn-layout": [
+        "converting-business-to-bpmn"
+      ],
+      "validate-bpmn-structural": [
+        "converting-business-to-bpmn",
+        "validating-bpmn-compliance"
+      ],
+      "evaluate-intent-coverage": [
+        "converting-business-to-bpmn",
+        "validating-bpmn-compliance"
+      ]
+    },
+    "skill_tools": {
+      "converting-business-to-bpmn": [
+        "parse-business-intent",
+        "extract-process-entities",
+        "detect-description-ambiguity",
+        "match-bpmn-template",
+        "decompose-process-steps",
+        "resolve-step-dependencies",
+        "identify-parallel-steps",
+        "map-steps-to-bpmn-elements",
+        "classify-bpmn-task-types",
+        "assign-bpmn-participants",
+        "assemble-bpmn-model",
+        "serialize-bpmn-xml",
+        "optimize-bpmn-layout",
+        "validate-bpmn-structural",
+        "evaluate-intent-coverage"
+      ],
+      "decomposing-business-process": [
+        "parse-business-intent",
+        "extract-process-entities",
+        "detect-description-ambiguity",
+        "match-bpmn-template",
+        "decompose-process-steps",
+        "resolve-step-dependencies",
+        "identify-parallel-steps"
+      ],
+      "validating-bpmn-compliance": [
+        "validate-bpmn-structural",
+        "evaluate-intent-coverage"
+      ]
+    }
+  }
+}

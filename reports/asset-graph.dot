@@ -1,0 +1,124 @@
+digraph AssetGraph {
+  rankdir=LR;
+  graph [fontname="Arial" fontsize=12 bgcolor="#fafafa"];
+  node  [fontname="Arial" fontsize=10];
+  edge  [fontname="Arial" fontsize=9 color="#555555"];
+
+  subgraph cluster_diagnosis_agent {
+    label="diagnosis-agent";
+    style=filled; fillcolor="#f0f4ff"; color=steelblue;
+    "skill:agent-workflow" [label="agent-workflow\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:case-search" [label="case-search\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:diagnostic-log-parser" [label="diagnostic-log-parser\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:diagnosing-cellular-logs" [label="diagnosing-cellular-logs\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:ev-charger-troubleshoot" [label="ev-charger-troubleshoot\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:evidence-fusion" [label="evidence-fusion\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:ev-charger-knowledge" [label="ev-charger-knowledge\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:hardware-diagnostics" [label="hardware-diagnostics\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:image-extraction" [label="image-extraction\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:log-analyzer" [label="log-analyzer\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:ticket-log-join" [label="ticket-log-join\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+  }
+
+  subgraph cluster_ops_agent {
+    label="ops-agent";
+    style=filled; fillcolor="#f0f4ff"; color=steelblue;
+    "skill:failure-analytics" [label="failure-analytics\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:feishu-doc-crawler" [label="feishu-doc-crawler\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:incremental-embeddings" [label="incremental-embeddings\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:installation-checklist" [label="installation-checklist\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:knowledge-package-exporter" [label="knowledge-package-exporter\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:preventive-maintenance" [label="preventive-maintenance\n[L3]" shape=box style="filled,rounded" fillcolor="#ffe0b2" color="darkgreen"];
+    "skill:rag-chunk-deduplicator" [label="rag-chunk-deduplicator\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:rag-rebuild" [label="rag-rebuild\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:skill-creator" [label="skill-creator\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:transforming-knowledge-packages" [label="transforming-knowledge-packages\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:extracting-excel-to-rag" [label="extracting-excel-to-rag\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+  }
+
+  subgraph cluster_customer_agent {
+    label="customer-agent";
+    style=filled; fillcolor="#f0f4ff"; color=steelblue;
+    "skill:vehicle-compatibility-rag" [label="vehicle-compatibility-rag\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:web-ui-demo" [label="web-ui-demo\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+  }
+
+  subgraph cluster_bpmn_agent {
+    label="bpmn-agent";
+    style=filled; fillcolor="#f0f4ff"; color=steelblue;
+    "skill:converting-business-to-bpmn" [label="converting-business-to-bpmn\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:decomposing-business-process" [label="decomposing-business-process\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+    "skill:validating-bpmn-compliance" [label="validating-bpmn-compliance\n[L2]" shape=box style="filled,rounded" fillcolor="#fff9c4" color="darkgreen"];
+  }
+
+  subgraph cluster_platform {
+    label="platform";
+    style=filled; fillcolor="#f0f4ff"; color=steelblue;
+    "skill:capability-planning" [label="capability-planning\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:guiding-tool-authoring" [label="guiding-tool-authoring\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:tool-admission-review" [label="tool-admission-review\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+    "skill:guiding-skill-authoring" [label="guiding-skill-authoring\n[L1]" shape=box style="filled,rounded" fillcolor="#e3f2fd" color="darkgreen"];
+  }
+
+  // Tools
+  // service: bpmn-tools
+  "tool:parse-business-intent" [label="parse-business-intent\n[L1] bpmn-tools" shape=ellipse style="filled" fillcolor="#e3f2fd" color="darkgreen"];
+  "tool:extract-process-entities" [label="extract-process-entities\n[L1] bpmn-tools" shape=ellipse style="filled" fillcolor="#e3f2fd" color="darkgreen"];
+  "tool:detect-description-ambiguity" [label="detect-description-ambiguity\n[L1] bpmn-tools" shape=ellipse style="filled" fillcolor="#e3f2fd" color="darkgreen"];
+  "tool:match-bpmn-template" [label="match-bpmn-template\n[L1] bpmn-tools" shape=ellipse style="filled" fillcolor="#e3f2fd" color="darkgreen"];
+  "tool:decompose-process-steps" [label="decompose-process-steps\n[L2] bpmn-tools" shape=ellipse style="filled" fillcolor="#fff9c4" color="darkgreen"];
+  "tool:resolve-step-dependencies" [label="resolve-step-dependencies\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:identify-parallel-steps" [label="identify-parallel-steps\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:map-steps-to-bpmn-elements" [label="map-steps-to-bpmn-elements\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:classify-bpmn-task-types" [label="classify-bpmn-task-types\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:assign-bpmn-participants" [label="assign-bpmn-participants\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:assemble-bpmn-model" [label="assemble-bpmn-model\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:serialize-bpmn-xml" [label="serialize-bpmn-xml\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:optimize-bpmn-layout" [label="optimize-bpmn-layout\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:validate-bpmn-structural" [label="validate-bpmn-structural\n[L0] bpmn-tools" shape=ellipse style="filled" fillcolor="#e8f5e9" color="darkgreen"];
+  "tool:evaluate-intent-coverage" [label="evaluate-intent-coverage\n[L1] bpmn-tools" shape=ellipse style="filled" fillcolor="#e3f2fd" color="darkgreen"];
+
+  // Services
+  "service:bpmn-tools" [label="bpmn-tools" shape=diamond style="filled" fillcolor="#e0e0e0" color="#555555"];
+
+  // Edges
+  "tool:parse-business-intent" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:extract-process-entities" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:detect-description-ambiguity" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:match-bpmn-template" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:decompose-process-steps" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:resolve-step-dependencies" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:identify-parallel-steps" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:map-steps-to-bpmn-elements" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:classify-bpmn-task-types" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:assign-bpmn-participants" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:assemble-bpmn-model" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:serialize-bpmn-xml" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:optimize-bpmn-layout" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:validate-bpmn-structural" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "tool:evaluate-intent-coverage" -> "service:bpmn-tools" [color="#9e9e9e" style=dotted];
+  "skill:converting-business-to-bpmn" -> "tool:parse-business-intent" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:parse-business-intent" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:extract-process-entities" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:extract-process-entities" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:detect-description-ambiguity" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:detect-description-ambiguity" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:match-bpmn-template" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:match-bpmn-template" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:decompose-process-steps" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:decompose-process-steps" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:resolve-step-dependencies" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:resolve-step-dependencies" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:identify-parallel-steps" [color="#2196f3" penwidth=1.5];
+  "skill:decomposing-business-process" -> "tool:identify-parallel-steps" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:map-steps-to-bpmn-elements" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:classify-bpmn-task-types" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:assign-bpmn-participants" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:assemble-bpmn-model" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:serialize-bpmn-xml" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:optimize-bpmn-layout" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:validate-bpmn-structural" [color="#2196f3" penwidth=1.5];
+  "skill:validating-bpmn-compliance" -> "tool:validate-bpmn-structural" [color="#2196f3" penwidth=1.5];
+  "skill:converting-business-to-bpmn" -> "tool:evaluate-intent-coverage" [color="#2196f3" penwidth=1.5];
+  "skill:validating-bpmn-compliance" -> "tool:evaluate-intent-coverage" [color="#2196f3" penwidth=1.5];
+}
