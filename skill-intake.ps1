@@ -39,7 +39,10 @@ param(
 
     [switch]$MergeIfPass,
 
-    [switch]$SkipWorktreeCleanup
+    [switch]$SkipWorktreeCleanup,
+
+    # Skip the local preflight (validate + state guard) — useful when CI has already checked
+    [switch]$SkipPreflight
 )
 
 Set-StrictMode -Version Latest
@@ -130,6 +133,88 @@ function Remove-BundleFromWorkspace {
     }
 }
 
+# ── Preflight: state guard + authoring gate ──────────────────────
+#
+# Runs before the full admission gate.  Catches the most common blockers
+# early so the submitter gets fast feedback without going through a full
+# PR cycle.  This mirrors Layer 1 (incoming-precheck.yml) for local use.
+
+function Invoke-Preflight {
+    Write-Header "Preflight checks: $Bundle"
+
+    $env:PYTHONIOENCODING = "utf-8"
+    $hasFail = $false
+
+    # 1. State Guard ─────────────────────────────────────────────────────
+    Write-Host ""
+    Write-Host "  [1/2] State Guard (registry lifecycle)..."
+    $sgOut = python scripts/state_guard.py 2>&1
+    $sgExitCode = $LASTEXITCODE
+    if ($sgExitCode -eq 1) {
+        Write-Host ""
+        Write-Host $sgOut
+        Write-Host ""
+        Write-Host "[BLOCKED] State Guard found CRITICAL / HIGH violations in the registry."
+        Write-Host "  Fix the registry issues above before submitting this bundle."
+        $hasFail = $true
+    } elseif ($sgExitCode -eq 3) {
+        Write-Host "  [WARN] State Guard: warnings found (non-blocking)."
+    } else {
+        Write-Host "  [OK] State Guard: PASS"
+    }
+
+    # 2. Authoring Gate (validate_skill / validate_tool) ─────────────────
+    Write-Host ""
+    Write-Host "  [2/2] Authoring Gate (validate each SKILL.md / TOOL.md)..."
+    $skillFiles = Get-ChildItem -Path $Bundle -Filter "SKILL.md" -Recurse -ErrorAction SilentlyContinue
+    $toolFiles  = Get-ChildItem -Path $Bundle -Filter "TOOL.md"  -Recurse -ErrorAction SilentlyContinue
+
+    foreach ($f in $skillFiles) {
+        $result = python guiding-skill-authoring/scripts/validate_skill.py $f.FullName --json 2>&1
+        $exitCode = $LASTEXITCODE
+        # Extract result field from JSON
+        $jsonMatch = [regex]::Match($result, '"result"\s*:\s*"([^"]+)"')
+        $scoreMatch = [regex]::Match($result, '"score"\s*:\s*(\d+)')
+        $resultCode = if ($jsonMatch.Success) { $jsonMatch.Groups[1].Value } else { "UNKNOWN" }
+        $score      = if ($scoreMatch.Success) { $scoreMatch.Groups[1].Value } else { "?" }
+
+        if ($resultCode -eq "REJECT") {
+            Write-Host "    [XX] REJECT  $($f.Name) in $($f.DirectoryName) (score: $score/70)"
+            $hasFail = $true
+        } elseif ($resultCode -eq "REQUIRES_REVIEW") {
+            Write-Host "    [!!] REQUIRES_REVIEW  $($f.Name) in $($f.DirectoryName) (score: $score/70)"
+            $hasFail = $true
+        } elseif ($resultCode -eq "PASS_WITH_WARNINGS") {
+            Write-Host "    [WN] PASS_WITH_WARNINGS  $($f.Name) (score: $score/70)"
+        } else {
+            Write-Host "    [OK] PASS  $($f.Name) (score: $score/70)"
+        }
+    }
+
+    foreach ($f in $toolFiles) {
+        $result = python guiding-tool-authoring/scripts/validate_tool.py $f.FullName --json 2>&1
+        $exitCode = $LASTEXITCODE
+        $jsonMatch  = [regex]::Match($result, '"result"\s*:\s*"([^"]+)"')
+        $scoreMatch = [regex]::Match($result, '"score"\s*:\s*(\d+)')
+        $resultCode = if ($jsonMatch.Success) { $jsonMatch.Groups[1].Value } else { "UNKNOWN" }
+        $score      = if ($scoreMatch.Success) { $scoreMatch.Groups[1].Value } else { "?" }
+
+        if ($resultCode -eq "REJECT") {
+            Write-Host "    [XX] REJECT  $($f.Name) in $($f.DirectoryName) (score: $score/50)"
+            $hasFail = $true
+        } elseif ($resultCode -eq "REQUIRES_REVIEW") {
+            Write-Host "    [!!] REQUIRES_REVIEW  $($f.Name) in $($f.DirectoryName) (score: $score/50)"
+            $hasFail = $true
+        } elseif ($resultCode -eq "PASS_WITH_WARNINGS") {
+            Write-Host "    [WN] PASS_WITH_WARNINGS  $($f.Name) (score: $score/50)"
+        } else {
+            Write-Host "    [OK] PASS  $($f.Name) (score: $score/50)"
+        }
+    }
+
+    return $hasFail
+}
+
 # ── Admission checks ─────────────────────────────────────────────
 
 function Invoke-AdmissionChecks {
@@ -176,6 +261,30 @@ Write-Header "Skill Intake: $Bundle"
 Confirm-Prerequisites
 New-BundleWorktree
 Copy-BundleToWorkspace
+
+# Run preflight checks before full admission (can be skipped with -SkipPreflight)
+if (-not $SkipPreflight) {
+    $preflightFailed = Invoke-Preflight
+    if ($preflightFailed) {
+        Write-Host ""
+        Write-Host "[BLOCKED] Preflight checks failed. Bundle NOT admitted."
+        Write-Host ""
+        Write-Host "  Fix the issues above, then push to your incoming branch:"
+        Write-Host "    git checkout incoming/$Bundle"
+        Write-Host "    # fix issues..."
+        Write-Host "    git push origin incoming/$Bundle"
+        Write-Host ""
+        Write-Host "  Then re-run this script:"
+        Write-Host "    .\skill-intake.ps1 -Bundle $Bundle -MergeIfPass"
+        Write-Host ""
+        Remove-BundleFromWorkspace
+        Remove-Worktree
+        exit 1
+    }
+    Write-Host ""
+    Write-Host "  [OK] Preflight passed. Proceeding to full admission gate..."
+}
+
 $counts = Invoke-AdmissionChecks
 Remove-Worktree
 
