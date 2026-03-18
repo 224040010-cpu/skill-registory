@@ -1,0 +1,659 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-03-18T02:31:00.017364+00:00",
+  "source": {
+    "skill_registry_version": "1.0.0",
+    "tool_registry_version": "1.0.0",
+    "skill_registry_audited": "2026-03-17",
+    "tool_registry_audited": "2026-03-17"
+  },
+  "summary": {
+    "allowed_skills": 31,
+    "allowed_tools": 15,
+    "excluded_skills_by_status": {},
+    "excluded_tools_by_status": {}
+  },
+  "skills": [
+    {
+      "name": "agent-workflow",
+      "display_name": "Agent Workflow",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/agent-workflow/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "case-search",
+      "display_name": "Case Search",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/case-search/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "diagnostic-log-parser",
+      "display_name": "Diagnostic Log Parser",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/diagnostic-log-parser/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "diagnosing-cellular-logs",
+      "display_name": "Diagnosing Cellular Logs",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/diagnosing-cellular-logs/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "ev-charger-troubleshoot",
+      "display_name": "EV Charger Troubleshoot",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/ev-charger-troubleshoot/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "evidence-fusion",
+      "display_name": "Evidence Fusion",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/evidence-fusion/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "ev-charger-knowledge",
+      "display_name": "EV Charger Knowledge",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/ev-charger-knowledge/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "failure-analytics",
+      "display_name": "Failure Analytics",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/failure-analytics/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "feishu-doc-crawler",
+      "display_name": "Feishu Doc Crawler",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/feishu-doc-crawler/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "hardware-diagnostics",
+      "display_name": "Hardware Diagnostics",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/hardware-diagnostics/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "image-extraction",
+      "display_name": "Image Extraction",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/image-extraction/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "incremental-embeddings",
+      "display_name": "Incremental Embeddings",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/incremental-embeddings/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "installation-checklist",
+      "display_name": "Installation Checklist",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/installation-checklist/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "knowledge-package-exporter",
+      "display_name": "Knowledge Package Exporter",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/knowledge-package-exporter/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "log-analyzer",
+      "display_name": "Log Analyzer",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/log-analyzer/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "preventive-maintenance",
+      "display_name": "Preventive Maintenance",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L3",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/preventive-maintenance/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "rag-chunk-deduplicator",
+      "display_name": "RAG Chunk Deduplicator",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/rag-chunk-deduplicator/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "rag-rebuild",
+      "display_name": "RAG Rebuild",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/rag-rebuild/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "skill-creator",
+      "display_name": "Skill Creator",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/skill-creator/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "ticket-log-join",
+      "display_name": "Ticket Log Join",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "diagnosis-agent",
+      "path": "ev-charger-skills/ticket-log-join/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "transforming-knowledge-packages",
+      "display_name": "Transforming Knowledge Packages",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/transforming-knowledge-packages/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "vehicle-compatibility-rag",
+      "display_name": "Vehicle Compatibility RAG",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "customer-agent",
+      "path": "ev-charger-skills/vehicle-compatibility-rag/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "web-ui-demo",
+      "display_name": "Web UI Demo",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "customer-agent",
+      "path": "ev-charger-skills/web-ui-demo/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "extracting-excel-to-rag",
+      "display_name": "Extracting Excel to RAG",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "ops-agent",
+      "path": "ev-charger-skills/extracting-excel-to-rag/SKILL.md",
+      "owner_team": "ev-charger",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "converting-business-to-bpmn",
+      "display_name": "Converting Business to BPMN",
+      "version": "2.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "bpmn-agent",
+      "path": "business-to-bpmn/SKILL.md",
+      "owner_team": "bpmn",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "decomposing-business-process",
+      "display_name": "Decomposing Business Process",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "bpmn-agent",
+      "path": "business-to-bpmn/decomposing-business-process/SKILL.md",
+      "owner_team": "bpmn",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "validating-bpmn-compliance",
+      "display_name": "Validating BPMN Compliance",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "bpmn-agent",
+      "path": "business-to-bpmn/validating-bpmn-compliance/SKILL.md",
+      "owner_team": "bpmn",
+      "supported_models": [
+        "claude-sonnet-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "capability-planning",
+      "display_name": "Capability Planning",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "platform",
+      "path": "capability-planning/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "guiding-tool-authoring",
+      "display_name": "Guiding Tool Authoring",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "platform",
+      "path": "guiding-tool-authoring/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "tool-admission-review",
+      "display_name": "Tool Admission Review",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "platform",
+      "path": "tool-admission-review/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "guiding-skill-authoring",
+      "display_name": "Guiding Skill Authoring",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L1",
+      "bundle_scope": "platform",
+      "path": "guiding-skill-authoring/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    }
+  ],
+  "tools": [
+    {
+      "name": "parse-business-intent",
+      "display_name": "Parse Business Intent",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "parsing",
+      "risk_level": "L1",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:parse_business_intent()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "read"
+    },
+    {
+      "name": "extract-process-entities",
+      "display_name": "Extract Process Entities",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "parsing",
+      "risk_level": "L1",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:extract_process_entities()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "read"
+    },
+    {
+      "name": "detect-description-ambiguity",
+      "display_name": "Detect Description Ambiguity",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "validation",
+      "risk_level": "L1",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:detect_description_ambiguity()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "read"
+    },
+    {
+      "name": "match-bpmn-template",
+      "display_name": "Match BPMN Template",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "retrieval",
+      "risk_level": "L1",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:match_bpmn_template()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "read"
+    },
+    {
+      "name": "decompose-process-steps",
+      "display_name": "Decompose Process Steps",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L2",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:decompose_process_steps()",
+      "idempotent": false,
+      "requires_approval": false,
+      "side_effects": "read"
+    },
+    {
+      "name": "resolve-step-dependencies",
+      "display_name": "Resolve Step Dependencies",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "computation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:resolve_step_dependencies()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "identify-parallel-steps",
+      "display_name": "Identify Parallel Steps",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "computation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:identify_parallel_steps()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "map-steps-to-bpmn-elements",
+      "display_name": "Map Steps to BPMN Elements",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:map_steps_to_bpmn_elements()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "classify-bpmn-task-types",
+      "display_name": "Classify BPMN Task Types",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:classify_bpmn_task_types()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "assign-bpmn-participants",
+      "display_name": "Assign BPMN Participants",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:assign_bpmn_participants()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "assemble-bpmn-model",
+      "display_name": "Assemble BPMN Model",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:assemble_bpmn_model()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "serialize-bpmn-xml",
+      "display_name": "Serialize BPMN XML",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:serialize_bpmn_xml()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "optimize-bpmn-layout",
+      "display_name": "Optimize BPMN Layout",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "transformation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:optimize_bpmn_layout()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "validate-bpmn-structural",
+      "display_name": "Validate BPMN Structural",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "validation",
+      "risk_level": "L0",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:validate_bpmn_structural()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "none"
+    },
+    {
+      "name": "evaluate-intent-coverage",
+      "display_name": "Evaluate Intent Coverage",
+      "version": "0.0.0",
+      "status": "approved",
+      "category": "validation",
+      "risk_level": "L1",
+      "service": "bpmn-tools",
+      "endpoint": "bpmn-tools:evaluate_intent_coverage()",
+      "idempotent": true,
+      "requires_approval": false,
+      "side_effects": "read"
+    }
+  ],
+  "excluded": {
+    "skills": {},
+    "tools": {}
+  }
+}

@@ -26,6 +26,7 @@
   - [管理员：日常治理巡检](#管理员日常治理巡检)
 - [Skill 状态机](#skill-状态机)
 - [工具速查](#工具速查)
+- [Phase 6 · CI / Runtime Integration](#phase-6--ci--runtime-integration)
 - [已知限制与计划改进](#已知限制与计划改进)
 
 ---
@@ -583,6 +584,169 @@ TOOL-1 → TOOL-2 → TOOL-3（原子操作）
 
 ---
 
+## Phase 6 · CI / Runtime Integration
+
+> **目标：不依赖人记得去做，而是系统自动拦。**
+
+### 三项核心机制
+
+| 机制 | 脚本 / 文件 | 作用 |
+|------|------------|------|
+| **PR 级自动检查** | `.github/workflows/skill-ci.yml` | 每次 push/PR 自动运行 State Guard + Validate + Admission |
+| **状态机强制执行** | `scripts/state_guard.py` | 拦截违反生命周期规则的 registry 变更 |
+| **Runtime 只消费 approved 资产** | `scripts/runtime_allowlist.py` | 生成 `runtime/allowlist.json`，Runtime 必须基于此文件路由 |
+
+---
+
+### Phase 6-A · PR 级自动检查（GitHub Actions）
+
+**文件：** `.github/workflows/skill-ci.yml`
+
+每次 push 或 PR 触发（paths: `**/SKILL.md`, `**/TOOL.md`, `skill-registry.yaml`, `tool-registry.yaml`）：
+
+```
+Stage 1  State Guard
+         python scripts/state_guard.py
+         → 违反状态机规则 → CI 立即失败
+
+Stage 2  Validate + Admission Gate (仅变更的文件)
+         SKILL.md → validate_skill.py + admission_gate.py
+         TOOL.md  → validate_tool.py  + admission_gate_tool.py
+         → 任意 REJECT → CI 失败
+         → REQUIRES_REVIEW → CI 失败
+         → PASS_WITH_WARNINGS → CI 通过，报告中标记
+
+Stage 3  Runtime Allowlist 再生
+         python scripts/runtime_allowlist.py
+         → 上传 runtime/allowlist.json 为 build artifact
+```
+
+**CI 触发方式（workflow_dispatch 支持全量检查）：**
+
+```bash
+# 仅检查变更文件（默认 PR/push 行为）
+git push origin feature/my-new-skill
+
+# 手动触发全量检查
+# GitHub Actions → workflow_dispatch → check_all: true
+```
+
+---
+
+### Phase 6-B · 状态机强制执行（State Guard）
+
+**文件：** `scripts/state_guard.py`
+
+**状态机规则（skill 和 tool 共用）：**
+
+```
+draft → submitted → approved | restricted | needs_revision
+needs_revision → submitted
+approved ↔ restricted
+approved | restricted → deprecated → retired
+```
+
+**检查规则：**
+
+| 规则 ID | 级别 | 描述 |
+|---------|------|------|
+| S-STATE-1 | CRITICAL | 无效 status 值 |
+| S-STATE-2 | HIGH | L4 skill 未通过 security_review |
+| S-STATE-3 | CRITICAL | approved skill 依赖 draft/submitted/needs_revision skill |
+| S-STATE-4 | CRITICAL/HIGH | approved skill 依赖 retired/deprecated skill |
+| S-STATE-5 | HIGH | 依赖的 skill 不存在于 registry |
+| T-STATE-1 | CRITICAL | Tool 无效 status 值 |
+| T-STATE-2 | WARNING | approved tool 的 consumer skill 已 retired |
+| T-STATE-3 | WARNING | approved tool 的 consumer skill 不在 registry |
+| T-STATE-4 | CRITICAL/HIGH | deprecated/retired tool 仍被 active skill 调用 |
+
+**使用方式：**
+
+```bash
+# 人类可读输出
+python scripts/state_guard.py
+
+# JSON 报告（CI 用）
+python scripts/state_guard.py --output reports/ci/state-guard.json
+
+# 仅 JSON 输出到 stdout
+python scripts/state_guard.py --json
+```
+
+**Exit codes:** `0` = PASS，`1` = FAIL（有 CRITICAL/HIGH），`3` = WARN（仅 WARNING），`2` = 解析错误
+
+---
+
+### Phase 6-C · Runtime 只消费 approved 资产
+
+**文件：** `scripts/runtime_allowlist.py` → `runtime/allowlist.json`
+
+这是 Registry 与 Runtime 之间的**合同**：
+
+> Runtime MUST NOT call any skill or tool not present in `allowlist.json`.
+
+**哪些资产进入 allowlist：**
+
+| Status | 进入 allowlist | Runtime 行为 |
+|--------|--------------|-------------|
+| `approved` | **是** | 可正常调用 |
+| `restricted` | **是** | 需额外权限校验 |
+| `draft` | 否 | Runtime 不可见 |
+| `submitted` | 否 | Runtime 不可见 |
+| `needs_revision` | 否 | Runtime 不可见 |
+| `deprecated` | 否 | Runtime 拒绝并记录告警 |
+| `retired` | 否 | Runtime 强制报错 |
+
+**生成方式：**
+
+```bash
+# 本地生成（开发调试）
+python scripts/runtime_allowlist.py
+
+# 指定路径
+python scripts/runtime_allowlist.py \
+  --skill-registry skill-registry.yaml \
+  --tool-registry  tool-registry.yaml  \
+  --output         runtime/allowlist.json
+```
+
+**Runtime 消费模式（示例）：**
+
+```python
+import json
+from pathlib import Path
+
+allowlist = json.loads(Path("runtime/allowlist.json").read_text())
+
+APPROVED_SKILLS = {s["name"] for s in allowlist["skills"]}
+APPROVED_TOOLS  = {t["name"]: t for t in allowlist["tools"]}
+
+def route_skill(name: str):
+    if name not in APPROVED_SKILLS:
+        raise RuntimeError(f"Skill '{name}' not in runtime allowlist")
+
+def get_tool_endpoint(name: str) -> str:
+    tool = APPROVED_TOOLS.get(name)
+    if not tool:
+        raise RuntimeError(f"Tool '{name}' not in runtime allowlist")
+    return tool["endpoint"]
+```
+
+---
+
+### Phase 6-D · 定时双轨治理巡检（Cron）
+
+**文件：** `.github/workflows/governance-cron.yml`
+
+每周一 08:00 UTC 自动运行，覆盖：
+- `governance_audit.py` 全库双轨巡检（S1-S4 + T1-T4 + X1-X3）
+- `state_guard.py` 状态机完整性检查
+- `runtime_allowlist.py` allowlist 健康检查
+
+所有报告作为 build artifact 保留 90 天。
+
+---
+
 ## 资产升降级规则
 
 > 完整规则：`capability-planning/references/asset-promotion-rules.md`
@@ -755,6 +919,15 @@ approved ───────────────────────�
 | Tool 准入检查（单个） | `python tool-admission-review/scripts/admission_gate_tool.py <tool>/TOOL.md --registry tool-registry.yaml` |
 | Tool 准入检查（JSON） | `python tool-admission-review/scripts/admission_gate_tool.py <tool>/TOOL.md --registry tool-registry.yaml --json` |
 
+**CI / Runtime**
+
+| 场景 | 命令 |
+|------|------|
+| 状态机检查 | `python scripts/state_guard.py` |
+| 生成 Runtime 白名单 | `python scripts/runtime_allowlist.py` |
+| CI 全量检查 | `python scripts/ci_runner.py --all` |
+| CI 检查指定文件 | `python scripts/ci_runner.py --files changed.txt` |
+
 **Registry 相关**
 
 | 场景 | 命令 |
@@ -773,9 +946,9 @@ approved ───────────────────────�
 
 | 项目 | 描述 |
 |------|------|
-| skill-registry.yaml 状态字段 | 所有 30 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
+| skill-registry.yaml 状态字段 | 所有已入库 Skill 均为 `approved`，生命周期测试数据（draft/submitted 等）尚未建立 |
 | batch_admission.py | 仅控制台输出，无 `--output json` flag |
-| skill-intake.ps1 | 仅支持本地手动运行，尚无 GitHub Actions / CI 集成 |
+
 
 ### 计划改进
 
@@ -783,8 +956,8 @@ approved ───────────────────────�
 - [x] ~~`governance_audit.py` 扩展支持 `tool-registry.yaml`~~ — **已完成** S1-S4 + T1-T4 + X1-X3
 - [x] ~~统一两个 Gate 的结果词汇表~~ — **已完成** 统一为 PASS / PASS_WITH_WARNINGS / REQUIRES_REVIEW / REJECT
 - [ ] `batch_admission.py` 增加 `--output json` flag
-- [ ] `skill-intake.ps1` 增加 GitHub Actions workflow
-- [ ] Registry 状态字段开始反映真实生命周期
+- [x] ~~`skill-intake.ps1` 增加 GitHub Actions workflow~~ — **已完成** `.github/workflows/skill-ci.yml`
+- [x] ~~Registry 状态字段开始反映真实生命周期~~ — **已完成** `state_guard.py` 强制执行状态机，`runtime_allowlist.py` 按状态过滤
 
 ---
 
@@ -797,6 +970,6 @@ pip install pyyaml
 
 ---
 
-*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T + Phase 5 双轨治理 + 统一 Gate 词汇 + 资产升降级规则）。*
+*README 更新于 2026-03-18，反映双轨能力治理体系完整状态（Phase 4T + Phase 5 双轨治理 + Phase 6 CI/Runtime 集成 + 统一 Gate 词汇 + 资产升降级规则）。*
 *Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
 *Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*

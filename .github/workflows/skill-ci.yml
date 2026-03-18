@@ -1,0 +1,142 @@
+# .github/workflows/skill-ci.yml
+#
+# Skill & Tool Governance CI
+# ─────────────────────────────────────────────
+# Triggered on every push / PR that touches a SKILL.md, TOOL.md, or registry
+# file.  Three sequential stages:
+#
+#   Stage 1 — State Guard
+#     Enforces the lifecycle state machine in both registries.
+#     Fails immediately on CRITICAL / HIGH violations.
+#
+#   Stage 2 — Asset Validation & Admission
+#     For each changed SKILL.md:  validate_skill.py + admission_gate.py
+#     For each changed TOOL.md:   validate_tool.py  + admission_gate_tool.py
+#     Fails if any asset returns REJECT.
+#
+#   Stage 3 — Runtime Allowlist
+#     Regenerates runtime/allowlist.json from both registries.
+#     Uploaded as a build artifact (usable by downstream runtime services).
+#
+# Manual trigger (workflow_dispatch) supports --all flag to validate every
+# asset in the repository rather than just changed files.
+
+name: "Skill & Tool Governance CI"
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "**/SKILL.md"
+      - "**/TOOL.md"
+      - "skill-registry.yaml"
+      - "tool-registry.yaml"
+  pull_request:
+    paths:
+      - "**/SKILL.md"
+      - "**/TOOL.md"
+      - "skill-registry.yaml"
+      - "tool-registry.yaml"
+  workflow_dispatch:
+    inputs:
+      check_all:
+        description: "Validate ALL assets (not just changed files)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  governance-ci:
+    name: "Skill & Tool Governance"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # ── Checkout ───────────────────────────────────────────────────────────
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for git diff
+
+      # ── Python ────────────────────────────────────────────────────────────
+      - name: "Set up Python 3.11"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: pip install --quiet pyyaml
+
+      # ── Detect changed files ───────────────────────────────────────────────
+      - name: "Detect changed SKILL.md / TOOL.md files"
+        id: detect
+        run: |
+          mkdir -p reports/ci
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+              | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+          elif [ "${{ inputs.check_all }}" = "true" ]; then
+            find . \( -name 'SKILL.md' -o -name 'TOOL.md' \) \
+              | grep -v '/\.git/' > /tmp/changed_files.txt
+          else
+            git diff --name-only "HEAD~1" "HEAD" \
+              | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+          fi
+
+          COUNT=$(grep -c . /tmp/changed_files.txt 2>/dev/null || echo 0)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          echo "Changed files ($COUNT):"
+          cat /tmp/changed_files.txt
+
+      # ── Stage 1: State Guard ────────────────────────────────────────────────
+      - name: "Stage 1 · State Guard (lifecycle enforcement)"
+        run: |
+          python scripts/state_guard.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         reports/ci/state-guard.json
+
+      # ── Stage 2: Validate + Admission (changed assets only) ─────────────────
+      - name: "Stage 2 · Validate & Admission Gate (changed assets)"
+        if: steps.detect.outputs.count != '0'
+        run: |
+          python scripts/ci_runner.py \
+            --files          /tmp/changed_files.txt \
+            --skill-registry skill-registry.yaml    \
+            --tool-registry  tool-registry.yaml     \
+            --output         reports/ci/
+
+      - name: "Stage 2 · No changes detected — skipping asset validation"
+        if: steps.detect.outputs.count == '0'
+        run: echo "No SKILL.md / TOOL.md changes in this push — asset validation skipped."
+
+      # ── Stage 3: Runtime Allowlist ───────────────────────────────────────────
+      - name: "Stage 3 · Generate runtime allowlist"
+        run: |
+          python scripts/runtime_allowlist.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         runtime/allowlist.json
+
+      # ── Upload artifacts ───────────────────────────────────────────────────
+      - name: "Upload CI governance reports"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "governance-reports-${{ github.run_number }}"
+          path: reports/ci/
+          retention-days: 30
+
+      - name: "Upload runtime allowlist"
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: "runtime-allowlist-${{ github.run_number }}"
+          path: runtime/allowlist.json
+          retention-days: 90

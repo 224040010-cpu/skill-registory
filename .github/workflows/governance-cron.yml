@@ -1,0 +1,81 @@
+# .github/workflows/governance-cron.yml
+#
+# Weekly Dual-Track Governance Audit
+# ─────────────────────────────────────────────
+# Runs every Monday at 08:00 UTC (or on manual trigger).
+# Performs a full dual-track governance audit across:
+#   - All skills (S1–S4 checks)
+#   - All tools  (T1–T4 checks)
+#   - Cross-track consistency (X1–X3 checks)
+#
+# Additionally regenerates the runtime allowlist and runs the state guard.
+# All reports are uploaded as a build artifact.
+#
+# If you want to open a GitHub Issue on CRITICAL findings, add a step
+# using the `gh` CLI or actions/github-script after the audit step.
+
+name: "Weekly Governance Audit"
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"   # Every Monday at 08:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  dual-track-audit:
+    name: "Dual-Track Governance Audit"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.11"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: pip install --quiet pyyaml
+
+      - name: "Set report date"
+        id: date
+        run: echo "today=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      # ── Full governance audit ─────────────────────────────────────────────
+      - name: "Dual-track governance audit (Phase 5)"
+        run: |
+          mkdir -p reports/governance
+          python skill-governance-agent/scripts/governance_audit.py \
+            --registry      skill-registry.yaml \
+            --tool-registry tool-registry.yaml  \
+            --skills-root   .                   \
+            --output        reports/governance
+        continue-on-error: true   # findings are captured in the report, not CI failures
+
+      # ── State guard ───────────────────────────────────────────────────────
+      - name: "State guard check"
+        run: |
+          python scripts/state_guard.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         reports/governance/state-guard-${{ steps.date.outputs.today }}.json
+
+      # ── Runtime allowlist freshness check ─────────────────────────────────
+      - name: "Runtime allowlist health check"
+        run: |
+          python scripts/runtime_allowlist.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         reports/governance/allowlist-${{ steps.date.outputs.today }}.json
+
+      # ── Upload all reports ────────────────────────────────────────────────
+      - name: "Upload governance reports"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "governance-audit-${{ github.run_number }}-${{ steps.date.outputs.today }}"
+          path: reports/governance/
+          retention-days: 90
