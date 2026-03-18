@@ -338,7 +338,14 @@ errors:
 | 6 | Single Responsibility | 10 | 无连词过载、无跨 Skill 调用、无混合输出类型 |
 | 7 | Testability | 10 | 输入输出示例、边界案例、`evals/evals.json` |
 
-**判定标准**：≥ 60 PASS / ≥ 45 CONDITIONAL / < 45 FAIL
+**判定标准**（统一词汇）
+
+| 分数 | 结果码 | 含义 |
+|------|--------|------|
+| ≥ 60，无 blocking_issues | `PASS` | 可直接提交 |
+| ≥ 45 | `PASS_WITH_WARNINGS` | 有小修改，带 review 可提交 |
+| 30–44 | `REQUIRES_REVIEW` | 需较大修改，不可直接提交 |
+| < 30 | `REJECT` | 需重写 |
 
 ```bash
 python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md
@@ -359,7 +366,14 @@ python guiding-skill-authoring/scripts/validate_skill.py <skill>/SKILL.md --json
 | 4 | Error Contract | 10 | ≥2 错误码、UPPER_SNAKE_CASE、retryable 标注、含 input + system 两类错误 |
 | 5 | Atomicity & Reusability | 10 | 非流程编排、implementation.endpoint 已声明、called_by_skills 非空 |
 
-**判定标准**：≥ 45 PASS / ≥ 40 CONDITIONAL / < 40 FAIL
+**判定标准**（统一词汇）
+
+| 分数 | 结果码 | 含义 |
+|------|--------|------|
+| ≥ 45 | `PASS` | 可直接提交 |
+| 40–44 | `PASS_WITH_WARNINGS` | 有小修改，带 review 可提交 |
+| 30–39 | `REQUIRES_REVIEW` | 需较大修改 |
+| < 30 | `REJECT` | 需重写 |
 
 ```bash
 python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md
@@ -612,11 +626,20 @@ TOOL-1 → TOOL-2 → TOOL-3（原子操作）
 时机              草稿阶段（提交前）           注册/提交阶段
 Skill 工具        validate_skill.py           admission_gate.py
 Tool 工具         validate_tool.py            admission_gate_tool.py
-输出格式          score: 0-70/50              PASS/WARN/REVIEW/REJECT
+输出格式          result + score + blocking_issues  PASS/PASS_WITH_WARNINGS/REQUIRES_REVIEW/REJECT
 ```
 
 > **Authoring Gate 保证能写，Admission Gate 保证该进。**
 > **两轨均已闭环**：Skill（Phase 2S + Phase 4）和 Tool（Phase 2T + Phase 4T）。
+
+**所有 Gate 使用统一结果词汇**（可被 CI / 自动化脚本直接解析）：
+
+| 结果码 | 含义 | Authoring Gate 附加字段 |
+|--------|------|------------------------|
+| `PASS` | 通过，无需改动 | `score`, `max_score` |
+| `PASS_WITH_WARNINGS` | 通过，有建议修改 | `score`, `blocking_issues`, `warnings` |
+| `REQUIRES_REVIEW` | 需实质性修改后重新提交 | `score`, `blocking_issues` |
+| `REJECT` | 分数过低或违反硬性规则，需重写 | `score`, `blocking_issues` |
 
 ---
 
@@ -751,7 +774,6 @@ approved ───────────────────────�
 | 项目 | 描述 |
 |------|------|
 | skill-registry.yaml 状态字段 | 所有 30 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
-| validate_skill.py 结果词汇 | 输出 `PASS_WITH_REQUIRED_FIXES`，与 Admission Gate 的 `PASS_WITH_WARNINGS` 词汇不统一 |
 | batch_admission.py | 仅控制台输出，无 `--output json` flag |
 | skill-intake.ps1 | 仅支持本地手动运行，尚无 GitHub Actions / CI 集成 |
 
@@ -759,7 +781,7 @@ approved ───────────────────────�
 
 - [x] ~~为 Tool 增加 Admission Gate~~ — **已完成** `tool-admission-review/scripts/admission_gate_tool.py`
 - [x] ~~`governance_audit.py` 扩展支持 `tool-registry.yaml`~~ — **已完成** S1-S4 + T1-T4 + X1-X3
-- [ ] 统一两个 Gate 的结果词汇表
+- [x] ~~统一两个 Gate 的结果词汇表~~ — **已完成** 统一为 PASS / PASS_WITH_WARNINGS / REQUIRES_REVIEW / REJECT
 - [ ] `batch_admission.py` 增加 `--output json` flag
 - [ ] `skill-intake.ps1` 增加 GitHub Actions workflow
 - [ ] Registry 状态字段开始反映真实生命周期
@@ -775,6 +797,6 @@ pip install pyyaml
 
 ---
 
-*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T + Phase 5 双轨治理 + 资产升降级规则）。*
+*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T + Phase 5 双轨治理 + 统一 Gate 词汇 + 资产升降级规则）。*
 *Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
 *Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*

@@ -10,9 +10,17 @@ Usage:
 
 Scoring:
     5 dimensions × 10 points = 50 total
-    ≥ 45  PASS       — approved as-is
-    40-44 CONDITIONAL — required changes before merge
-    < 40  FAIL       — major revision needed
+
+Result codes (unified vocabulary, matches all platform Gates):
+    PASS                — score >= 45, no blocking issues
+    PASS_WITH_WARNINGS  — score >= 40 (minor fixes needed, can proceed with review)
+    REQUIRES_REVIEW     — score 30-39 (substantial changes required)
+    REJECT              — score < 30 (rewrite required)
+
+Exit codes:
+    0 — PASS or PASS_WITH_WARNINGS
+    1 — REQUIRES_REVIEW or REJECT
+    2 — Parse error or missing file
 """
 
 import sys
@@ -541,12 +549,15 @@ def validate(path: Path) -> dict:
 
     total = d1_score + d2_score + d3_score + d4_score + d5_score
 
+    # Unified result vocabulary: PASS / PASS_WITH_WARNINGS / REQUIRES_REVIEW / REJECT
     if total >= 45:
         result = "PASS"
     elif total >= 40:
-        result = "PASS_WITH_REQUIRED_FIXES"
+        result = "PASS_WITH_WARNINGS"
+    elif total >= 30:
+        result = "REQUIRES_REVIEW"
     else:
-        result = "FAIL"
+        result = "REJECT"
 
     # Collect blocking vs. warning issues
     # Any dimension at 0 is blocking
@@ -571,6 +582,7 @@ def validate(path: Path) -> dict:
     return {
         "tool_name": tool_name,
         "score": total,
+        "max_score": 50,
         "result": result,
         "dimensions": {
             "naming_description": d1_score,
@@ -604,7 +616,7 @@ def main():
     if args.json:
         print()
         print(json.dumps(result, indent=2, ensure_ascii=False))
-        sys.exit(0 if result["result"] in ("PASS", "PASS_WITH_REQUIRED_FIXES") else 1)
+        sys.exit(0 if result["result"] in ("PASS", "PASS_WITH_WARNINGS") else 1)
 
     # Human-readable output
     score = result["score"]
@@ -642,11 +654,13 @@ def main():
     print("-" * 60)
 
     if score >= 45:
-        status = "[PASS] APPROVED"
+        status = "[PASS] PASS"
     elif score >= 40:
-        status = "[WARN] CONDITIONAL (required changes before merge)"
+        status = "[WARN] PASS_WITH_WARNINGS (minor fixes needed)"
+    elif score >= 30:
+        status = "[FAIL] REQUIRES_REVIEW (substantial revision required)"
     else:
-        status = "[FAIL] MAJOR REVISION REQUIRED"
+        status = "[FAIL] REJECT (rewrite required)"
 
     print(f"  Total: {score}/50    {status}")
     print("-" * 60)

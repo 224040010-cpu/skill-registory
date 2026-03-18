@@ -15,9 +15,15 @@ Meta-skills:
     from Dimensions 2 (MCP tool calls in workflow) and 3 (tool compliance), and
     receive adjusted scoring for those dimensions.
 
+Result codes (JSON --result field, unified vocabulary):
+    PASS                — score >= 60, no blocking issues
+    PASS_WITH_WARNINGS  — score >= 45 (minor fixes needed, can proceed with review)
+    REQUIRES_REVIEW     — score 30-44 (substantial changes required before submission)
+    REJECT              — score < 30 (rewrite required)
+
 Exit codes:
-    0 — Score >= 45 (may proceed to engineering review)
-    1 — Score < 45 (revision required)
+    0 — PASS or PASS_WITH_WARNINGS
+    1 — REQUIRES_REVIEW or REJECT
     2 — Parse error or missing file
 """
 
@@ -617,13 +623,13 @@ def validate(skill_path: str, output_json: bool = False) -> int:
     print(f"\n{'-' * 60}")
     print(f"  Total: {total}/70", end="  ")
     if total >= 60:
-        rating = "[PASS] APPROVED"
+        rating = "[PASS] PASS"
     elif total >= 45:
-        rating = "[WARN] CONDITIONAL (required changes before merge)"
+        rating = "[WARN] PASS_WITH_WARNINGS (minor fixes needed)"
     elif total >= 30:
-        rating = "[FAIL] MAJOR REVISION REQUIRED"
+        rating = "[FAIL] REQUIRES_REVIEW (substantial revision required)"
     else:
-        rating = "[FAIL] REWRITE REQUIRED"
+        rating = "[FAIL] REJECT (rewrite required)"
     print(f"  {rating}")
     print(f"{'-' * 60}\n")
 
@@ -648,24 +654,31 @@ def validate(skill_path: str, output_json: bool = False) -> int:
         missing = [s for s in REQUIRED_BODY_SECTIONS if s not in parsed["body"]]
         blocking = [i for _, i in all_issues]
         blocking += [f"Missing required section: {s}" for s in missing]
+        # Unified result vocabulary: PASS / PASS_WITH_WARNINGS / REQUIRES_REVIEW / REJECT
         if total >= 60 and not blocking:
             result_code = "PASS"
         elif total >= 45:
-            result_code = "PASS_WITH_REQUIRED_FIXES"
+            # Near-passing: may proceed with review but has warnings or minor fixes
+            result_code = "PASS_WITH_WARNINGS"
+        elif total >= 30:
+            # Substantial changes required before submission
+            result_code = "REQUIRES_REVIEW"
         else:
-            result_code = "FAIL"
+            # Score too low — rewrite required
+            result_code = "REJECT"
         _warn_kw = ("missing", "no evals", "add ", "define ", "create ", "required", "must")
         warnings = [s for _, s in all_suggestions if any(w in s.lower() for w in _warn_kw)]
         suggestions = [s for _, s in all_suggestions if not any(w in s.lower() for w in _warn_kw)]
         print(json.dumps({
             "skill_name": parsed["frontmatter"].get("name", "<unnamed>"),
             "score": total,
+            "max_score": 70,
             "result": result_code,
             "blocking_issues": blocking,
             "warnings": warnings,
             "suggestions": suggestions,
         }, indent=2, ensure_ascii=False))
-        return 0 if total >= 45 else 1
+        return 0 if result_code in ("PASS", "PASS_WITH_WARNINGS") else 1
 
     # Check required sections
     missing_sections = [s for s in REQUIRED_BODY_SECTIONS if s not in parsed["body"]]
@@ -675,12 +688,14 @@ def validate(skill_path: str, output_json: bool = False) -> int:
             print(f"  {s}")
         print()
 
-    if total >= 45 and not all_issues:
-        print("[OK] Ready for engineering review. Don't forget to add the registry stanza.\n")
+    if total >= 60 and not all_issues:
+        print("[OK] PASS — Ready for engineering review. Don't forget to add the registry stanza.\n")
     elif total >= 45:
-        print("[!]  Fix blocking issues above, then submit for engineering review.\n")
+        print("[!]  PASS_WITH_WARNINGS — Fix blocking issues above, then submit for review.\n")
+    elif total >= 30:
+        print("[!!] REQUIRES_REVIEW — Substantial revision needed. See references/validation-rubric.md.\n")
     else:
-        print("[!!] Significant revision needed. Review references/validation-rubric.md.\n")
+        print("[!!] REJECT — Rewrite required. Score too low to proceed.\n")
 
     return 0 if total >= 45 else 1
 
