@@ -6,9 +6,9 @@ description: |
   Validates a BPMN 2.0 XML file for structural compliance (namespaces, required
   elements, ID uniqueness) and logical consistency (no deadlocks, no orphan nodes,
   no broken flows). Optionally evaluates intent coverage when original requirements
-  are provided. Use when validating any existing or newly generated BPMN file,
-  checking if a .bpmn file can be opened in bpmn.io or Camunda, or verifying
-  that a generated BPMN covers the original business requirements.
+  are provided. Use when validating a specific BPMN file the user has provided or
+  just generated, checking if a .bpmn file can be opened in bpmn.io or Camunda,
+  or verifying that a generated BPMN covers the original business requirements.
   Trigger on: "校验这个BPMN", "验证XML", "BPMN合规检查", "check BPMN validity",
   "validate BPMN", "BPMN有没有错误", "这个BPMN能在bpmn.io里打开吗",
   "检查需求覆盖度", "BPMN是否覆盖了原始需求".
