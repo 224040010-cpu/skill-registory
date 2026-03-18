@@ -77,7 +77,7 @@
 | 问题 | 解决阶段 |
 |------|---------|
 | 一个业务需求被过度拆分成大量碎片化 Skill | **Phase 0** |
-| 什么该是 Skill，什么该是 Tool，什么该是 Workflow | **Phase 0** |
+| 什么该是 Skill，什么该是 Tool，什么是 Skill 内部编排步骤 | **Phase 0** |
 | Skill 写出来但结构不完整、边界不清、描述不可路由 | Phase 1S + Phase 2S |
 | Tool 没有明确接口定义、风险未声明、无法被工程实现 | Phase 1T + Phase 2T |
 | Skill/Tool 进入仓库后会漂移、重复、过期、失效 | Phase 4 + Phase 5 |
@@ -176,13 +176,15 @@ incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orp
 **判定决策树**
 
 ```
-能否被用户独立触发？
-├── 否 → workflow_step（放在 Agent 编排层，不生成任何资产）
-└── 是 → 是否需要多步推理/条件分支？
-          ├── 否 → TOOL ──► Phase 1T（guiding-tool-authoring）
-          └── 是 → 是否跨场景可复用？
-                    ├── 否 → workflow_step
-                    └── 是 → SKILL ──► Phase 1S（guiding-skill-authoring）
+Q1 是否是单一、确定性的原子操作？（与触发方无关）
+├── 是 → TOOL ──► Phase 1T（guiding-tool-authoring）
+└── 否 → Q2
+
+Q2 是否代表一个完整用户意图，值得独立治理/注册/路由/测试？
+├── 是 → SKILL ──► Phase 1S（guiding-skill-authoring）
+└── 否 → workflow_step  ← 不是第三种能力类型
+                         嵌入父 Skill 的 composition_notes
+                         不进 registry，不参与全局路由
 ```
 
 **Self-Critique 五项防碎片化检查**
@@ -191,7 +193,7 @@ incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orp
 |------|---------|------|
 | A — Tool 伪装成 Skill | skill 只有 ≤1 步且无错误处理 | 降级为 tool |
 | B — 过度拆分 | 两个 skill 描述重叠 >70% | 合并 |
-| C — 触发依赖 | skill 只能由另一 skill 触发 | 降级为 workflow_step |
+| C — 触发依赖 | skill 只能由另一 skill 触发 | 嵌入父 Skill 的 composition_notes（非第三类型） |
 | D — Agent 边界越界 | skill 涉及多个 bundle_scope | 按 agent 拆分 |
 | E — 数量爆炸 | skill 总数 >7 | 重新审视分类 |
 
@@ -199,10 +201,15 @@ incoming/<bundle>               ← 提交者专用，仅含 bundle 目录（orp
 
 ```json
 {
-  "summary": { "skills": 2, "tools": 5, "workflow_steps": 3 },
+  "schema_version": "1.1",
+  "summary": { "skills": 2, "tools": 5, "workflow_steps_embedded": 3 },
   "capabilities": [
     { "id": "cap-01", "final_type": "skill", "name": "converting-business-to-bpmn" },
     { "id": "cap-04", "final_type": "tool",  "name": "parse-business-intent" }
+  ],
+  "composition_notes": [
+    { "step_id": "step-01", "name": "normalise-alarm-codes",
+      "belongs_to_skill": "cap-01", "placement": "after cap-04" }
   ],
   "next_actions": [
     { "capability_id": "cap-01", "action": "Start guiding-skill-authoring" },
@@ -456,16 +463,19 @@ python skill-governance-agent/scripts/governance_audit.py \
 ## 两类资产的本质区别
 
 ```
-                  SKILL                         TOOL
-                  ─────────────────────         ──────────────────────
-触发方式           用户自然语言意图              Skill 代码中的程序调用
-步骤数量           多步骤（有条件分支）           单步原子操作
-规格文件           SKILL.md（YAML + Markdown）   TOOL.md（纯 YAML）
-校验工具           validate_skill.py（70分）     validate_tool.py（50分）
-注册位置           skill-registry.yaml           tool-registry.yaml
-调用格式           由 Agent Router 路由           server:tool_name()
-可被路由           是                            否（只能被 Skill 调用）
+                  SKILL                         TOOL                      workflow_step
+                  ─────────────────────         ──────────────────────    ─────────────────────
+层次               能力层                        能力层                    编排实现层
+触发方式           用户自然语言意图              Skill 代码中的程序调用    无独立触发
+步骤数量           多步骤（有条件分支）           单步原子操作              单步，附属于父 Skill
+规格文件           SKILL.md（YAML + Markdown）   TOOL.md（纯 YAML）        无独立规格文件
+校验工具           validate_skill.py（70分）     validate_tool.py（50分）  随父 Skill 测试
+注册位置           skill-registry.yaml           tool-registry.yaml        composition_notes 字段
+调用格式           由 Agent Router 路由           server:tool_name()        父 Skill Workflow 内调用
+可被路由           是                            否（只能被 Skill 调用）   否（不参与全局路由）
 ```
+
+> `workflow_step` 可升级为 `skill`（满足独立复用/治理条件）或降级为 `tool`（发现本质原子）。
 
 **一个业务功能的正常形态**：
 
@@ -653,6 +663,6 @@ pip install pyyaml
 
 ---
 
-*README 更新于 2026-03-17，反映双轨能力治理体系当前完整状态。*
+*README 更新于 2026-03-17，反映双轨能力治理体系当前完整状态（capability-planning v1.1 三层模型）。*
 *Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
 *Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*
