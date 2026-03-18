@@ -1,0 +1,226 @@
+# .github/workflows/admission-gate.yml
+#
+# Layer 2 — Formal Admission Gate (Pull Request)
+# ─────────────────────────────────────────────
+# Triggered when a PR targets master / main.
+# Purpose: formal platform-level review before any skill/tool enters the registry.
+# This is the BLOCKING gate — merge is prevented if any asset REJECTS.
+#
+# Scope (full platform gate):
+#   1. State Guard — registry lifecycle enforcement
+#   2. Full Admission Gate per changed SKILL.md / TOOL.md
+#      (validate_skill/tool + admission_gate/tool — both phases)
+#   3. Registry consistency check
+#   4. PR comment with structured summary table
+#
+# Result policy:
+#   REJECT / REQUIRES_REVIEW → CI fails → merge blocked
+#   PASS_WITH_WARNINGS       → CI passes (flagged in PR comment)
+#   PASS                     → CI passes
+#
+# To enforce merge blocking, set this workflow as a Required Status Check
+# in: Settings → Branches → Branch protection rules → Require status checks.
+#
+# Outputs:
+#   - PR comment with summary table
+#   - reports/admission/ artifact (retained 30 days)
+
+name: "Layer 2 · Formal Admission Gate"
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - "**/SKILL.md"
+      - "**/TOOL.md"
+      - "skill-registry.yaml"
+      - "tool-registry.yaml"
+
+jobs:
+  admission:
+    name: "Formal Admission Gate"
+    runs-on: ubuntu-latest
+    permissions:
+      contents:      read
+      pull-requests: write   # needed to post PR comment
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Set up Python 3.11"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: pip install --quiet pyyaml
+
+      # ── Detect changed files ──────────────────────────────────────────────
+      - name: "Detect changed SKILL.md / TOOL.md files"
+        id: detect
+        run: |
+          mkdir -p reports/admission
+
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+            | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+
+          COUNT=$(grep -c . /tmp/changed_files.txt 2>/dev/null || echo 0)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          echo "Changed files ($COUNT):"
+          cat /tmp/changed_files.txt || true
+
+      # ── Stage 1: State Guard ───────────────────────────────────────────────
+      - name: "Stage 1 · State Guard"
+        run: |
+          python scripts/state_guard.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         reports/admission/state-guard.json
+
+      # ── Stage 2: Full Validate + Admission ────────────────────────────────
+      - name: "Stage 2 · Full Validate + Admission Gate"
+        if: steps.detect.outputs.count != '0'
+        id: ci
+        run: |
+          python scripts/ci_runner.py \
+            --files          /tmp/changed_files.txt \
+            --skill-registry skill-registry.yaml    \
+            --tool-registry  tool-registry.yaml     \
+            --output         reports/admission/
+
+      - name: "Stage 2 · No skill/tool changes in PR"
+        if: steps.detect.outputs.count == '0'
+        run: |
+          echo "No SKILL.md / TOOL.md changes detected in PR — admission skipped."
+
+      # ── Stage 3: Post PR comment ───────────────────────────────────────────
+      - name: "Stage 3 · Post PR comment"
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read CI summary if present
+            const summaryPath = 'reports/admission/ci_summary.json';
+            let data = { total: 0, passed: 0, blocked: 0, results: [] };
+            if (fs.existsSync(summaryPath)) {
+              data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+            }
+
+            // Read state guard if present
+            const sgPath = 'reports/admission/state-guard.json';
+            let sg = { result: 'PASS', summary: { critical: 0, high: 0, warnings: 0 }, findings: [] };
+            if (fs.existsSync(sgPath)) {
+              sg = JSON.parse(fs.readFileSync(sgPath, 'utf8'));
+            }
+
+            // Build comment body
+            const icons = {
+              'PASS': '✅ PASS',
+              'PASS_WITH_WARNINGS': '⚠️ PASS_WITH_WARNINGS',
+              'REQUIRES_REVIEW': '❌ REQUIRES_REVIEW',
+              'REJECT': '🚫 REJECT',
+              'FAIL': '🚫 FAIL',
+              'WARN': '⚠️ WARN',
+            };
+
+            const overall = data.blocked > 0 ? '🚫 BLOCKED'
+                          : sg.result !== 'PASS' ? '⚠️ STATE VIOLATIONS'
+                          : data.total === 0 ? 'ℹ️ NO ASSET CHANGES'
+                          : '✅ PASS';
+
+            let body = `## 🏛️ Admission Gate Results\n\n`;
+            body += `**Overall:** ${overall}\n\n`;
+
+            // State guard section
+            body += `### State Guard\n`;
+            const sgIcon = sg.result === 'PASS' ? '✅' : sg.result === 'WARN' ? '⚠️' : '🚫';
+            body += `${sgIcon} ${sg.result}  `;
+            body += `(CRITICAL=${sg.summary.critical}  HIGH=${sg.summary.high}  WARN=${sg.summary.warnings})\n\n`;
+
+            if (sg.findings && sg.findings.length > 0) {
+              for (const f of sg.findings.slice(0, 5)) {
+                body += `- \`[${f.rule}]\` **${f.asset_type}:${f.asset_name}** — ${f.message}\n`;
+              }
+              body += '\n';
+            }
+
+            // Asset results section
+            if (data.results && data.results.length > 0) {
+              body += `### Asset Validation & Admission\n\n`;
+              body += `| Asset | Validate | Admission | Overall |\n`;
+              body += `|-------|----------|-----------|--------|\n`;
+
+              for (const r of data.results) {
+                const ov = icons[r.overall] || r.overall;
+                body += `| \`${r.asset_name}\` | ${r.validate.result} | ${r.admission.decision} | ${ov} |\n`;
+              }
+
+              // Blocking issues
+              const blocked = data.results.filter(r =>
+                r.overall === 'REJECT' || r.overall === 'REQUIRES_REVIEW'
+              );
+              if (blocked.length > 0) {
+                body += `\n### Blocking Issues\n\n`;
+                for (const r of blocked) {
+                  body += `**\`${r.asset_name}\`** (${r.overall})\n`;
+                  const issues = (r.validate.blocking_issues || []).slice(0, 5);
+                  for (const issue of issues) {
+                    body += `- ${String(issue).substring(0, 120)}\n`;
+                  }
+                  const reasons = (r.admission.reasons || []).slice(0, 3);
+                  for (const reason of reasons) {
+                    body += `- [admission] ${String(reason).substring(0, 120)}\n`;
+                  }
+                  body += '\n';
+                }
+              }
+            } else {
+              body += `> No SKILL.md / TOOL.md changes in this PR.\n\n`;
+            }
+
+            body += `\n---\n`;
+            body += `*Governance CI · Run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
+
+            // Post or update comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('Admission Gate Results')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      # ── Upload artifact ───────────────────────────────────────────────────
+      - name: "Upload admission reports"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "admission-pr${{ github.event.pull_request.number }}-${{ github.run_number }}"
+          path: reports/admission/
+          retention-days: 30

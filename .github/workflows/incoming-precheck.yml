@@ -1,0 +1,202 @@
+# .github/workflows/incoming-precheck.yml
+#
+# Layer 1 — Incoming Pre-Check (Authoring Gate)
+# ─────────────────────────────────────────────
+# Triggered when a contributor pushes to any `incoming/**` branch.
+# Purpose: give the author fast, actionable feedback on authoring quality
+# BEFORE they open a formal PR.
+#
+# Scope (lightweight — authoring only):
+#   1. Detect changed SKILL.md / TOOL.md files vs. origin/master
+#   2. Capability plan existence check (warns, does NOT block)
+#   3. Authoring Gate: validate_skill.py / validate_tool.py per changed file
+#   4. Light admission: name-collision check only (no full platform gate)
+#
+# Result policy:
+#   REJECT              → CI fails  (author must fix before PR)
+#   REQUIRES_REVIEW     → CI fails  (substantial changes needed)
+#   PASS_WITH_WARNINGS  → CI passes (visible in step summary; fix before PR)
+#   PASS                → CI passes
+#
+# Outputs:
+#   - GitHub Step Summary (visible in Actions tab of the branch)
+#   - reports/precheck/ artifact (retained 14 days)
+#
+# NOTE: This layer does NOT run the full Admission Gate.
+#       That happens in Layer 2 (admission-gate.yml) when a PR is opened.
+
+name: "Layer 1 · Incoming Pre-Check"
+
+on:
+  push:
+    branches:
+      - "incoming/**"
+    paths:
+      - "**/SKILL.md"
+      - "**/TOOL.md"
+
+jobs:
+  precheck:
+    name: "Authoring Pre-Check"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Set up Python 3.11"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: pip install --quiet pyyaml
+
+      # ── Detect changed files vs. master ────────────────────────────────────
+      - name: "Detect changed SKILL.md / TOOL.md files"
+        id: detect
+        run: |
+          mkdir -p reports/precheck
+
+          git diff --name-only "origin/master...HEAD" \
+            | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+
+          # Fallback: if master not reachable, diff vs parent commit
+          if [ ! -s /tmp/changed_files.txt ]; then
+            git diff --name-only "HEAD~1" "HEAD" \
+              | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+          fi
+
+          COUNT=$(grep -c . /tmp/changed_files.txt 2>/dev/null || echo 0)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          echo "Changed files ($COUNT):"
+          cat /tmp/changed_files.txt || true
+
+      - name: "No skill/tool changes detected"
+        if: steps.detect.outputs.count == '0'
+        run: |
+          echo "No SKILL.md or TOOL.md changes detected — pre-check skipped."
+          echo "## Pre-Check Skipped" >> "$GITHUB_STEP_SUMMARY"
+          echo "No SKILL.md or TOOL.md changes in this push." >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Capability plan existence check (warn only) ─────────────────────────
+      - name: "Capability plan existence check"
+        if: steps.detect.outputs.count != '0'
+        run: |
+          python - <<'PYEOF'
+          import pathlib, sys
+
+          changed = pathlib.Path("/tmp/changed_files.txt").read_text().strip().splitlines()
+          bundles = set()
+          for f in changed:
+              if f:
+                  parts = pathlib.Path(f).parts
+                  if len(parts) >= 1:
+                      bundles.add(parts[0])
+
+          print(f"Bundles to check for capability plan: {bundles}")
+          missing = []
+          for b in bundles:
+              bp = pathlib.Path(b)
+              if not bp.exists():
+                  continue
+              plans = (
+                  list(bp.glob("capability_plan*.json"))
+                  + list(bp.glob("capability-plan*.json"))
+                  + list(bp.glob("**/capability_plan*.json"))
+              )
+              if not plans:
+                  missing.append(b)
+              else:
+                  print(f"  [OK] {b}: found {plans[0]}")
+
+          if missing:
+              print(f"\n  [WARN] No capability plan found in: {missing}")
+              print("  Recommendation: run capability-planning/SKILL.md before authoring.")
+              sys.exit(0)   # warn only — do not block precheck
+          PYEOF
+
+      # ── Authoring Gate (validate only, no admission) ────────────────────────
+      - name: "Authoring Gate — validate changed assets"
+        if: steps.detect.outputs.count != '0'
+        id: validate
+        run: |
+          python scripts/ci_runner.py \
+            --files          /tmp/changed_files.txt \
+            --skill-registry skill-registry.yaml    \
+            --tool-registry  tool-registry.yaml     \
+            --output         reports/precheck/
+
+          # ci_runner.py exits 1 if REJECT or REQUIRES_REVIEW;
+          # the exit code propagates and fails this step.
+
+      # ── Write GitHub Step Summary ───────────────────────────────────────────
+      - name: "Write step summary"
+        if: always() && steps.detect.outputs.count != '0'
+        run: |
+          python - <<'PYEOF'
+          import json, pathlib, os
+
+          summary_path = pathlib.Path("reports/precheck/ci_summary.json")
+          if not summary_path.exists():
+              print("No summary file found.")
+              exit(0)
+
+          data = json.loads(summary_path.read_text(encoding="utf-8"))
+          results = data.get("results", [])
+
+          lines = ["## Layer 1 · Incoming Pre-Check Results\n"]
+          lines.append(f"**Total:** {data['total']}  "
+                       f"**Passed:** {data['passed']}  "
+                       f"**Blocked:** {data['blocked']}\n")
+          lines.append("| Asset | Type | Validate | Admission | Overall |")
+          lines.append("|-------|------|----------|-----------|---------|")
+
+          icons = {
+              "PASS": ":white_check_mark: PASS",
+              "PASS_WITH_WARNINGS": ":warning: PASS_W",
+              "REQUIRES_REVIEW": ":x: REVIEW",
+              "REJECT": ":no_entry: REJECT",
+          }
+
+          for r in results:
+              ov   = r.get("overall", "")
+              icon = icons.get(ov, ov)
+              v    = r["validate"].get("result", "?")
+              a    = r["admission"].get("decision", "?")
+              lines.append(
+                  f"| `{r['asset_name']}` | {r['asset_type']} "
+                  f"| {v} | {a} | {icon} |"
+              )
+
+          # Blocking issues
+          blocked = [r for r in results if r.get("overall") in ("REQUIRES_REVIEW", "REJECT")]
+          if blocked:
+              lines.append("\n### Blocking Issues\n")
+              for r in blocked:
+                  lines.append(f"**`{r['asset_name']}`** ({r['overall']})")
+                  for issue in r["validate"].get("blocking_issues", [])[:5]:
+                      lines.append(f"- {issue}")
+
+          lines.append(
+              "\n> **Next step:** fix blocking issues above, then open a PR "
+              "to trigger the formal Admission Gate."
+          )
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("\n".join(lines) + "\n")
+          PYEOF
+
+      # ── Upload artifact ─────────────────────────────────────────────────────
+      - name: "Upload pre-check reports"
+        uses: actions/upload-artifact@v4
+        if: always() && steps.detect.outputs.count != '0'
+        with:
+          name: "precheck-${{ github.ref_name }}-${{ github.run_number }}"
+          path: reports/precheck/
+          retention-days: 14

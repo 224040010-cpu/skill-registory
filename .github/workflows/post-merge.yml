@@ -1,0 +1,140 @@
+# .github/workflows/post-merge.yml
+#
+# Layer 3 — Post-Merge Validation & Registry Update
+# ─────────────────────────────────────────────────
+# Triggered when a commit is pushed to master / main.
+# Purpose: final consistency verification after merge + keep runtime artifacts fresh.
+#
+# Scope:
+#   1. State Guard (final registry snapshot check)
+#   2. Regenerate runtime/allowlist.json from updated registries
+#   3. Auto-commit updated allowlist back to master (if changed)
+#   4. Lightweight governance refresh (non-blocking report)
+#
+# Result policy:
+#   State Guard FAIL → CI fails (hard stop — a broken registry must not persist)
+#   Governance findings → CI passes, findings captured in artifact only
+#
+# Outputs:
+#   - runtime/allowlist.json committed back to master (if changed)
+#   - reports/post-merge/ artifact (retained 30 days)
+
+name: "Layer 3 · Post-Merge Validation"
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "**/SKILL.md"
+      - "**/TOOL.md"
+      - "skill-registry.yaml"
+      - "tool-registry.yaml"
+
+jobs:
+  post-merge:
+    name: "Post-Merge Validation"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit updated allowlist
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # Use default GITHUB_TOKEN — sufficient for push to same repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Set up Python 3.11"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: pip install --quiet pyyaml
+
+      # ── Stage 1: State Guard (hard fail) ─────────────────────────────────
+      - name: "Stage 1 · State Guard (final snapshot)"
+        run: |
+          mkdir -p reports/post-merge
+          python scripts/state_guard.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         reports/post-merge/state-guard.json
+
+      # ── Stage 2: Regenerate runtime allowlist ─────────────────────────────
+      - name: "Stage 2 · Regenerate runtime allowlist"
+        run: |
+          python scripts/runtime_allowlist.py \
+            --skill-registry skill-registry.yaml \
+            --tool-registry  tool-registry.yaml  \
+            --output         runtime/allowlist.json
+
+      # ── Stage 3: Commit allowlist if changed ──────────────────────────────
+      - name: "Stage 3 · Commit updated allowlist"
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add runtime/allowlist.json
+
+          # Only commit if the file actually changed
+          if git diff --staged --quiet; then
+            echo "runtime/allowlist.json unchanged — no commit needed."
+          else
+            git commit -m "chore: refresh runtime allowlist [skip ci]"
+            git push
+            echo "Allowlist committed and pushed."
+          fi
+
+      # ── Stage 4: Governance refresh (non-blocking) ───────────────────────
+      - name: "Stage 4 · Governance refresh (non-blocking)"
+        run: |
+          python skill-governance-agent/scripts/governance_audit.py \
+            --registry      skill-registry.yaml \
+            --tool-registry tool-registry.yaml  \
+            --skills-root   .                   \
+            --output        reports/post-merge
+        continue-on-error: true   # findings go to artifact, not CI status
+
+      # ── Write step summary ─────────────────────────────────────────────────
+      - name: "Write step summary"
+        if: always()
+        run: |
+          python - <<'PYEOF'
+          import json, os, pathlib
+
+          lines = ["## Layer 3 · Post-Merge Summary\n"]
+
+          sg_path = pathlib.Path("reports/post-merge/state-guard.json")
+          if sg_path.exists():
+              sg = json.loads(sg_path.read_text(encoding="utf-8"))
+              icon = {"PASS": "✅", "WARN": "⚠️", "FAIL": "🚫"}.get(sg["result"], "?")
+              s = sg["summary"]
+              lines.append(
+                  f"**State Guard:** {icon} {sg['result']}  "
+                  f"(CRITICAL={s['critical']} HIGH={s['high']} WARN={s['warnings']})"
+              )
+
+          al_path = pathlib.Path("runtime/allowlist.json")
+          if al_path.exists():
+              al = json.loads(al_path.read_text(encoding="utf-8"))
+              sm = al["summary"]
+              lines.append(
+                  f"\n**Runtime Allowlist:** "
+                  f"{sm['allowed_skills']} skills · {sm['allowed_tools']} tools  "
+                  f"(generated {al['generated_at'][:19]}Z)"
+              )
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("\n".join(lines) + "\n")
+          PYEOF
+
+      # ── Upload artifact ───────────────────────────────────────────────────
+      - name: "Upload post-merge reports"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "post-merge-${{ github.run_number }}"
+          path: reports/post-merge/
+          retention-days: 30
