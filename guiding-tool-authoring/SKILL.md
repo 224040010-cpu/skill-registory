@@ -2,7 +2,7 @@
 name: guiding-tool-authoring
 meta_skill: true
 bundle_scope: platform
-risk_level: L1
+risk_level: L2
 description: |
   Guides authors through the full lifecycle of defining, validating, and registering
   an atomic MCP Tool for the platform. Use when a capability has been classified

@@ -2,7 +2,7 @@
 name: capability-planning
 meta_skill: true
 bundle_scope: platform
-risk_level: L1
+risk_level: L2
 description: |
   Decomposes a broad user requirement into atomic capability units, classifies each
   as skill / tool / workflow_step using structured decision criteria, runs a

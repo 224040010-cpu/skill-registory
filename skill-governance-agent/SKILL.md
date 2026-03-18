@@ -2,7 +2,7 @@
 name: skill-governance-agent
 meta_skill: true
 bundle_scope: platform
-risk_level: L1
+risk_level: L2
 description: |
   Dual-track continuous governance of both skill-registry.yaml and
   tool-registry.yaml. Runs ten audit checks (S1-S4 for skills, T1-T4

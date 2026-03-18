@@ -2,7 +2,7 @@
 name: tool-admission-review
 meta_skill: true
 bundle_scope: platform
-risk_level: L1
+risk_level: L2
 description: |
   Phase 4T platform admission gate for MCP Tools. Evaluates whether a
   proposed tool should be admitted into tool-registry.yaml by running five

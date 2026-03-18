@@ -43,6 +43,12 @@ jobs:
       contents: read
 
     steps:
+      - name: "Sanitize artifact name"
+        run: |
+          safe="${{ github.ref_name }}"
+          safe="${safe//\//-}"
+          echo "ARTIFACT_NAME=precheck-${safe}-${{ github.run_number }}" >> "$GITHUB_ENV"
+
       - name: "Checkout"
         uses: actions/checkout@v4
         with:
@@ -197,6 +203,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always() && steps.detect.outputs.count != '0'
         with:
-          name: "precheck-${{ github.ref_name }}-${{ github.run_number }}"
+          name: "${{ env.ARTIFACT_NAME }}"
           path: reports/precheck/
           retention-days: 14
