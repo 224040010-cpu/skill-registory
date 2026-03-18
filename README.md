@@ -15,7 +15,9 @@
   - [Phase 2 本地校验](#phase-2--本地校验authoring-gate)
   - [Phase 3 Registry 注册](#phase-3--registry-注册)
   - [Phase 4 准入门禁](#phase-4--准入门禁admission-gate)
+  - [Phase 4T Tool 准入门禁](#phase-4t--tool-准入门禁)
   - [Phase 5 持续治理](#phase-5--持续治理)
+- [资产升降级规则](#资产升降级规则)
 - [两类资产的本质区别](#两类资产的本质区别)
 - [两类 Gate 的本质区别](#两类-gate-的本质区别)
 - [工作流操作手册](#工作流操作手册)
@@ -65,6 +67,12 @@
    │ (5项准入检查)           │
    └──────────┬────────────┘
               │
+   ┌──────────▼────────────┐       (Tool path)
+   │  Phase 4T             │       ┌────────────────────────┐
+   │ admission_gate_tool   │       │  tool-registry.yaml    │
+   │ .py (5项Tool准入检查)   │──────►│  status: approved      │
+   └──────────┬────────────┘       └────────────────────────┘
+              │
    ┌──────────▼────────────┐
    │  Phase 5              │
    │ governance_audit.py   │
@@ -98,7 +106,8 @@ skill-registry/
 │   ├── evals/evals.json
 │   └── references/
 │       ├── classification-guide.md  # skill/tool/workflow_step 判定示例
-│       └── anti-patterns.md         # 6类常见碎片化反模式
+│       ├── anti-patterns.md         # 6类常见碎片化反模式
+│       └── asset-promotion-rules.md # 升降级正式规则 ✦ NEW
 │
 ├── guiding-skill-authoring/         # Phase 1S: Skill 生成指导 meta-skill
 │   ├── SKILL.md
@@ -118,6 +127,13 @@ skill-registry/
 │   │   └── tool-template.md         # TOOL.md 可填写模板
 │   └── references/
 │       └── tool-governance.md       # 风险矩阵、命名规范、Admission规则
+│
+├── tool-admission-review/           # Phase 4T: Tool 准入门禁 meta-skill ✦ NEW
+│   ├── SKILL.md
+│   ├── scripts/
+│   │   └── admission_gate_tool.py   # 5项Tool准入检查
+│   └── references/
+│       └── tool-admission-policy.md
 │
 ├── skill-admission-review/          # Phase 4: 准入门禁 meta-skill
 │   ├── SKILL.md
@@ -433,6 +449,50 @@ python scripts/batch_admission.py ev-charger-skills business-to-bpmn
 
 ---
 
+---
+
+### Phase 4T · Tool 准入门禁
+
+**目标**：从平台视角判断"这个 Tool 该不该正式进入 tool-registry.yaml"
+
+> 与 Phase 4（Skill 准入）并列，补全双轨治理的最后一块缺口。
+> validate_tool.py 已回答"写得好不好"；Phase 4T 回答"该不该进"。
+
+**执行者**：`tool-admission-review/scripts/admission_gate_tool.py`
+
+**5 项检查**
+
+| # | 检查项 | 关键判定 |
+|---|--------|---------|
+| 1 | **全局重复检查** | 同名/近名 → REJECT；描述 Jaccard ≥ 65% → REQUIRES_REVIEW；schema 字段重叠 ≥ 70% → REQUIRES_REVIEW |
+| 2 | **服务归属检查** | `service` 缺失 → REJECT；新服务仅 1 个 Tool → WARNING；功能近似但服务不同 → REQUIRES_REVIEW |
+| 3 | **风险一致性检查** | L0+side_effects≠none → REJECT；L4+requires_approval≠true → REJECT；L3 无 approval → WARNING |
+| 4 | **复用合理性检查** | called_by_skills 为空 → REJECT；仅 1 个 skill 使用 → WARNING；≥ 2 个 skill → PASS |
+| 5 | **形态合理性检查** | 名称含 manager/handler/orchestrator → REJECT；描述含编排语言 → REQUIRES_REVIEW；描述 > 250 字符 → WARNING |
+
+**4 种准入决策**
+
+| 决策 | 含义 | 操作 |
+|------|------|------|
+| `PASS` | 可正式进入 Registry | 更新 `status: approved` |
+| `PASS_WITH_WARNINGS` | 可进入，有治理提醒 | 更新为 `approved`，记录 warning |
+| `REQUIRES_REVIEW` | 需人工审核 | 保持 `draft`，等待 reviewer |
+| `REJECT` | 不适合准入 | 返回修改意见，可能降级为 workflow_step |
+
+```bash
+python tool-admission-review/scripts/admission_gate_tool.py \
+  <tool>/TOOL.md \
+  --registry tool-registry.yaml
+
+python tool-admission-review/scripts/admission_gate_tool.py \
+  <tool>/TOOL.md \
+  --registry tool-registry.yaml \
+  --json
+```
+
+> **Check 4 是唯一无条件 REJECT**：零消费者的 Tool 直接拒绝，不论其他检查是否通过。
+
+
 ### Phase 5 · 持续治理
 
 **目标**：让治理从一次性准入变成持续过程
@@ -491,20 +551,54 @@ TOOL-1 → TOOL-2 → TOOL-3（原子操作）
 
 ---
 
+## 资产升降级规则
+
+> 完整规则：`capability-planning/references/asset-promotion-rules.md`
+
+一个能力的形态不是固定的，会随实际使用演化。平台定义 5 条正式升降级路径：
+
+| 方向 | 触发时机 | 核心条件 |
+|------|---------|---------|
+| **workflow_step → tool** | 发现原子性 + 复用性 | ≥ 2 个 skill 消费；schema 稳定；无业务逻辑 |
+| **workflow_step → skill** | 独立治理价值出现 | 满足任意 2 条：跨 agent 复用、需独立 owner、需版本控制… |
+| **tool → skill** | 开始积累业务逻辑 | 满足任意 3 条：条件分支、用户触发、协调其他 tool… |
+| **skill → tool** | 发现只是单步变换 | 全部满足：仅 1 步、无分支、非用户触发、schema 确定 |
+| **tool → workflow_step** | 无消费者，过度抽象 | ≥ 1 个周期无 consumer；逻辑高度耦合某一 skill |
+
+**关键原则**：
+
+- 不做 Tool Admission Gate → skill explosion 会变成 tool explosion
+- 升降级决策必须经过 `capability-planning` Phase 0 重新分类
+- 降级（skill→tool 或 tool→workflow_step）需在 registry 中标记 `status: deprecated`
+  并通知所有消费方
+
+```
+演化示例：
+
+[Day 1]  workflow_step: "normalise-alarm-codes"   (在 diagnose-charger-failure 内)
+[Month 3] 被 2 个新 skill 需要 → 升级为 tool
+[Month 8] tool 开始加入条件判断 + 用户触发 → 升级为 skill
+```
+
+
+---
+
 ## 两类 Gate 的本质区别
 
 ```
-                  Authoring Gate              Admission Gate
-                  ─────────────────           ──────────────────
+                  Authoring Gate (2S/2T)      Admission Gate (4/4T)
+                  ─────────────────────       ──────────────────────
 视角              作者视角                    平台视角
 目标              检查写得对不对              检查该不该进
-关注点            结构、模板、规范             冲突、风险、生态合理性
+关注点            结构、模板、规范             冲突、风险、复用、生态
 时机              草稿阶段（提交前）           注册/提交阶段
-工具              validate_skill.py           admission_gate.py
-输出格式          score: 0-70                 PASS/WARN/REVIEW/REJECT
+Skill 工具        validate_skill.py           admission_gate.py
+Tool 工具         validate_tool.py            admission_gate_tool.py
+输出格式          score: 0-70/50              PASS/WARN/REVIEW/REJECT
 ```
 
 > **Authoring Gate 保证能写，Admission Gate 保证该进。**
+> **两轨均已闭环**：Skill（Phase 2S + Phase 4）和 Tool（Phase 2T + Phase 4T）。
 
 ---
 
@@ -617,6 +711,8 @@ approved ───────────────────────�
 | 校验单个 Tool | `python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md` |
 | 校验单个 Tool（JSON） | `python guiding-tool-authoring/scripts/validate_tool.py <tool>/TOOL.md --json` |
 | 查看已注册 Tool 列表 | `python -c "import yaml; [print(t['tool_name']) for t in yaml.safe_load(open('tool-registry.yaml',encoding='utf-8'))['tools']]"` |
+| Tool 准入检查（单个） | `python tool-admission-review/scripts/admission_gate_tool.py <tool>/TOOL.md --registry tool-registry.yaml` |
+| Tool 准入检查（JSON） | `python tool-admission-review/scripts/admission_gate_tool.py <tool>/TOOL.md --registry tool-registry.yaml --json` |
 
 **Registry 相关**
 
@@ -636,7 +732,6 @@ approved ───────────────────────�
 
 | 项目 | 描述 |
 |------|------|
-| Tool Admission Gate 缺失 | Tool 目前只有 validate_tool.py 校验，没有等同于 admission_gate.py 的平台准入门禁 |
 | governance_audit.py 仅覆盖 Skill | 持续治理巡检尚未扩展到 tool-registry.yaml |
 | skill-registry.yaml 状态字段 | 所有 30 个已入库 Skill 均为 `approved`，生命周期状态机已定义但尚未用于实际数据管控 |
 | validate_skill.py 结果词汇 | 输出 `PASS_WITH_REQUIRED_FIXES`，与 Admission Gate 的 `PASS_WITH_WARNINGS` 词汇不统一 |
@@ -645,7 +740,7 @@ approved ───────────────────────�
 
 ### 计划改进
 
-- [ ] 为 Tool 增加 Admission Gate（检查接口重复、服务注册、风险一致性）
+- [x] ~~为 Tool 增加 Admission Gate~~ — **已完成** `tool-admission-review/scripts/admission_gate_tool.py`
 - [ ] `governance_audit.py` 扩展支持 `tool-registry.yaml` 巡检
 - [ ] 统一两个 Gate 的结果词汇表
 - [ ] `batch_admission.py` 增加 `--output json` flag
@@ -663,6 +758,6 @@ pip install pyyaml
 
 ---
 
-*README 更新于 2026-03-17，反映双轨能力治理体系当前完整状态（capability-planning v1.1 三层模型）。*
+*README 更新于 2026-03-18，反映双轨能力治理体系当前完整状态（Phase 4T Tool 准入 + 资产升降级规则）。*
 *Skill Registry: 30 个 Skill（3 个平台 meta-skill + 27 个业务 Skill）*
 *Tool Registry: 15 个 Tool（均属 bpmn-tools 服务）*
