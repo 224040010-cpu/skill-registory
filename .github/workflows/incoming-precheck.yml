@@ -62,12 +62,12 @@ jobs:
         run: |
           mkdir -p reports/precheck
 
-          git diff --name-only "origin/master...HEAD" \
+          git diff --name-only "HEAD~1" "HEAD" \
             | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
 
-          # Fallback: if master not reachable, diff vs parent commit
+          # Fallback: try against origin/master if parent diff is empty
           if [ ! -s /tmp/changed_files.txt ]; then
-            git diff --name-only "HEAD~1" "HEAD" \
+            git diff --name-only "origin/master...HEAD" \
               | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
           fi
 

@@ -64,8 +64,20 @@ jobs:
         run: |
           mkdir -p reports/admission
 
-          git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+          # Use the explicit PR base SHA for reliable diff in merge-commit environments
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE_SHA" ]; then
+            BASE_SHA="origin/${{ github.base_ref }}"
+          fi
+
+          git diff --name-only "$BASE_SHA" HEAD \
             | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+
+          # Fallback: if still empty, diff against parent commit
+          if [ ! -s /tmp/changed_files.txt ]; then
+            git diff --name-only "HEAD~1" HEAD \
+              | grep -E '(SKILL|TOOL)\.md$' > /tmp/changed_files.txt || true
+          fi
 
           COUNT=$(grep -c . /tmp/changed_files.txt 2>/dev/null || echo 0)
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
