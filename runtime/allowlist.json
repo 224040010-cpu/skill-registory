@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-03-18T08:08:45.161945+00:00",
+  "generated_at": "2026-03-18T08:59:31.250453+00:00",
   "source": {
     "skill_registry_version": "1.0.0",
     "tool_registry_version": "1.0.0",
@@ -8,7 +8,7 @@
     "tool_registry_audited": "2026-03-17"
   },
   "summary": {
-    "allowed_skills": 31,
+    "allowed_skills": 33,
     "allowed_tools": 15,
     "excluded_skills_by_status": {},
     "excluded_tools_by_status": {}
@@ -399,7 +399,7 @@
       "display_name": "Capability Planning",
       "version": "1.0.0",
       "status": "approved",
-      "risk_level": "L1",
+      "risk_level": "L2",
       "bundle_scope": "platform",
       "path": "capability-planning/SKILL.md",
       "owner_team": "platform",
@@ -414,7 +414,7 @@
       "display_name": "Guiding Tool Authoring",
       "version": "1.0.0",
       "status": "approved",
-      "risk_level": "L1",
+      "risk_level": "L2",
       "bundle_scope": "platform",
       "path": "guiding-tool-authoring/SKILL.md",
       "owner_team": "platform",
@@ -429,7 +429,7 @@
       "display_name": "Tool Admission Review",
       "version": "1.0.0",
       "status": "approved",
-      "risk_level": "L1",
+      "risk_level": "L2",
       "bundle_scope": "platform",
       "path": "tool-admission-review/SKILL.md",
       "owner_team": "platform",
@@ -444,9 +444,39 @@
       "display_name": "Guiding Skill Authoring",
       "version": "1.0.0",
       "status": "approved",
-      "risk_level": "L1",
+      "risk_level": "L2",
       "bundle_scope": "platform",
       "path": "guiding-skill-authoring/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "skill-admission-review",
+      "display_name": "Skill Admission Review",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "platform",
+      "path": "skill-admission-review/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "skill-governance-agent",
+      "display_name": "Skill Governance Agent",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "platform",
+      "path": "skill-governance-agent/SKILL.md",
       "owner_team": "platform",
       "supported_models": [
         "claude-sonnet-4-6",
