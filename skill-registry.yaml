@@ -508,7 +508,7 @@ skills:
     owner_team: platform
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: platform
     supported_models:
@@ -526,7 +526,7 @@ skills:
     owner_team: platform
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: platform
     supported_models:
@@ -544,7 +544,7 @@ skills:
     owner_team: platform
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: platform
     supported_models:
@@ -562,7 +562,7 @@ skills:
     owner_team: platform
     version: "1.0.0"
     status: approved
-    risk_level: L1
+    risk_level: L2
     dependencies: []
     bundle_scope: platform
     supported_models:
@@ -573,3 +573,39 @@ skills:
     path: guiding-skill-authoring/SKILL.md
     created_at: "2025-01-01"
     last_reviewed: "2025-01-01"
+
+  - skill_name: skill-admission-review
+    display_name: Skill Admission Review
+    purpose: Platform admission gate that evaluates whether a proposed skill should be admitted into skill-registry.yaml by running five checks (global conflict, agent boundary, risk consistency, routing governance, form factor)
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: skill-admission-review/SKILL.md
+    created_at: "2026-03-18"
+    last_reviewed: "2026-03-18"
+
+  - skill_name: skill-governance-agent
+    display_name: Skill Governance Agent
+    purpose: Dual-track continuous governance of both skill-registry.yaml and tool-registry.yaml — runs ten audit checks (S1-S4 for skills, T1-T4 for tools, X1-X3 for cross-track consistency) to surface registry drift, stale metadata, and risk inheritance gaps
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: skill-governance-agent/SKILL.md
+    created_at: "2026-03-18"
+    last_reviewed: "2026-03-18"

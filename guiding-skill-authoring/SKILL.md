@@ -1,6 +1,8 @@
 ---
 name: guiding-skill-authoring
 meta_skill: true
+bundle_scope: platform
+risk_level: L2
 description: |
   Guides users through the full lifecycle of creating, validating, and submitting
   skills for the EV charging station agent platform — from intent capture and

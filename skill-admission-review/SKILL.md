@@ -1,6 +1,8 @@
 ---
 name: skill-admission-review
 meta_skill: true
+bundle_scope: platform
+risk_level: L2
 description: |
   Evaluates whether a proposed skill should be admitted into the platform registry.
   Use when a skill has passed the Authoring Gate (validate_skill.py score ≥ 45) and needs
