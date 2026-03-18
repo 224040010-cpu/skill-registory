@@ -71,6 +71,28 @@ jobs:
             --tool-registry  tool-registry.yaml  \
             --output         reports/governance/allowlist-${{ steps.date.outputs.today }}.json
 
+      # ── Generate structured reports + Job Summary ────────────────────────
+      - name: "Generate governance reports"
+        if: always()
+        run: |
+          # Find latest audit report
+          LATEST=$(ls -t reports/governance/audit-*.json 2>/dev/null | head -1 || echo "")
+          python scripts/generate_reports.py \
+            --context        cron                               \
+            --skill-registry skill-registry.yaml               \
+            --tool-registry  tool-registry.yaml                \
+            --state-guard    reports/governance/state-guard-${{ steps.date.outputs.today }}.json \
+            ${LATEST:+--governance-report "$LATEST"}           \
+            --output-dir     reports/governance
+        continue-on-error: true
+
+      - name: "Write Job Summary"
+        if: always()
+        run: |
+          if [ -f reports/governance/job_summary.md ]; then
+            cat reports/governance/job_summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       # ── Upload all reports ────────────────────────────────────────────────
       - name: "Upload governance reports"
         uses: actions/upload-artifact@v4

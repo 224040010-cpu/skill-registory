@@ -97,96 +97,45 @@ jobs:
         run: |
           echo "No SKILL.md / TOOL.md changes detected in PR — admission skipped."
 
-      # ── Stage 3: Post PR comment ───────────────────────────────────────────
-      - name: "Stage 3 · Post PR comment"
+      # ── Stage 3a: Generate structured reports ──────────────────────────────
+      - name: "Stage 3a · Generate governance reports"
+        if: always()
+        run: |
+          python scripts/generate_reports.py \
+            --context        pr                             \
+            --changed        /tmp/changed_files.txt         \
+            --skill-registry skill-registry.yaml            \
+            --tool-registry  tool-registry.yaml             \
+            --ci-summary     reports/admission/ci_summary.json   \
+            --state-guard    reports/admission/state-guard.json  \
+            --output-dir     reports/admission
+
+      # ── Stage 3b: Write Job Summary ────────────────────────────────────────
+      - name: "Stage 3b · Write Job Summary"
+        if: always()
+        run: |
+          if [ -f reports/admission/job_summary.md ]; then
+            cat reports/admission/job_summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── Stage 3c: Post PR comment (rich format) ────────────────────────────
+      - name: "Stage 3c · Post PR comment"
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const path = require('path');
 
-            // Read CI summary if present
-            const summaryPath = 'reports/admission/ci_summary.json';
-            let data = { total: 0, passed: 0, blocked: 0, results: [] };
-            if (fs.existsSync(summaryPath)) {
-              data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
-            }
-
-            // Read state guard if present
-            const sgPath = 'reports/admission/state-guard.json';
-            let sg = { result: 'PASS', summary: { critical: 0, high: 0, warnings: 0 }, findings: [] };
-            if (fs.existsSync(sgPath)) {
-              sg = JSON.parse(fs.readFileSync(sgPath, 'utf8'));
-            }
-
-            // Build comment body
-            const icons = {
-              'PASS': '✅ PASS',
-              'PASS_WITH_WARNINGS': '⚠️ PASS_WITH_WARNINGS',
-              'REQUIRES_REVIEW': '❌ REQUIRES_REVIEW',
-              'REJECT': '🚫 REJECT',
-              'FAIL': '🚫 FAIL',
-              'WARN': '⚠️ WARN',
-            };
-
-            const overall = data.blocked > 0 ? '🚫 BLOCKED'
-                          : sg.result !== 'PASS' ? '⚠️ STATE VIOLATIONS'
-                          : data.total === 0 ? 'ℹ️ NO ASSET CHANGES'
-                          : '✅ PASS';
-
-            let body = `## 🏛️ Admission Gate Results\n\n`;
-            body += `**Overall:** ${overall}\n\n`;
-
-            // State guard section
-            body += `### State Guard\n`;
-            const sgIcon = sg.result === 'PASS' ? '✅' : sg.result === 'WARN' ? '⚠️' : '🚫';
-            body += `${sgIcon} ${sg.result}  `;
-            body += `(CRITICAL=${sg.summary.critical}  HIGH=${sg.summary.high}  WARN=${sg.summary.warnings})\n\n`;
-
-            if (sg.findings && sg.findings.length > 0) {
-              for (const f of sg.findings.slice(0, 5)) {
-                body += `- \`[${f.rule}]\` **${f.asset_type}:${f.asset_name}** — ${f.message}\n`;
-              }
-              body += '\n';
-            }
-
-            // Asset results section
-            if (data.results && data.results.length > 0) {
-              body += `### Asset Validation & Admission\n\n`;
-              body += `| Asset | Validate | Admission | Overall |\n`;
-              body += `|-------|----------|-----------|--------|\n`;
-
-              for (const r of data.results) {
-                const ov = icons[r.overall] || r.overall;
-                body += `| \`${r.asset_name}\` | ${r.validate.result} | ${r.admission.decision} | ${ov} |\n`;
-              }
-
-              // Blocking issues
-              const blocked = data.results.filter(r =>
-                r.overall === 'REJECT' || r.overall === 'REQUIRES_REVIEW'
-              );
-              if (blocked.length > 0) {
-                body += `\n### Blocking Issues\n\n`;
-                for (const r of blocked) {
-                  body += `**\`${r.asset_name}\`** (${r.overall})\n`;
-                  const issues = (r.validate.blocking_issues || []).slice(0, 5);
-                  for (const issue of issues) {
-                    body += `- ${String(issue).substring(0, 120)}\n`;
-                  }
-                  const reasons = (r.admission.reasons || []).slice(0, 3);
-                  for (const reason of reasons) {
-                    body += `- [admission] ${String(reason).substring(0, 120)}\n`;
-                  }
-                  body += '\n';
-                }
-              }
+            // Read generated PR comment
+            let body = '';
+            if (fs.existsSync('reports/admission/pr_comment.md')) {
+              body = fs.readFileSync('reports/admission/pr_comment.md', 'utf8');
             } else {
-              body += `> No SKILL.md / TOOL.md changes in this PR.\n\n`;
+              body = '## Governance CI\n\nReport generation failed — check Actions logs.';
             }
 
-            body += `\n---\n`;
-            body += `*Governance CI · Run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
+            // Append run link
+            body += `\n\n---\n*Run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
 
             // Post or update comment
             const { data: comments } = await github.rest.issues.listComments({
@@ -197,7 +146,8 @@ jobs:
 
             const existing = comments.find(c =>
               c.user.login === 'github-actions[bot]' &&
-              c.body.includes('Admission Gate Results')
+              (c.body.includes('Governance Impact Analysis') ||
+               c.body.includes('Admission Gate Results'))
             );
 
             if (existing) {

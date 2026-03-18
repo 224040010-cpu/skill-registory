@@ -1,5 +1,13 @@
 # Skill & Tool Registry — 双轨能力治理体系
 
+
+[![Governance CI](https://github.com/hazezhang/skill-registry/actions/workflows/admission-gate.yml/badge.svg)](https://github.com/hazezhang/skill-registry/actions/workflows/admission-gate.yml)
+[![Weekly Audit](https://github.com/hazezhang/skill-registry/actions/workflows/governance-cron.yml/badge.svg)](https://github.com/hazezhang/skill-registry/actions/workflows/governance-cron.yml)
+[![Platform Score](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/hazezhang/skill-registry/master/reports/summary.json&query=%24.badge.platform_score.message&label=Platform%20Score&color=blue)](https://github.com/hazezhang/skill-registry/blob/master/reports/summary.json)
+[![Health Flag](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/hazezhang/skill-registry/master/reports/summary.json&query=%24.badge.health.message&label=Governance&color=blue)](https://github.com/hazezhang/skill-registry/blob/master/reports/summary.json)
+[![Orphan Tools](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/hazezhang/skill-registry/master/reports/summary.json&query=%24.badge.orphan_tools.message&label=Orphan%20Tools&color=blue)](https://github.com/hazezhang/skill-registry/blob/master/reports/summary.json)
+
+
 > **能力从"业务需求"到"可稳定调用的平台资产"的完整规划、生成、校验与治理机制**
 
 ---

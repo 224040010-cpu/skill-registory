@@ -87,48 +87,49 @@ jobs:
             echo "Allowlist committed and pushed."
           fi
 
-      # ── Stage 4: Governance refresh (non-blocking) ───────────────────────
-      - name: "Stage 4 · Governance refresh (non-blocking)"
+      # ── Stage 4: Generate full reports ───────────────────────────────────
+      - name: "Stage 4 · Generate governance reports"
+        run: |
+          python scripts/generate_reports.py \
+            --context        merge                             \
+            --skill-registry skill-registry.yaml              \
+            --tool-registry  tool-registry.yaml               \
+            --state-guard    reports/post-merge/state-guard.json \
+            --output-dir     reports/post-merge
+        continue-on-error: true
+
+      # ── Stage 5: Write Job Summary ────────────────────────────────────────
+      - name: "Stage 5 · Write Job Summary"
+        if: always()
+        run: |
+          if [ -f reports/post-merge/job_summary.md ]; then
+            cat reports/post-merge/job_summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── Stage 6: Commit summary.json for badges ───────────────────────────
+      - name: "Stage 6 · Commit summary.json (badge data)"
+        run: |
+          if [ -f reports/post-merge/summary.json ]; then
+            cp reports/post-merge/summary.json reports/summary.json
+            git add reports/summary.json runtime/allowlist.json
+            if git diff --staged --quiet; then
+              echo "No changes to commit."
+            else
+              git commit -m "chore: refresh summary.json + allowlist [skip ci]"
+              git push
+              echo "summary.json and allowlist committed."
+            fi
+          fi
+
+      # ── Stage 7: Governance refresh (non-blocking) ───────────────────────
+      - name: "Stage 7 · Governance refresh (non-blocking)"
         run: |
           python skill-governance-agent/scripts/governance_audit.py \
             --registry      skill-registry.yaml \
             --tool-registry tool-registry.yaml  \
             --skills-root   .                   \
             --output        reports/post-merge
-        continue-on-error: true   # findings go to artifact, not CI status
-
-      # ── Write step summary ─────────────────────────────────────────────────
-      - name: "Write step summary"
-        if: always()
-        run: |
-          python - <<'PYEOF'
-          import json, os, pathlib
-
-          lines = ["## Layer 3 · Post-Merge Summary\n"]
-
-          sg_path = pathlib.Path("reports/post-merge/state-guard.json")
-          if sg_path.exists():
-              sg = json.loads(sg_path.read_text(encoding="utf-8"))
-              icon = {"PASS": "✅", "WARN": "⚠️", "FAIL": "🚫"}.get(sg["result"], "?")
-              s = sg["summary"]
-              lines.append(
-                  f"**State Guard:** {icon} {sg['result']}  "
-                  f"(CRITICAL={s['critical']} HIGH={s['high']} WARN={s['warnings']})"
-              )
-
-          al_path = pathlib.Path("runtime/allowlist.json")
-          if al_path.exists():
-              al = json.loads(al_path.read_text(encoding="utf-8"))
-              sm = al["summary"]
-              lines.append(
-                  f"\n**Runtime Allowlist:** "
-                  f"{sm['allowed_skills']} skills · {sm['allowed_tools']} tools  "
-                  f"(generated {al['generated_at'][:19]}Z)"
-              )
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-              f.write("\n".join(lines) + "\n")
-          PYEOF
+        continue-on-error: true
 
       # ── Upload artifact ───────────────────────────────────────────────────
       - name: "Upload post-merge reports"
