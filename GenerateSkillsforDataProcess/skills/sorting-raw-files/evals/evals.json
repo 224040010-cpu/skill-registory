@@ -1,0 +1,30 @@
+{
+  "evals": [
+    {
+      "id": "sort-001",
+      "prompt": "raw_material 目录里有新文件，帮我分拣一下",
+      "expected_skill": "sorting-raw-files",
+      "expected_output_contains": [
+        "categories",
+        "total_files",
+        "by_category",
+        "output_dir"
+      ]
+    },
+    {
+      "id": "sort-002",
+      "prompt": "从头开始跑整个 pipeline，第一步先分拣文件",
+      "expected_skill": "sorting-raw-files",
+      "expected_output_contains": [
+        "categories",
+        "total_files"
+      ]
+    },
+    {
+      "id": "sort-003",
+      "prompt": "raw_material 是空的，执行文件分拣",
+      "expected_skill": "sorting-raw-files",
+      "expected_behavior": "return error: raw_material/ is empty, nothing to sort"
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+skills:
+  - skill_name: sorting-raw-files
+    display_name: 原始文件分拣
+    purpose: |
+      扫描 raw_material/ 并按知识类别将文件复制到 source_file/ 子目录
+      （derived_index、evidence、memory_case 等），为各预处理技能准备分类整理的输入。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages: []
+      external_services: []
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: preprocessing-excel-sources
+    display_name: Excel 数据预处理
+    purpose: |
+      将 source_file/ 中的 Excel 文件转换为 CSV 格式，输出到 processed_data/table_cache/，
+      为下游 Excel 分块技能提供标准化输入。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages:
+        - openpyxl
+      external_services: []
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: preprocessing-log-sources
+    display_name: 日志数据预处理
+    purpose: |
+      将 source_file/ 中的运维日志文件解析为结构化段落，并生成合并故障片段、
+      log_index 和 fault_index，输出到 processed_data/，为下游分块和知识图谱构建提供输入。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages: []
+      external_services: []
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: preprocessing-pdf-sources
+    display_name: PDF 数据预处理
+    purpose: |
+      将 source_file/ 中的 PDF 和文档文件通过 AWS Bedrock 转换为 Markdown 格式，
+      并将各文件的 mapping JSON 合并为统一索引，输出到 processed_data/markdown/，
+      为下游 QA 提取和语义分块提供文本输入。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages:
+        - boto3
+      external_services:
+        - aws-bedrock
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: chunking-knowledge-sources
+    display_name: 知识源分块
+    purpose: |
+      将多格式预处理后的知识源（Excel CSV、Markdown、日志段）切分为标准化语义块和
+      QA 对，写入 processed_data/semantic_chunk/ 和 processed_data/qa_pair/，
+      为向量化技能提供统一格式的输入。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages: []
+      external_services:
+        - llm-service
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: vectorizing-knowledge-base
+    display_name: 知识库向量化
+    purpose: |
+      将 semantic_chunk/ 和 qa_pair/ 文件嵌入 ChromaDB 向量库（QA + semantic 双集合）、
+      构建 HippoRAG 知识图谱，并向量化图像，在 processed_data/ 下生成可检索的完整知识库。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages:
+        - boto3
+      external_services:
+        - aws-bedrock
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
+
+  - skill_name: building-data-manifest
+    display_name: 数据 Manifest 构建
+    purpose: |
+      扫描 processed_data/ 目录，生成包含所有已处理源文件和索引制品的完整追踪
+      manifest，支持 dry-run 预览模式，用于流水线审计和增量运行记录。
+    owner_team: data-team
+    owner_individual: TBD
+    version: v1.0.0
+    rollback_version: null
+    status: draft
+    risk_level: L3
+    dependencies:
+      mcp_servers:
+        - file-system-mcp
+        - data-pipeline-mcp
+      packages: []
+      external_services: []
+    supported_models:
+      - claude-sonnet-4-6
+    surfaces:
+      - api
+    bundle_scope:
+      - knowledge-base-agent
+    eval_status:
+      last_eval_date: null
+      eval_result: PENDING
+      eval_score: null
+    security_review:
+      status: pending
+      reviewer: null
+      review_date: null
+      checksum: null
