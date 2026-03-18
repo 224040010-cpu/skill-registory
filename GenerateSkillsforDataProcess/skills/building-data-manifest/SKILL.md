@@ -1,0 +1,126 @@
+---
+name: building-data-manifest
+bundle_scope: ops-agent
+risk_level: L3
+description: |
+  Scans processed_data/ and generates a tracking manifest recording processed
+  source files and index artifacts, with optional dry-run for count-only preview.
+  Use when the pipeline has completed a processing phase and a manifest of
+  processed data needs to be recorded or refreshed, or when auditing which files
+  have been processed so far.
+  Do NOT use when processed_data/ is empty (run at least one preprocessing
+  skill first), or when vectorization indexes need to be rebuilt
+  (use vectorizing-knowledge-base instead).
+---
+
+# Purpose
+
+Produces a comprehensive manifest of all processed artifacts in processed_data/,
+covering both source-processed files and index files, enabling pipeline auditing,
+incremental run tracking, and handoff documentation.
+
+---
+
+# Trigger
+
+**Use this Skill when:**
+- Pipeline run has completed and a manifest needs to be recorded
+- Auditing what files have been processed and indexed
+- Dry-run preview of what would be included in the manifest is needed
+- Only source or only index manifest needs to be refreshed
+
+**Do NOT use this Skill when:**
+- No processed data exists yet — run preprocessing skills first
+- Vectorization index rebuild is needed — use vectorizing-knowledge-base
+
+---
+
+# Workflow
+
+[ ] Step 1: 验证 processed_data 目录
+    - ⚠️ Tool needed: `file-system-mcp:list_files(`path=data_prepare/processed_data/, recursive=false)
+    - If processed_data/ is empty → return warning "processed_data/ is empty, nothing to manifest"
+
+[ ] Step 2: 生成 Manifest
+    - ⚠️ Tool needed: `data-pipeline-mcp:run_script(`
+        script=scripts/build_manifest.py,
+        args=[
+          "--target", <target: "all" | "source" | "index" (default: "all")>,
+          "--dry-run" (optional, count only, no files written)
+        ]
+      )
+    - "source": manifests processed source files only
+    - "index": manifests index artifacts (chromadb, hipporag) only
+    - "all": manifests both source and index
+    - "--dry-run": counts and reports without writing manifest files
+    - If script exits non-zero → return stderr as error, stop
+
+[ ] Step 3: 返回结果
+    - Return dry-run result if --dry-run was used: {dry_run: true, source_count: N, index_count: N}
+    - Return manifest file paths if written: {manifest_files: [...], source_count: N, index_count: N}
+
+**Error handling:**
+- If processed_data/ does not exist → return "processed_data/ directory not found"
+- If --target value is invalid → return "Invalid target, must be one of: all, source, index"
+- If manifest write fails (disk full, permissions) → return OS error message
+
+---
+
+# Scripts
+
+**build_manifest.py** — Generates processed_data manifest in tracking mode
+- Execute: `python scripts/build_manifest.py [--target {all,source,index}] [--dry-run]`
+- Input: data_prepare/processed_data/ (full directory scan)
+- Output: manifest .jsonl files in processed_data/
+- `--target all` (default): both source and index manifests
+- `--target source`: source manifest only
+- `--target index`: index manifest only
+- `--dry-run`: count statistics only, no files written
+
+**common_schema.py** — Shared data schema definitions used by pipeline scripts
+
+---
+
+# Constraints
+
+- NEVER delete existing manifests without explicit user confirmation
+- This skill is READ (processed_data/) + WRITE (manifest files) only
+- Use --dry-run first when unsure about the current state of processed_data/
+- Output must include: manifest_files list (or dry_run flag), source_count, index_count
+
+---
+
+<!--
+- skill_name: building-data-manifest
+  display_name: 数据 Manifest 构建
+  purpose: |
+    扫描 processed_data/ 目录，生成包含所有已处理源文件和索引制品的完整追踪
+    manifest，支持 dry-run 预览模式，用于流水线审计和增量运行记录。
+  owner_team: data-team
+  owner_individual: TBD
+  version: v1.0.0
+  rollback_version: null
+  status: draft
+  risk_level: L3
+  dependencies:
+    mcp_servers:
+      - file-system-mcp
+      - data-pipeline-mcp
+    packages: []
+    external_services: []
+  supported_models:
+    - claude-sonnet-4-6
+  surfaces:
+    - api
+  bundle_scope:
+    - knowledge-base-agent
+  eval_status:
+    last_eval_date: null
+    eval_result: PENDING
+    eval_score: null
+  security_review:
+    status: pending
+    reviewer: null
+    review_date: null
+    checksum: null
+-->

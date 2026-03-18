@@ -1,0 +1,138 @@
+---
+name: preprocessing-pdf-sources
+description: |
+  Converts PDF and document files from source_file/ into Markdown format using
+  AWS Bedrock, then consolidates per-file mapping JSONs into a single
+  mapping_merged.json under processed_data/markdown/.
+  Use when PDF/document files have been sorted into source_file/ and need to be
+  converted to Markdown before QA extraction and chunking.
+  Do NOT use when PDF files have not been sorted yet (run sorting-raw-files first),
+  or when only Excel/log data needs processing (use preprocessing-excel-sources or
+  preprocessing-log-sources instead).
+---
+
+# Purpose
+
+Transforms raw PDF and document files into structured Markdown with a unified
+mapping index, enabling downstream QA extraction (phase2_extract_qa_from_md)
+and semantic chunking (phase2_generate_for_chunking_json) to operate on
+text-based input.
+
+---
+
+# Trigger
+
+**Use this Skill when:**
+- source_file/ contains PDF or document files ready for conversion
+- Pipeline Phase 1 is running for PDF/document data type
+- processed_data/markdown/ needs to be refreshed after new documents are added
+
+**Do NOT use this Skill when:**
+- source_file/ has not been populated yet (run sorting-raw-files first)
+- Only Excel or log data needs preprocessing (use the respective skill)
+- AWS credentials / Bedrock access are not configured
+
+---
+
+# Workflow
+
+[ ] Step 1: 检查 PDF 源文件及 AWS 环境
+    - ⚠️ Tool needed: `file-system-mcp:list_files(`path=data_prepare/source_file/, pattern=**/*.pdf,**/*.md)
+    - If 0 files found → return warning "No PDF/document files found in source_file/, skipping"
+    - Verify boto3 is installed; if not → return "Missing dependency: run pip install boto3"
+
+[ ] Step 2: 执行 PDF 预处理（转 Markdown）
+    - ⚠️ Tool needed: `data-pipeline-mcp:run_script(`
+        script=scripts/phase1_preprocess_pdf_data.py,
+        args=[]
+      )
+    - Script uses AWS Bedrock for PDF-to-Markdown conversion
+    - If ModuleNotFoundError: boto3 → return "Missing dependency: run pip install boto3"
+    - If AWS credentials error → return "AWS credentials not configured, check environment"
+    - If script exits non-zero → return stderr as error message, stop
+
+[ ] Step 3: 合并 Mapping JSON
+    - ⚠️ Tool needed: `data-pipeline-mcp:run_script(`
+        script=scripts/phase1_consolidate_mapping_json.py,
+        args=[]
+      )
+    - Reads processed_data/markdown/mapping.json → writes mapping_merged.json
+    - Reports: document count and chunk count
+    - If mapping.json not found → return error "PDF preprocessing may have failed, mapping.json missing"
+
+[ ] Step 4: 验证输出并返回结果
+    - ⚠️ Tool needed: `file-system-mcp:list_files(`path=data_prepare/processed_data/markdown/, pattern=*.md,mapping_merged.json)
+    - Return: {md_files_created: N, mapping_merged: true/false, output_dir: "processed_data/markdown/"}
+
+**Error handling:**
+- If boto3 not installed → return actionable message before running
+- If AWS Bedrock rate limit hit → log which files failed, return partial success with retry list
+- If mapping_merged.json document count < source file count → return warning with delta
+
+---
+
+# Scripts
+
+**phase1_preprocess_pdf_data.py** — Converts PDF/documents to Markdown via AWS Bedrock
+- Execute: `python scripts/phase1_preprocess_pdf_data.py`
+- Input: source_file/ (PDF and document files, hardcoded)
+- Output: processed_data/markdown/*.md + mapping.json
+- Requires: `pip install boto3`, AWS Bedrock credentials
+
+**phase1_consolidate_mapping_json.py** — Merges per-file mapping JSONs into one index
+- Execute: `python scripts/phase1_consolidate_mapping_json.py`
+- Input: processed_data/markdown/mapping.json (hardcoded)
+- Output: processed_data/markdown/mapping_merged.json
+- Reports: document count and chunk count
+
+**common_schema.py** — Shared data schema definitions used by pipeline scripts
+
+---
+
+# Constraints
+
+- NEVER modify or delete source files in source_file/
+- This skill is READ (source_file/) + WRITE (processed_data/markdown/) + EXTERNAL (AWS Bedrock)
+- Requires boto3 and valid AWS credentials — validate before running in new environment
+- Step 3 (consolidate mapping) MUST run after Step 2; do not run consolidation standalone
+- Output must include: md_files_created, mapping_merged status, output_dir
+
+---
+
+<!--
+- skill_name: preprocessing-pdf-sources
+  display_name: PDF 数据预处理
+  purpose: |
+    将 source_file/ 中的 PDF 和文档文件通过 AWS Bedrock 转换为 Markdown 格式，
+    并将各文件的 mapping JSON 合并为统一索引，输出到 processed_data/markdown/，
+    为下游 QA 提取和语义分块提供文本输入。
+  owner_team: data-team
+  owner_individual: TBD
+  version: v1.0.0
+  rollback_version: null
+  status: draft
+  risk_level: L3
+  dependencies:
+    mcp_servers:
+      - file-system-mcp
+      - data-pipeline-mcp
+    packages:
+      - boto3
+    external_services:
+      - aws-bedrock
+  supported_models:
+    - claude-sonnet-4-6
+  surfaces:
+    - api
+  bundle_scope:
+    - knowledge-base-agent
+  eval_status:
+    last_eval_date: null
+    eval_result: PENDING
+    eval_score: null
+  security_review:
+    status: pending
+    reviewer: null
+    review_date: null
+    checksum: null
+-->

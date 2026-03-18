@@ -1,0 +1,56 @@
+{
+  "evals": [
+    {
+      "id": "config-000",
+      "prompt": "跑一下数据处理，先确认一下配置再开始",
+      "expected_skill": "configuring-pipeline",
+      "expected_output_contains": [
+        "show_pipeline_config",
+        "配置",
+        "确认"
+      ]
+    },
+    {
+      "id": "config-001",
+      "prompt": "帮我把数据目录改成 data2，不要用 data 了",
+      "expected_skill": "configuring-pipeline",
+      "expected_output_contains": [
+        "pipeline_config.json",
+        "base_dir",
+        "data2"
+      ]
+    },
+    {
+      "id": "config-002",
+      "prompt": "向量库和 HippoRAG 我想默认改成重建而不是增量，在哪改？",
+      "expected_skill": "configuring-pipeline",
+      "expected_output_contains": [
+        "vectorizing",
+        "chromadb",
+        "hipporag",
+        "rebuild"
+      ]
+    },
+    {
+      "id": "config-003",
+      "prompt": "流水线运行记录在哪看？上次处理到哪一步了",
+      "expected_skill": "configuring-pipeline",
+      "expected_output_contains": [
+        "pipeline_run_log",
+        "jsonl",
+        "step_id",
+        "status"
+      ]
+    },
+    {
+      "id": "config-004",
+      "prompt": "Unstructured API Key 怎么配置，不要写在配置文件里",
+      "expected_skill": "configuring-pipeline",
+      "expected_output_contains": [
+        "UNSTRUCTURED_API_KEY",
+        "环境变量",
+        "${env:"
+      ]
+    }
+  ]
+}
