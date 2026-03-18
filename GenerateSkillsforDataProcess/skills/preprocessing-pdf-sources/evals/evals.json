@@ -1,0 +1,35 @@
+{
+  "evals": [
+    {
+      "id": "pdf-pre-001",
+      "prompt": "帮我把 source_file 里的 PDF 转成 Markdown",
+      "expected_skill": "preprocessing-pdf-sources",
+      "expected_output_contains": [
+        "md_files_created",
+        "mapping_merged",
+        "output_dir"
+      ]
+    },
+    {
+      "id": "pdf-pre-002",
+      "prompt": "新增了一批 PDF 文档，需要重新预处理",
+      "expected_skill": "preprocessing-pdf-sources",
+      "expected_output_contains": [
+        "md_files_created",
+        "mapping_merged"
+      ]
+    },
+    {
+      "id": "pdf-pre-003",
+      "prompt": "环境没有配 AWS 凭证，执行 PDF 预处理",
+      "expected_skill": "preprocessing-pdf-sources",
+      "expected_behavior": "return error: AWS credentials not configured, check environment"
+    },
+    {
+      "id": "pdf-pre-004",
+      "prompt": "source_file 里没有 PDF 文件，执行 PDF 预处理",
+      "expected_skill": "preprocessing-pdf-sources",
+      "expected_behavior": "return warning: No PDF/document files found in source_file/, skipping"
+    }
+  ]
+}

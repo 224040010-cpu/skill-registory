@@ -1,0 +1,36 @@
+{
+  "evals": [
+    {
+      "id": "chunk-001",
+      "prompt": "预处理完了，帮我把所有数据分块",
+      "expected_skill": "chunking-knowledge-sources",
+      "expected_output_contains": [
+        "semantic_chunks",
+        "qa_pairs"
+      ]
+    },
+    {
+      "id": "chunk-002",
+      "prompt": "只重新分块 device_manual.csv 这个文件",
+      "expected_skill": "chunking-knowledge-sources",
+      "expected_args_contain": {
+        "script": "phase2_generate_excel_chunk.py",
+        "file": "device_manual"
+      }
+    },
+    {
+      "id": "chunk-003",
+      "prompt": "log 数据量很大，先 dry-run 测试一下分块逻辑",
+      "expected_skill": "chunking-knowledge-sources",
+      "expected_args_contain": {
+        "dry-run": true
+      }
+    },
+    {
+      "id": "chunk-004",
+      "prompt": "没有预处理数据，直接执行分块",
+      "expected_skill": "chunking-knowledge-sources",
+      "expected_behavior": "return error: No preprocessed data found, run preprocessing skills first"
+    }
+  ]
+}
