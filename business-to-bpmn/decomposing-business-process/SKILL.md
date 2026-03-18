@@ -9,8 +9,8 @@ description: |
   structured steps before building a BPMN diagram, or to review and validate the
   process logic independently of XML generation. Trigger on: "把这个流程拆成步骤",
   "帮我规划一下这个业务流程", "拆解一下这个需求", "生成流程步骤", "流程分解",
-  "process decomposition", "process planning", or any request to understand the
-  structure of a business process without needing BPMN XML output.
+  "process decomposition", "process planning", or explicit requests to understand
+  the structure of a specific business process without needing BPMN XML output.
   Do NOT use when the user wants the final BPMN XML file — use converting-business-to-bpmn instead.
   Do NOT use when the user already has steps and only needs BPMN element mapping.
 ---
