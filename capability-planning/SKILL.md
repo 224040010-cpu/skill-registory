@@ -109,22 +109,36 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
 
 [ ] Step 4: Classify each capability using the decision tree
 
-    Apply this decision tree to each capability from Step 3:
+    Apply this decision tree to each capability from Step 3.
+
+    **There are only two capability types: `tool` and `skill`.**
+    `workflow_step` is NOT a third type — it is an implementation-layer label
+    indicating that a capability belongs *inside* an existing skill as an
+    embedded step, not as a standalone registrable asset.
 
     ```
-    Q1: Can this capability be independently triggered by a user request?
-        (i.e., a user might ask for ONLY this, without the surrounding context)
-    ├── NO  → workflow_step
-    └── YES → Q2
+    Q1: Is this capability a single, deterministic atomic operation?
+        Criteria: no or minimal business logic; fixed input → fixed output;
+        no multi-step flow; no conditional branching; directly callable as
+        an API / MCP function.
+        (Who triggers it — user or skill — is IRRELEVANT to this question.)
+    ├── YES → tool
+    │         Implement as MCP Tool. No further questions needed.
+    └── NO  → Q2
 
-    Q2: Does this capability require multi-step reasoning, context accumulation,
-        or conditional branching?
-    ├── NO  → tool  (single deterministic operation — implement as MCP Tool)
-    └── YES → Q3
-
-    Q3: Is this capability reusable across different user intents or agents?
-    ├── NO  → workflow_step  (too context-specific to be a standalone skill)
-    └── YES → skill
+    Q2: Does this capability represent a sufficiently complete user intent
+        to warrant independent governance, registration, routing and testing?
+        Ask: Would multiple agents or skills reuse this independently?
+              Would a user ask for exactly this outcome as a whole?
+              Does it have stable, well-defined inputs and a final deliverable?
+    ├── YES → skill
+    │         → route to guiding-skill-authoring
+    └── NO  → workflow_step  ← NOT a third capability type.
+                               This capability is an embedded step inside a
+                               parent skill. Record it under that skill's
+                               "internal_steps" — do NOT route it to
+                               guiding-skill-authoring independently.
+                               It must have a "belongs_to_skill" annotation.
     ```
 
     Output format (extend each capability object):
@@ -135,21 +149,33 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
       "description": "...",
       "input": "...",
       "output": "...",
-      "independent_trigger": true,
-      "multi_step": true,
-      "reusable": true,
+      "atomic": true,
+      "governs_independently": true,
       "final_type": "skill",
-      "classification_rationale": "One sentence explaining the decision."
+      "classification_rationale": "One sentence explaining the decision.",
+      "belongs_to_skill": null
     }
     ```
 
-    **Type definitions:**
+    For `workflow_step` entries, set `belongs_to_skill` to the `id` of the
+    parent skill capability:
+    ```json
+    {
+      "id": "cap-04",
+      "name": "normalise-alarm-codes",
+      "final_type": "workflow_step",
+      "classification_rationale": "Single-context step; only meaningful inside diagnose-charger-failure.",
+      "belongs_to_skill": "cap-01"
+    }
+    ```
 
-    | Type | Meaning | Next action |
-    |---|---|---|
-    | `skill` | Independent trigger + multi-step reasoning + reusable | → guiding-skill-authoring |
-    | `tool` | Single atomic, deterministic operation | → flag as "MCP Tool Needed" |
-    | `workflow_step` | No independent trigger, or too context-specific | → flag as "Agent Workflow Layer" |
+    **Capability type definitions:**
+
+    | Type | Layer | Meaning | Registry entry? | Next action |
+    |---|---|---|---|---|
+    | `tool` | Capability | Single atomic, deterministic operation; no business logic | `tool-registry.yaml` | → guiding-tool-authoring |
+    | `skill` | Capability | Complete user intent; multi-step logic; independently governable | `skill-registry.yaml` | → guiding-skill-authoring |
+    | `workflow_step` | Implementation | Embedded step *inside* a parent skill; not independently registrable or routable | No — lives inside skill metadata | → document under parent skill's `internal_steps` |
 
 ---
 
@@ -169,8 +195,10 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
 
     **Check C — Trigger dependency**
     > Are there any `skill` entries that can ONLY be triggered as a
-    > consequence of another skill's output (not by a user directly)?
-    > If yes → reclassify as `workflow_step`.
+    > consequence of another skill's output, and would never be requested
+    > by a user or agent in isolation?
+    > If yes → reclassify as `workflow_step` and assign `belongs_to_skill`
+    > to the parent skill. It becomes an internal step, not a registry asset.
 
     **Check D — Scope creep**
     > Does any `skill` entry touch more than one agent boundary
@@ -202,26 +230,49 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
 
 [ ] Step 7: Emit `capability_plan.json`
 
+    The `capabilities` array contains **only `tool` and `skill` entries**.
+    `workflow_step` entries are NOT listed in `capabilities` — they appear
+    nested under their parent skill in `composition_notes`.
+
     ```json
     {
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "source_requirement": "<the restated scope summary from Step 2>",
       "generated_at": "<ISO date>",
       "summary": {
         "total_capabilities": 0,
         "skills": 0,
         "tools": 0,
-        "workflow_steps": 0
+        "workflow_steps_embedded": 0
       },
       "capabilities": [
         {
           "id": "cap-01",
           "name": "...",
           "description": "...",
-          "final_type": "skill | tool | workflow_step",
+          "final_type": "skill",
           "suggested_bundle_scope": "...",
           "suggested_risk_level": "L1 | L2 | L3 | L4",
           "classification_rationale": "..."
+        },
+        {
+          "id": "cap-03",
+          "name": "...",
+          "description": "...",
+          "final_type": "tool",
+          "suggested_bundle_scope": "...",
+          "suggested_risk_level": "L0 | L1",
+          "classification_rationale": "..."
+        }
+      ],
+      "composition_notes": [
+        {
+          "step_id": "step-01",
+          "name": "normalise-alarm-codes",
+          "description": "One sentence — what this step does inside the parent skill.",
+          "belongs_to_skill": "cap-01",
+          "placement": "After cap-03, before step-02",
+          "note": "Embedded step — not a registry asset. Implement inside cap-01's workflow."
         }
       ],
       "next_actions": [
@@ -232,29 +283,34 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
         },
         {
           "capability_id": "cap-03",
-          "action": "File MCP Tool request for: extract entities from text",
+          "action": "Start guiding-tool-authoring: extract entities from text",
           "priority": 2
         }
       ],
-      "deferred": [
-        {
-          "capability_id": "cap-07",
-          "type": "workflow_step",
-          "note": "Implement at agent workflow layer, not as a standalone skill."
-        }
-      ]
+      "deferred": []
     }
     ```
 
+    `deferred` is reserved for capabilities that cannot be classified yet
+    (e.g., insufficient information). `workflow_step` items are **never**
+    placed in `deferred` — they always belong in `composition_notes`.
+
 [ ] Step 8: Present the plan to the human for review
 
-    Show a concise summary table:
+    Show a concise summary table with two sections:
+
+    **Registrable Capabilities** (go to registry):
 
     | ID | Capability | Type | Bundle | Risk | Next Action |
     |----|-----------|------|--------|------|-------------|
     | cap-01 | ... | skill | ... | L2 | → guiding-skill-authoring |
-    | cap-03 | ... | tool | ... | L1 | → MCP Tool request |
-    | cap-07 | ... | workflow_step | ... | — | → Agent Workflow Layer |
+    | cap-03 | ... | tool | ... | L1 | → guiding-tool-authoring |
+
+    **Embedded Steps** (stay inside parent skill — do NOT register):
+
+    | Step ID | Name | Belongs to | Placement | Note |
+    |---------|------|-----------|-----------|------|
+    | step-01 | normalise-alarm-codes | cap-01 | after cap-03 | Internal step only |
 
     Wait for human confirmation before handing off to `guiding-skill-authoring`.
     Any `skill`-type capability that the human approves becomes the **input**
@@ -308,14 +364,72 @@ phase. `guiding-skill-authoring` must NOT be started without a reviewed plan.
     - **Needed by skill**: <skill_name>
     ```
 
-[ ] Step 11: For each `workflow_step`-type capability, emit a workflow note
+[ ] Step 11: For each `workflow_step` in `composition_notes`, emit an
+    embedded-step note addressed to the parent skill's author
+
     ```markdown
-    ## Agent Workflow Note
+    ## Embedded Step Note → belongs to: <parent_skill_name>
+
+    This step is NOT a standalone skill or tool.
+    Include it in `<parent_skill_name>/SKILL.md` under the Workflow section.
+
     - **Step name**: <name>
     - **Purpose**: <description>
-    - **Placement**: After <cap-X>, before <cap-Y>
-    - **Note**: Implement at agent workflow layer — not a standalone skill or tool.
+    - **Placement**: After <cap-X / step-X>, before <cap-Y / step-Y>
+    - **Implementation guidance**: <any relevant notes>
+    - **Upgrade candidate?**: <yes / no — see upgrade conditions below>
     ```
+
+    Do NOT route this to `guiding-skill-authoring` as an independent session.
+    The parent skill's author is responsible for implementing this step.
+    The step has no separate registry entry, version, or owner.
+
+---
+
+# workflow_step Lifecycle Rules
+
+A `workflow_step` is not a permanent state. It is a placeholder for a
+capability that is *not yet ready* (or not yet needed) to be a first-class
+asset. Its lifecycle is managed by the owning skill's author.
+
+## Upgrade: workflow_step → skill
+
+Upgrade when **any 2 of the following** are true:
+
+| # | Condition |
+|---|-----------|
+| 1 | It is reused across **≥ 2 skills or agents** |
+| 2 | It has a clearly stable, well-defined input/output interface |
+| 3 | It contains **stable multi-step logic** that is tested independently |
+| 4 | It needs an **independent owner** or release cycle |
+| 5 | It needs **independent versioning** (e.g., breaking changes must not ripple) |
+| 6 | Business stakeholders need to **trigger or reference it directly** |
+
+When upgrading: run a fresh `capability-planning` session for the step alone,
+then route it to `guiding-skill-authoring`.
+
+## Downgrade: workflow_step → tool
+
+Downgrade when the step is found to be:
+- A pure atomic transformation (no decision, no branching)
+- Side-effect-free or read-only with a fixed schema
+- Callable by multiple skills as a direct API
+
+Examples that commonly over-stay as `workflow_step` and should be tools:
+- `normalise-status-code`
+- `extract-pdf-text`
+- `fetch-device-logs`
+- `format-date-string`
+
+When downgrading: remove from parent skill's `composition_notes` and route
+to `guiding-tool-authoring`.
+
+## What workflow_step should never do
+
+- Be registered in `skill-registry.yaml` or `tool-registry.yaml`
+- Appear in global routing tables
+- Have an independent `SKILL.md` or `TOOL.md` file
+- Be assigned a separate owner or version number (initially)
 
 ---
 
@@ -347,21 +461,29 @@ This skill always produces:
   modified, no tools are called
 
 **Required output fields — `capability_plan.json` is only valid when it contains:**
-- `schema_version` (string)
+- `schema_version` (string, must be `"1.1"`)
 - `source_requirement` (string, the scope summary from Step 2)
 - `generated_at` (ISO date string)
-- `summary.total_capabilities`, `summary.skills`, `summary.tools`, `summary.workflow_steps` (integers)
-- `capabilities[]` each with: `id`, `name`, `description`, `final_type`, `classification_rationale`
-- `next_actions[]` (may be empty array, but field must be present)
-- `deferred[]` (may be empty array, but field must be present)
+- `summary.total_capabilities`, `summary.skills`, `summary.tools`, `summary.workflow_steps_embedded` (integers)
+- `capabilities[]` — **only `tool` and `skill` entries** — each with: `id`, `name`, `description`, `final_type`, `classification_rationale`
+- `composition_notes[]` — `workflow_step` entries only; each must have `belongs_to_skill` pointing to a valid `capability.id`; may be empty array
+- `next_actions[]` — only for `tool` and `skill` entries; may be empty array
+- `deferred[]` (may be empty array; `workflow_step` items must NOT appear here)
 
 **Edge cases:**
 - If the requirement cannot be scoped in one sentence after 3 clarifying rounds →
   treat it as two separate planning sessions; return to Step 1 for each
-- If ALL capabilities classify as `tool` or `workflow_step` (zero skills) →
+- If ALL capabilities classify as `tool` (zero skills, zero workflow_steps) →
   this is valid; present the plan and note that no SKILL.md authoring is needed
+- If capabilities remain as `workflow_step` with no parent skill identified →
+  this is invalid; every `workflow_step` must have a `belongs_to_skill`.
+  Either identify the parent skill or upgrade the step to a standalone skill.
 - If a capability sits ambiguously between `skill` and `tool` → prefer `tool`
   (conservative default: skills are more expensive to maintain)
+- If a capability sits ambiguously between `skill` and `workflow_step` →
+  prefer `workflow_step` embedded in the most likely parent skill, and flag
+  it as an "Upgrade candidate" in `composition_notes`. Do not generate a
+  SKILL.md for it yet.
 
 **Meta-skill note:** This skill contains no MCP tool calls by design. It is a
 structural reasoning skill that produces a planning document, not operational
