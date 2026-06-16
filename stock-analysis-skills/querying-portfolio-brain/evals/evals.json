@@ -1,0 +1,25 @@
+{
+  "skill": "querying-portfolio-brain",
+  "evals": [
+    {
+      "name": "ai_energy_links_question",
+      "prompt": "What hidden links connect my AI semiconductor holdings to energy names?",
+      "expect_behavior": "Confirms knowledge.jsonl exists, runs src.knowledge.dialogue with the query, returns a grounded answer + sources + disclaimer."
+    },
+    {
+      "name": "brain_not_built",
+      "prompt": "Ask the portfolio brain why NVDA and EQT are connected. (no knowledge base yet)",
+      "expect_behavior": "Detects missing knowledge.jsonl and defers to building-portfolio-knowledge-graph; does not answer from general knowledge."
+    },
+    {
+      "name": "no_evidence_query",
+      "prompt": "What does my portfolio say about lithium mining in Chile?",
+      "expect_behavior": "If retrieval finds no sources, returns an explicit no-evidence response rather than a hallucinated answer."
+    },
+    {
+      "name": "wrong_skill_rebuild",
+      "prompt": "Rebuild the knowledge graph from the latest news.",
+      "expect_behavior": "Defers to building-portfolio-knowledge-graph because this is a build request, not a question."
+    }
+  ]
+}

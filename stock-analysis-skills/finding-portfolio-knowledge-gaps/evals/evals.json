@@ -1,0 +1,25 @@
+{
+  "skill": "finding-portfolio-knowledge-gaps",
+  "evals": [
+    {
+      "name": "what_am_i_missing",
+      "prompt": "What is my portfolio missing? Run a gap analysis.",
+      "expect_behavior": "Confirms graph exists, runs src.knowledge.gap, returns suggested missing tickers and themes with reasons."
+    },
+    {
+      "name": "heuristic_fallback",
+      "prompt": "Find blind spots in my coverage, but the local LLM is offline.",
+      "expect_behavior": "Gap stage falls back to the deterministic heuristic; result reports source=heuristic."
+    },
+    {
+      "name": "graph_not_built",
+      "prompt": "What sectors am I missing? (graph not yet built)",
+      "expect_behavior": "Detects missing graph.json and defers to building-portfolio-knowledge-graph."
+    },
+    {
+      "name": "wrong_skill_links",
+      "prompt": "Show the hidden links between NVDA and my energy names.",
+      "expect_behavior": "Defers to discovering-portfolio-alpha because this asks about existing links, not missing coverage."
+    }
+  ]
+}

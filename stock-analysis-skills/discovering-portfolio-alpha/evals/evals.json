@@ -1,0 +1,25 @@
+{
+  "skill": "discovering-portfolio-alpha",
+  "evals": [
+    {
+      "name": "find_hidden_links",
+      "prompt": "Show me the candidate alpha — the non-obvious links in my portfolio.",
+      "expect_behavior": "Confirms graph exists, runs src.knowledge.discovery, returns ranked candidates with scores and rationale."
+    },
+    {
+      "name": "graph_not_built",
+      "prompt": "What are the hidden connections? (no graph has been built yet)",
+      "expect_behavior": "Detects missing graph.json and defers to building-portfolio-knowledge-graph instead of running discovery."
+    },
+    {
+      "name": "llm_down_degraded",
+      "prompt": "Rank candidate-alpha links, but the rationale LLM is offline.",
+      "expect_behavior": "Re-runs discovery with no_llm=true and returns ranked candidates without rationale, noting degraded mode."
+    },
+    {
+      "name": "wrong_skill_gap",
+      "prompt": "What sectors am I missing from my portfolio coverage?",
+      "expect_behavior": "Defers to finding-portfolio-knowledge-gaps because this asks about missing coverage, not existing links."
+    }
+  ]
+}

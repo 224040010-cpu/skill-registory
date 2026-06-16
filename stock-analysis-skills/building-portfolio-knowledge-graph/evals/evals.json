@@ -1,0 +1,25 @@
+{
+  "skill": "building-portfolio-knowledge-graph",
+  "evals": [
+    {
+      "name": "explicit_rebuild_request",
+      "prompt": "Rebuild the portfolio knowledge graph with the latest data.",
+      "expect_behavior": "Runs src.knowledge.pipeline, verifies graph.json + metrics.json exist, returns node/edge/theme counts."
+    },
+    {
+      "name": "llm_unreachable_fallback",
+      "prompt": "Refresh the portfolio brain, but the local LLM server is down.",
+      "expect_behavior": "Re-runs the pipeline with no_llm=true so compression degrades gracefully, and reports degraded mode."
+    },
+    {
+      "name": "wrong_skill_question",
+      "prompt": "What hidden links connect my AI and energy holdings?",
+      "expect_behavior": "Does NOT build; defers to querying-portfolio-brain because this is a question, not a build request."
+    },
+    {
+      "name": "stale_after_news_update",
+      "prompt": "News caches just updated — regenerate the LLM-wiki and graph.",
+      "expect_behavior": "Runs the build pipeline and surfaces refreshed metrics and artifact paths."
+    }
+  ]
+}

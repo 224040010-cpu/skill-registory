@@ -23,7 +23,7 @@
 #   last_reviewed   : ISO date of last governance review
 
 schema_version: "1.0.0"
-last_audited: "2026-03-17"
+last_audited: "2026-03-30"
 
 skills:
 
@@ -592,6 +592,120 @@ skills:
     created_at: "2026-03-18"
     last_reviewed: "2026-03-18"
 
+  - skill_name: calling-agent-team
+    display_name: Calling Agent-Team
+    purpose: Bridge between Claude Code / Cursor and the agent-team platform — invoke workflows via REST, A2A, or MCP
+    owner_team: platform
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: skills/calling-agent-team/SKILL.md
+    created_at: "2026-03-27"
+    last_reviewed: "2026-03-27"
+
+  - skill_name: manage-approval-requests
+    display_name: Manage Agent-Team Approval Requests
+    purpose: Handles the pause-and-resume approval lifecycle for agent-team workflows blocked on high-risk (L3+) steps — poll status, decide approve/reject, handle expiry and idempotency
+    owner_team: platform
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies:
+      - calling-agent-team
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: skills/manage-approval-requests/SKILL.md
+    created_at: "2026-04-01"
+    last_reviewed: "2026-04-01"
+
+  - skill_name: reviewing-kb-drafts
+    display_name: KB Draft Review
+    purpose: Runs promotion-readiness checks against KB draft files and produces a structured READY / NEEDS_WORK / BLOCKED verdict per draft — covers frontmatter, sections, duplication, contradiction, and evidence anchors
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L2
+    dependencies: []
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: defined
+    security_review: not_required
+    path: reviewing-kb-drafts/SKILL.md
+    created_at: "2026-04-02"
+    last_reviewed: "2026-04-02"
+
+  - skill_name: promoting-kb-pattern
+    display_name: KB Pattern Promotion
+    purpose: Executes KB draft promotion — moves file from drafts/ to patterns/, mutates frontmatter, inserts INDEX.md trigger row, appends CHANGELOG.md entry; requires READY verdict from reviewing-kb-drafts and human confirmation before writes
+    owner_team: platform
+    version: "1.0.0"
+    status: approved
+    risk_level: L3
+    dependencies:
+      - reviewing-kb-drafts
+    bundle_scope: platform
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: defined
+    security_review: not_required
+    path: promoting-kb-pattern/SKILL.md
+    created_at: "2026-04-02"
+    last_reviewed: "2026-04-02"
+
+  # ─────────────────────────────────────────────
+  # Creative Writing Pipeline Skills
+  # ─────────────────────────────────────────────
+
+  - skill_name: children-ux-audit
+    display_name: Children's UX Audit
+    purpose: Runs ai-ux-reviewer against the wizard app and generated video scenes; interprets results against ages 5-8 thresholds and produces prioritised fix list
+    owner_team: creative-writing
+    version: "1.0.0"
+    status: draft
+    risk_level: L1
+    dependencies: []
+    bundle_scope: creative-writing
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: children-ux-audit/SKILL.md
+    created_at: "2026-06-10"
+    last_reviewed: "2026-06-10"
+
+  - skill_name: image-narration-alignment
+    display_name: Image-Narration Alignment Fix
+    purpose: Fixes dual-coding mismatch in story video pipeline — rewrites SD prompts from narration sentence, enforces character-forward framing, adds image-first lead time
+    owner_team: creative-writing
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies: []
+    bundle_scope: creative-writing
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: image-narration-alignment/SKILL.md
+    created_at: "2026-06-10"
+    last_reviewed: "2026-06-10"
+
   - skill_name: skill-governance-agent
     display_name: Skill Governance Agent
     purpose: Dual-track continuous governance of both skill-registry.yaml and tool-registry.yaml — runs ten audit checks (S1-S4 for skills, T1-T4 for tools, X1-X3 for cross-track consistency) to surface registry drift, stale metadata, and risk inheritance gaps
@@ -609,3 +723,80 @@ skills:
     path: skill-governance-agent/SKILL.md
     created_at: "2026-03-18"
     last_reviewed: "2026-03-18"
+
+  # ─────────────────────────────────────────────
+  # Stock Analysis Skills (Alpha Knowledge Graph) — owner: stock-analysis team
+  # Source: stock_monitor src/knowledge pipeline. Research finders only.
+  # ─────────────────────────────────────────────
+
+  - skill_name: building-portfolio-knowledge-graph
+    display_name: Building Portfolio Knowledge Graph
+    purpose: Rebuilds the stock_monitor portfolio knowledge graph (ingest, compression LLM-wiki, typed networkx graph) and produces refreshed graph.json, wiki pages, and metrics
+    owner_team: stock-analysis
+    version: "1.0.0"
+    status: draft
+    risk_level: L3
+    dependencies: []
+    bundle_scope: stock-analysis
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: stock-analysis-skills/building-portfolio-knowledge-graph/SKILL.md
+    created_at: "2026-06-16"
+    last_reviewed: "2026-06-16"
+
+  - skill_name: discovering-portfolio-alpha
+    display_name: Discovering Portfolio Alpha
+    purpose: Ranks non-obvious relationships in the portfolio knowledge graph (non-obviousness x signal-agreement x freshness) with local-LLM rationale and writes a ranked candidate-alpha report
+    owner_team: stock-analysis
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies: []
+    bundle_scope: stock-analysis
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: stock-analysis-skills/discovering-portfolio-alpha/SKILL.md
+    created_at: "2026-06-16"
+    last_reviewed: "2026-06-16"
+
+  - skill_name: finding-portfolio-knowledge-gaps
+    display_name: Finding Portfolio Knowledge Gaps
+    purpose: Analyzes the portfolio knowledge graph for blind spots and produces ranked missing tickers, themes, and macro factors (unknown-unknowns) plus a suggestions file that feeds the next ingest cycle
+    owner_team: stock-analysis
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies: []
+    bundle_scope: stock-analysis
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: stock-analysis-skills/finding-portfolio-knowledge-gaps/SKILL.md
+    created_at: "2026-06-16"
+    last_reviewed: "2026-06-16"
+
+  - skill_name: querying-portfolio-brain
+    display_name: Querying Portfolio Brain
+    purpose: Answers a natural-language question about the portfolio via retrieval-augmented generation over the knowledge wiki and documents, returning a grounded answer with sources and a research-only disclaimer
+    owner_team: stock-analysis
+    version: "1.0.0"
+    status: draft
+    risk_level: L2
+    dependencies: []
+    bundle_scope: stock-analysis
+    supported_models:
+      - claude-sonnet-4-6
+      - claude-opus-4-6
+    eval_status: pending
+    security_review: not_required
+    path: stock-analysis-skills/querying-portfolio-brain/SKILL.md
+    created_at: "2026-06-16"
+    last_reviewed: "2026-06-16"
