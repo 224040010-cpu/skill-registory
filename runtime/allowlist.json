@@ -1,16 +1,18 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-03-18T08:59:31.250453+00:00",
+  "generated_at": "2026-06-16T10:39:36.553235+00:00",
   "source": {
     "skill_registry_version": "1.0.0",
     "tool_registry_version": "1.0.0",
-    "skill_registry_audited": "2026-03-17",
+    "skill_registry_audited": "2026-03-30",
     "tool_registry_audited": "2026-03-17"
   },
   "summary": {
-    "allowed_skills": 33,
+    "allowed_skills": 35,
     "allowed_tools": 15,
-    "excluded_skills_by_status": {},
+    "excluded_skills_by_status": {
+      "draft": 8
+    },
     "excluded_tools_by_status": {}
   },
   "skills": [
@@ -470,6 +472,38 @@
       "dependencies": []
     },
     {
+      "name": "reviewing-kb-drafts",
+      "display_name": "KB Draft Review",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L2",
+      "bundle_scope": "platform",
+      "path": "reviewing-kb-drafts/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "promoting-kb-pattern",
+      "display_name": "KB Pattern Promotion",
+      "version": "1.0.0",
+      "status": "approved",
+      "risk_level": "L3",
+      "bundle_scope": "platform",
+      "path": "promoting-kb-pattern/SKILL.md",
+      "owner_team": "platform",
+      "supported_models": [
+        "claude-sonnet-4-6",
+        "claude-opus-4-6"
+      ],
+      "dependencies": [
+        "reviewing-kb-drafts"
+      ]
+    },
+    {
       "name": "skill-governance-agent",
       "display_name": "Skill Governance Agent",
       "version": "1.0.0",
@@ -683,7 +717,18 @@
     }
   ],
   "excluded": {
-    "skills": {},
+    "skills": {
+      "draft": [
+        "calling-agent-team",
+        "manage-approval-requests",
+        "children-ux-audit",
+        "image-narration-alignment",
+        "building-portfolio-knowledge-graph",
+        "discovering-portfolio-alpha",
+        "finding-portfolio-knowledge-gaps",
+        "querying-portfolio-brain"
+      ]
+    },
     "tools": {}
   }
 }
