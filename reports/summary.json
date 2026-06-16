@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-03-18",
-  "platform_score": 80,
+  "generated_at": "2026-06-16",
+  "platform_score": 81,
   "health_flag": "WARNING",
-  "total_skills": 33,
+  "total_skills": 43,
   "total_tools": 15,
   "orphan_tools": 0,
   "high_risk_chains": 0,
@@ -13,7 +13,7 @@
     "platform_score": {
       "schemaVersion": 1,
       "label": "Platform Score",
-      "message": "80/100",
+      "message": "81/100",
       "color": "brightgreen"
     },
     "health": {
