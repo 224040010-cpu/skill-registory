@@ -484,7 +484,7 @@ def build_job_summary(
         al = load_json(allowlist_path)
         sm = al.get("summary", {})
         lines += [
-            "## Runtime Allowlist\n",
+            "## Published Capability Catalog\n",
             f"| Approved Skills | Approved Tools | Generated |",
             f"|----------------|----------------|-----------|",
             f"| {sm.get('allowed_skills', '?')} "

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skill-registory.local/schemas/catalog-snapshot.schema.json",
+  "title": "Published Capability Catalog",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "source", "summary", "skills", "tools", "excluded"],
+  "properties": {
+    "schema_version": { "const": "2.0.0" },
+    "source": {
+      "type": "object",
+      "required": ["system_definition_version", "system_definition_digest"]
+    },
+    "skills": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    },
+    "tools": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "required": ["name", "version", "status", "risk_level", "digest"],
+      "properties": {
+        "status": { "enum": ["approved", "restricted"] },
+        "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

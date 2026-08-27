@@ -63,13 +63,14 @@ jobs:
             --tool-registry  tool-registry.yaml  \
             --output         reports/governance/state-guard-${{ steps.date.outputs.today }}.json
 
-      # ── Runtime allowlist freshness check ─────────────────────────────────
-      - name: "Runtime allowlist health check"
+      # ── Capability Catalog freshness check ────────────────────────────────
+      - name: "Capability catalog health check"
         run: |
-          python scripts/runtime_allowlist.py \
+          python scripts/verify_system_definition.py
+          python scripts/publish_catalog.py \
             --skill-registry skill-registry.yaml \
             --tool-registry  tool-registry.yaml  \
-            --output         reports/governance/allowlist-${{ steps.date.outputs.today }}.json
+            --output         reports/governance/catalog-${{ steps.date.outputs.today }}.json
 
       # ── Generate structured reports + Job Summary ────────────────────────
       - name: "Generate governance reports"

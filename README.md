@@ -1,5 +1,7 @@
 # Skill & Tool Registry — 双轨能力治理体系
 
+> **v3 仓库边界：能力控制平面。** 本仓库维护 Skill/Tool 的规范、版本、准入、风险与治理，并发布版本化 Capability Catalog；业务语言 → BPMN → Workflow IR → Graph/Loop → Agent 配置与真实运行已经拆分到独立的 `agent-workflow-factory` 仓库。两个仓库共享并校验同一份 [`contracts/system-definition.json`](contracts/system-definition.json)，详细边界见 [`docs/repository-boundaries.md`](docs/repository-boundaries.md)。
+
 
 [![Governance CI](https://github.com/hazezhang/skill-registry/actions/workflows/admission-gate.yml/badge.svg)](https://github.com/hazezhang/skill-registry/actions/workflows/admission-gate.yml)
 [![Weekly Audit](https://github.com/hazezhang/skill-registry/actions/workflows/governance-cron.yml/badge.svg)](https://github.com/hazezhang/skill-registry/actions/workflows/governance-cron.yml)
@@ -34,7 +36,7 @@
   - [管理员：日常治理巡检](#管理员日常治理巡检)
 - [Skill 状态机](#skill-状态机)
 - [工具速查](#工具速查)
-- [Phase 6 · CI / Runtime Integration](#phase-6--ci--runtime-integration)
+- [Phase 6 · CI / Catalog Integration](#phase-6--ci--catalog-integration)
 - [已知限制与计划改进](#已知限制与计划改进)
 
 ---
@@ -592,7 +594,7 @@ TOOL-1 → TOOL-2 → TOOL-3（原子操作）
 
 ---
 
-## Phase 6 · CI / Runtime Integration
+## Phase 6 · CI / Catalog Integration
 
 > **目标：不依赖人记得去做，而是系统自动拦。**
 
@@ -602,7 +604,7 @@ TOOL-1 → TOOL-2 → TOOL-3（原子操作）
 |------|------------|------|
 | **PR 级自动检查** | `.github/workflows/skill-ci.yml` | 每次 push/PR 自动运行 State Guard + Validate + Admission |
 | **状态机强制执行** | `scripts/state_guard.py` | 拦截违反生命周期规则的 registry 变更 |
-| **Runtime 只消费 approved 资产** | `scripts/runtime_allowlist.py` | 生成 `runtime/allowlist.json`，Runtime 必须基于此文件路由 |
+| **Catalog 只发布 approved 资产** | `scripts/publish_catalog.py` | 生成 `catalog/catalog.snapshot.json`，Workflow Factory 必须解析并锁定版本 |
 
 ---
 
@@ -624,9 +626,10 @@ Stage 2  Validate + Admission Gate (仅变更的文件)
          → REQUIRES_REVIEW → CI 失败
          → PASS_WITH_WARNINGS → CI 通过，报告中标记
 
-Stage 3  Runtime Allowlist 再生
-         python scripts/runtime_allowlist.py
-         → 上传 runtime/allowlist.json 为 build artifact
+Stage 3  Capability Catalog 发布
+         python scripts/verify_system_definition.py
+         python scripts/publish_catalog.py
+         → 上传 catalog/catalog.snapshot.json 为 build artifact
 ```
 
 **CI 触发方式（workflow_dispatch 支持全量检查）：**
@@ -685,17 +688,17 @@ python scripts/state_guard.py --json
 
 ---
 
-### Phase 6-C · Runtime 只消费 approved 资产
+### Phase 6-C · Catalog 只发布 approved 资产
 
-**文件：** `scripts/runtime_allowlist.py` → `runtime/allowlist.json`
+**文件：** `scripts/publish_catalog.py` → `catalog/catalog.snapshot.json`
 
-这是 Registry 与 Runtime 之间的**合同**：
+这是 Registry 与 Workflow Factory 之间的**合同**：
 
-> Runtime MUST NOT call any skill or tool not present in `allowlist.json`.
+> Workflow Factory MUST NOT compile any Skill or Tool absent from the pinned Catalog snapshot.
 
-**哪些资产进入 allowlist：**
+**哪些资产进入 Catalog：**
 
-| Status | 进入 allowlist | Runtime 行为 |
+| Status | 进入 Catalog | 编译行为 |
 |--------|--------------|-------------|
 | `approved` | **是** | 可正常调用 |
 | `restricted` | **是** | 需额外权限校验 |
@@ -709,36 +712,18 @@ python scripts/state_guard.py --json
 
 ```bash
 # 本地生成（开发调试）
-python scripts/runtime_allowlist.py
+python scripts/publish_catalog.py
 
 # 指定路径
-python scripts/runtime_allowlist.py \
+python scripts/publish_catalog.py \
   --skill-registry skill-registry.yaml \
   --tool-registry  tool-registry.yaml  \
-  --output         runtime/allowlist.json
+  --output         catalog/catalog.snapshot.json
 ```
 
-**Runtime 消费模式（示例）：**
+**Workflow Factory 消费模式：**
 
-```python
-import json
-from pathlib import Path
-
-allowlist = json.loads(Path("runtime/allowlist.json").read_text())
-
-APPROVED_SKILLS = {s["name"] for s in allowlist["skills"]}
-APPROVED_TOOLS  = {t["name"]: t for t in allowlist["tools"]}
-
-def route_skill(name: str):
-    if name not in APPROVED_SKILLS:
-        raise RuntimeError(f"Skill '{name}' not in runtime allowlist")
-
-def get_tool_endpoint(name: str) -> str:
-    tool = APPROVED_TOOLS.get(name)
-    if not tool:
-        raise RuntimeError(f"Tool '{name}' not in runtime allowlist")
-    return tool["endpoint"]
-```
+编译器解析 Skill/Tool 后生成 `registry.lock.json`，锁定 Catalog 摘要、资产版本和资产摘要。Runtime 只消费该锁文件，不在节点执行期间访问 Registry 分支。
 
 ---
 
@@ -749,7 +734,7 @@ def get_tool_endpoint(name: str) -> str:
 每周一 08:00 UTC 自动运行，覆盖：
 - `governance_audit.py` 全库双轨巡检（S1-S4 + T1-T4 + X1-X3）
 - `state_guard.py` 状态机完整性检查
-- `runtime_allowlist.py` allowlist 健康检查
+- `publish_catalog.py` Catalog 健康检查
 
 所有报告作为 build artifact 保留 90 天。
 
@@ -932,7 +917,7 @@ approved ───────────────────────�
 | 场景 | 命令 |
 |------|------|
 | 状态机检查 | `python scripts/state_guard.py` |
-| 生成 Runtime 白名单 | `python scripts/runtime_allowlist.py` |
+| 发布 Capability Catalog | `python scripts/publish_catalog.py` |
 | CI 全量检查 | `python scripts/ci_runner.py --all` |
 | CI 检查指定文件 | `python scripts/ci_runner.py --files changed.txt` |
 
@@ -965,7 +950,7 @@ approved ───────────────────────�
 - [x] ~~统一两个 Gate 的结果词汇表~~ — **已完成** 统一为 PASS / PASS_WITH_WARNINGS / REQUIRES_REVIEW / REJECT
 - [ ] `batch_admission.py` 增加 `--output json` flag
 - [x] ~~`skill-intake.ps1` 增加 GitHub Actions workflow~~ — **已完成** `.github/workflows/skill-ci.yml`
-- [x] ~~Registry 状态字段开始反映真实生命周期~~ — **已完成** `state_guard.py` 强制执行状态机，`runtime_allowlist.py` 按状态过滤
+- [x] ~~Registry 状态字段开始反映真实生命周期~~ — **已完成** `state_guard.py` 强制执行状态机，`publish_catalog.py` 按状态过滤
 
 ---
 

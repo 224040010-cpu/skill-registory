@@ -15,6 +15,11 @@ End-to-end orchestration skill: takes a natural language business description
 and produces a complete `.bpmn` file. Internally orchestrates 13 atomic tools
 across 5 pipeline layers.
 
+This Skill owns BPMN generation only. Executable Workflow IR, Agent Graph,
+LoopSpec, Agent Profile and Harness packaging belong to the separate
+`agent-workflow-factory` repository, which consumes the `.bpmn` output and a
+pinned Capability Catalog snapshot.
+
 **This skill is the entry point.** Two related skills exist for specific subtasks:
 - `decomposing-business-process` — for process planning only (no XML output)
 - `validating-bpmn-compliance` — for validating any BPMN file
@@ -162,6 +167,7 @@ Output: `work-order.bpmn`
 - All tool calls use `bpmn-tools:` server prefix — do NOT invent tool names outside `tools/tool-catalog.md`
 - Output is a `.bpmn` file (BPMN 2.0 XML) — never deliver raw JSON or YAML as the primary output
 - This skill is WRITE-ONLY for `.bpmn` files — it does not modify any registry, database, or platform state
+- NEVER generate Harness-specific Agent configuration in this Skill; hand the validated BPMN artifact to `agent-workflow-factory`
 - Output path defaults to current working directory if not specified by user
 - NEVER invoke `decomposing-business-process` or `validating-bpmn-compliance` skills as sub-skills — call their underlying tools directly (`bpmn-tools:validate_bpmn_structural`, etc.)
 

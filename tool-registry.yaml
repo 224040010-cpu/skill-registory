@@ -6,6 +6,7 @@
 # Fields:
 #   tool_name     : unique identifier (kebab-case verb-noun)
 #   display_name  : human-readable label
+#   version       : semver of the published Tool contract
 #   category      : parsing | transformation | validation | execution | retrieval | computation
 #   risk_level    : L0 (pure computation) | L1 (read) | L2 (analysis) | L3 (write) | L4 (external)
 #   side_effects  : none | read | write | external
@@ -31,6 +32,7 @@ tools:
 
   - tool_name: parse-business-intent
     display_name: Parse Business Intent
+    version: "1.0.0"
     category: parsing
     risk_level: L1
     side_effects: read
@@ -47,6 +49,7 @@ tools:
 
   - tool_name: extract-process-entities
     display_name: Extract Process Entities
+    version: "1.0.0"
     category: parsing
     risk_level: L1
     side_effects: read
@@ -63,6 +66,7 @@ tools:
 
   - tool_name: detect-description-ambiguity
     display_name: Detect Description Ambiguity
+    version: "1.0.0"
     category: validation
     risk_level: L1
     side_effects: read
@@ -79,6 +83,7 @@ tools:
 
   - tool_name: match-bpmn-template
     display_name: Match BPMN Template
+    version: "1.0.0"
     category: retrieval
     risk_level: L1
     side_effects: read
@@ -95,6 +100,7 @@ tools:
 
   - tool_name: decompose-process-steps
     display_name: Decompose Process Steps
+    version: "1.0.0"
     category: transformation
     risk_level: L2
     side_effects: read
@@ -111,6 +117,7 @@ tools:
 
   - tool_name: resolve-step-dependencies
     display_name: Resolve Step Dependencies
+    version: "1.0.0"
     category: computation
     risk_level: L0
     side_effects: none
@@ -127,6 +134,7 @@ tools:
 
   - tool_name: identify-parallel-steps
     display_name: Identify Parallel Steps
+    version: "1.0.0"
     category: computation
     risk_level: L0
     side_effects: none
@@ -143,6 +151,7 @@ tools:
 
   - tool_name: map-steps-to-bpmn-elements
     display_name: Map Steps to BPMN Elements
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -158,6 +167,7 @@ tools:
 
   - tool_name: classify-bpmn-task-types
     display_name: Classify BPMN Task Types
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -173,6 +183,7 @@ tools:
 
   - tool_name: assign-bpmn-participants
     display_name: Assign BPMN Participants
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -188,6 +199,7 @@ tools:
 
   - tool_name: assemble-bpmn-model
     display_name: Assemble BPMN Model
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -203,6 +215,7 @@ tools:
 
   - tool_name: serialize-bpmn-xml
     display_name: Serialize BPMN XML
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -218,6 +231,7 @@ tools:
 
   - tool_name: optimize-bpmn-layout
     display_name: Optimize BPMN Layout
+    version: "1.0.0"
     category: transformation
     risk_level: L0
     side_effects: none
@@ -233,6 +247,7 @@ tools:
 
   - tool_name: validate-bpmn-structural
     display_name: Validate BPMN Structural
+    version: "1.0.0"
     category: validation
     risk_level: L0
     side_effects: none
@@ -249,6 +264,7 @@ tools:
 
   - tool_name: evaluate-intent-coverage
     display_name: Evaluate Intent Coverage
+    version: "1.0.0"
     category: validation
     risk_level: L1
     side_effects: read

@@ -16,7 +16,7 @@
 # Runs all three layers in sequence:
 #   1. State Guard
 #   2. Full validate + admission for ALL SKILL.md / TOOL.md in repo
-#   3. Runtime allowlist regeneration
+#   3. Capability Catalog publication
 
 name: "Manual · Full Repository Scan"
 
@@ -72,13 +72,14 @@ jobs:
             --output         reports/full-scan/
         continue-on-error: ${{ inputs.skip_admission == 'true' }}
 
-      # ── Stage 3: Runtime Allowlist ───────────────────────────────────────
-      - name: "Stage 3 · Runtime allowlist"
+      # ── Stage 3: Capability Catalog ─────────────────────────────────────
+      - name: "Stage 3 · Capability catalog"
         run: |
-          python scripts/runtime_allowlist.py \
+          python scripts/verify_system_definition.py
+          python scripts/publish_catalog.py \
             --skill-registry skill-registry.yaml \
             --tool-registry  tool-registry.yaml  \
-            --output         runtime/allowlist.json
+            --output         catalog/catalog.snapshot.json
 
       # ── Upload artifact ───────────────────────────────────────────────────
       - name: "Upload full-scan reports"
@@ -88,5 +89,5 @@ jobs:
           name: "full-scan-${{ github.run_number }}"
           path: |
             reports/full-scan/
-            runtime/allowlist.json
+            catalog/catalog.snapshot.json
           retention-days: 30

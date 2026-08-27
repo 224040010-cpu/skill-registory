@@ -3,12 +3,12 @@
 # Layer 3 — Post-Merge Validation & Registry Update
 # ─────────────────────────────────────────────────
 # Triggered when a commit is pushed to master / main.
-# Purpose: final consistency verification after merge + keep runtime artifacts fresh.
+# Purpose: final consistency verification after merge + keep Catalog artifacts fresh.
 #
 # Scope:
 #   1. State Guard (final registry snapshot check)
-#   2. Regenerate runtime/allowlist.json from updated registries
-#   3. Auto-commit updated allowlist back to master (if changed)
+#   2. Publish catalog/catalog.snapshot.json from updated registries
+#   3. Auto-commit updated Catalog snapshot back to master (if changed)
 #   4. Lightweight governance refresh (non-blocking report)
 #
 # Result policy:
@@ -16,7 +16,7 @@
 #   Governance findings → CI passes, findings captured in artifact only
 #
 # Outputs:
-#   - runtime/allowlist.json committed back to master (if changed)
+#   - catalog/catalog.snapshot.json committed back to master (if changed)
 #   - reports/post-merge/ artifact (retained 30 days)
 
 name: "Layer 3 · Post-Merge Validation"
@@ -29,13 +29,14 @@ on:
       - "**/TOOL.md"
       - "skill-registry.yaml"
       - "tool-registry.yaml"
+      - "contracts/system-definition.json"
 
 jobs:
   post-merge:
     name: "Post-Merge Validation"
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to commit updated allowlist
+      contents: write   # needed to commit the updated Catalog snapshot
 
     steps:
       - name: "Checkout"
@@ -62,29 +63,30 @@ jobs:
             --tool-registry  tool-registry.yaml  \
             --output         reports/post-merge/state-guard.json
 
-      # ── Stage 2: Regenerate runtime allowlist ─────────────────────────────
-      - name: "Stage 2 · Regenerate runtime allowlist"
+      # ── Stage 2: Publish Capability Catalog ───────────────────────────────
+      - name: "Stage 2 · Publish Capability Catalog"
         run: |
-          python scripts/runtime_allowlist.py \
+          python scripts/verify_system_definition.py
+          python scripts/publish_catalog.py \
             --skill-registry skill-registry.yaml \
             --tool-registry  tool-registry.yaml  \
-            --output         runtime/allowlist.json
+            --output         catalog/catalog.snapshot.json
 
-      # ── Stage 3: Commit allowlist if changed ──────────────────────────────
-      - name: "Stage 3 · Commit updated allowlist"
+      # ── Stage 3: Commit Catalog if changed ────────────────────────────────
+      - name: "Stage 3 · Commit updated Catalog"
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add runtime/allowlist.json
+          git add catalog/catalog.snapshot.json
 
           # Only commit if the file actually changed
           if git diff --staged --quiet; then
-            echo "runtime/allowlist.json unchanged — no commit needed."
+            echo "catalog/catalog.snapshot.json unchanged — no commit needed."
           else
-            git commit -m "chore: refresh runtime allowlist [skip ci]"
+            git commit -m "chore: refresh capability catalog [skip ci]"
             git push
-            echo "Allowlist committed and pushed."
+            echo "Catalog committed and pushed."
           fi
 
       # ── Stage 4: Generate full reports ───────────────────────────────────
@@ -111,13 +113,13 @@ jobs:
         run: |
           if [ -f reports/post-merge/summary.json ]; then
             cp reports/post-merge/summary.json reports/summary.json
-            git add reports/summary.json runtime/allowlist.json
+            git add reports/summary.json catalog/catalog.snapshot.json
             if git diff --staged --quiet; then
               echo "No changes to commit."
             else
-              git commit -m "chore: refresh summary.json + allowlist [skip ci]"
+              git commit -m "chore: refresh summary.json + catalog [skip ci]"
               git push
-              echo "summary.json and allowlist committed."
+              echo "summary.json and Catalog committed."
             fi
           fi
 
