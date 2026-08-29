@@ -7,9 +7,157 @@
 [![Platform Score](https://img.shields.io/badge/Platform%20Score-81%2F100-brightgreen)](reports/summary.json)
 [![Governance](https://img.shields.io/badge/Governance-WARNING-yellow)](reports/summary.json)
 
-## 当前状态
+## 一句话说明
 
-截至 2026-08-29，仓库中的治理快照为：
+`skill-registory` 是 Agent 系统的能力治理控制平面：它把零散的提示词、脚本和接口整理成可分类、可评审、可版本化、可审计、可被工作流安全引用的 Skill 与 Tool 资产。
+
+## What：Skill、Tool 与治理体系是什么
+
+### Skill 是什么
+
+Skill 表达一个对用户或业务有独立价值的完整能力。它描述“在什么场景下，Agent 应如何完成一个目标”，通常包含业务判断、多个步骤、异常处理和结果质量要求。
+
+一个可治理的 Skill 至少应说清：
+
+- 触发场景和不适用场景；
+- 输入、输出和完成证据；
+- 执行步骤、分支和异常处理；
+- 可调用的 Tool 及权限范围；
+- Owner、版本、风险等级、评测和安全审查状态。
+
+例如，“把业务需求转换为合规 BPMN”是 Skill，因为它需要理解意图、拆解步骤、处理分支、调用多个 Tool，并对最终流程负责。
+
+### Tool 是什么
+
+Tool 表达一个边界清晰、输入输出稳定的原子操作。它回答“Agent 可以调用哪个确定性能力”，而不是“如何完成整个业务目标”。
+
+一个可治理的 Tool 至少应说清：
+
+- 请求与响应 Schema；
+- 服务和 Endpoint；
+- 是否幂等；
+- 是否产生副作用；
+- 风险、审批和权限要求；
+- 版本、Owner 以及被哪些 Skill 使用。
+
+例如，“解析业务意图”“校验 BPMN XML 结构”是 Tool；它们可以被多个 Skill 复用，但自身不负责完整业务流程。
+
+### Skill 与 Tool 如何区分
+
+| 判断维度 | Skill | Tool |
+|---|---|---|
+| 核心语义 | 完成一个业务意图 | 执行一个原子操作 |
+| 是否面向用户目标 | 是 | 通常否 |
+| 是否包含业务判断或多步骤协作 | 可以 | 不应包含 |
+| 接口稳定性 | 允许编排多个输入和阶段 | 应有稳定 Schema |
+| 是否可被其他能力复用 | 可以 | 通常应当可以 |
+| 治理重点 | 触发边界、效果、组合和评测 | 接口、副作用、幂等、权限和风险 |
+
+如果一个步骤只服务某个父 Skill、没有独立复用和治理价值，它属于内部 `workflow_step`，不应为了“看起来模块化”而注册为 Skill 或 Tool。
+
+### 治理体系是什么
+
+治理不是把 `SKILL.md` 和 `TOOL.md` 收集到 Git 仓库，而是持续回答以下问题：
+
+- 这个能力是否真的需要成为独立资产？
+- 谁负责维护，它处于哪个版本和生命周期阶段？
+- 它会访问什么数据、产生什么副作用、需要什么审批？
+- 它依赖哪些 Skill/Tool，依赖是否仍然有效？
+- 它是否通过结构校验、准入评审、安全审查和效果评测？
+- 哪些资产允许被编译器发现，哪些必须继续隔离？
+
+本仓库通过 Registry、状态机、双层 Gate、治理巡检和 Capability Catalog 把这些判断变成可执行规则。
+
+### 核心治理产物
+
+| 文件 | 作用 |
+|---|---|
+| [`skill-registry.yaml`](skill-registry.yaml) | Skill 的权威清单、版本、Owner、风险和生命周期 |
+| [`tool-registry.yaml`](tool-registry.yaml) | Tool 的权威清单、接口属性、风险和消费关系 |
+| [`catalog/catalog.snapshot.json`](catalog/catalog.snapshot.json) | 提供给 Workflow Factory 的不可变能力快照 |
+| [`contracts/system-definition.json`](contracts/system-definition.json) | 双仓共享的系统总定义权威副本 |
+| [`reports/summary.json`](reports/summary.json) | 治理健康度和待处理问题摘要 |
+
+Catalog 不是 Registry 的简单复制。它只发布 `approved` 和 `restricted` 资产，并为每个资产附带版本、风险等级和 SHA-256 摘要。
+
+## Why：为什么需要这套体系
+
+当 Skill 和 Tool 只以文档、提示词或代码片段分散存在时，系统很快会出现以下问题：
+
+- 相同能力被重复建设，名称相似但行为不一致；
+- 流程步骤被过度包装成 Skill，造成路由冲突和能力爆炸；
+- Tool 缺少 Schema、副作用和幂等说明，Agent 无法安全调用；
+- 已废弃能力仍被新流程引用，运行结果随主分支变化而漂移；
+- 高风险能力没有 Owner、审批和安全审查记录；
+- 业务流程、能力资产和运行时全部堆在一个仓库，任何变更都扩大影响面。
+
+因此，本项目把“能力是否可以用”和“流程如何执行”分开治理：Registry 负责资格与版本，Workflow Factory 负责组装与执行。这样可以获得确定性构建、最小权限、可审计变更和可重放运行。
+
+## How：能力如何进入系统并被使用
+
+### 资产准入流程
+
+```text
+Phase 0  能力规划：判断 Skill / Tool / 内部 workflow_step
+                      │
+           ┌──────────┴──────────┐
+           ▼                     ▼
+Phase 1S  编写 Skill         Phase 1T  编写 Tool
+           │                     │
+Phase 2S  Skill 校验         Phase 2T  Tool 校验
+           │                     │
+Phase 3   以 draft/submitted 写入 Registry
+           │                     │
+Phase 4S  Skill 准入         Phase 4T  Tool 准入
+           └──────────┬──────────┘
+                      ▼
+Phase 5   状态机检查、依赖检查和持续治理
+                      ▼
+Phase 6   发布 approved/restricted Capability Catalog
+```
+
+Authoring Gate 检查“是否写得完整、规范、可执行”；Admission Gate 检查“是否应该进入平台、是否冲突、风险是否可接受”。两个 Gate 都通过，仍不代表自动进入 Catalog，资产还必须具有允许发布的生命周期状态。
+
+### 运行时消费流程
+
+```text
+Registry 发布固定 Catalog 快照
+        ↓
+Workflow Factory 解析所需 Skill/Tool
+        ↓
+生成 registry.lock.json，固定 Catalog、版本与摘要
+        ↓
+编译 BPMN、Workflow IR、Graph/Loop 和 Agent Profile
+        ↓
+签署 Registry Lock 与完整工作流软件包
+        ↓
+Runtime 验证信任链后执行、记录轨迹并支持重放
+```
+
+运行节点不得临时查询 Registry 主分支，也不得自动升级 Skill/Tool 版本。能力升级必须重新生成 Catalog、重新解析并重新签署软件包。
+
+## Boundary：仓库职责边界
+
+系统按控制平面和执行平面拆分：
+
+| 范围 | `skill-registory` | `agent-workflow-factory` |
+|---|---|---|
+| 能力规划、Skill/Tool 规范 | 负责 | 消费 |
+| Registry 生命周期和风险政策 | 负责 | 不负责 |
+| Capability Catalog 发布 | 负责 | 固定并消费 |
+| 自然语言转 BPMN | 不负责 | 负责 |
+| BPMN 转 Workflow IR / Graph / Loop | 不负责 | 负责 |
+| Agent Profile 和真实运行时 | 不负责 | 负责 |
+| Registry Lock 与软件包签名 | 提供输入契约 | 负责 |
+| 运行轨迹、暂停、恢复和重放 | 接收治理反馈 | 负责 |
+
+两个仓库保存字节一致的 [`contracts/system-definition.json`](contracts/system-definition.json)。当前版本为 `3.0.0`，SHA-256 为 `f846e374ef89806a92c1adb45f387964842ff28c2fea142be4d86e7fef51f20c`。
+
+完整职责契约、变更规则和故障隔离原则见 [`docs/repository-boundaries.md`](docs/repository-boundaries.md)。
+
+## 当前治理状态
+
+截至 2026-08-29：
 
 | 指标 | 当前值 |
 |---|---:|
@@ -23,73 +171,7 @@
 | 平台治理分 | 81/100 |
 | 当前本地全量门禁 | 19 通过，4 个 draft Skill 被拒绝 |
 
-`reports/summary.json` 当前为 `WARNING`，治理快照记录了 25 个历史复审过期项。2026-08-29 的本地全量门禁还识别出 4 个证券分析 draft Skill 引用了尚未注册的 `data-pipeline-mcp:run_script` 和 `file-system-mcp:list_files`。这些 Skill 保持 `draft` 并被 Catalog 隔离，不影响当前 35+15 个已发布资产。只有 `approved` 和 `restricted` 状态会进入发布快照。
-
-## 为什么拆成两个仓库
-
-系统按“控制平面”和“执行平面”拆分：
-
-```text
-skill-registory（本仓库）
-  业务能力规划 → Skill/Tool 编写 → 准入与风险治理
-  → 发布 catalog/catalog.snapshot.json
-                       │
-                       ▼
-agent-workflow-factory
-  自然语言 → BPMN → Workflow IR → Graph/Loop
-  → Agent Profile → DeepSeek Harness / Runtime
-```
-
-职责边界：
-
-- 本仓库决定“哪些 Skill/Tool 可以被发现和使用”。
-- [`agent-workflow-factory`](https://github.com/224040010-cpu/agent-workflow-factory) 决定“业务流程如何编译为可执行 Agent Graph”。
-- 两个仓库保存字节一致的 [`contracts/system-definition.json`](contracts/system-definition.json)。当前版本为 `3.0.0`，SHA-256 为 `f846e374ef89806a92c1adb45f387964842ff28c2fea142be4d86e7fef51f20c`。
-- Factory 编译时固定 Catalog 和资产摘要到 `registry.lock.json`；v0.9 进一步签署 Registry Lock 和完整工作流软件包。
-- Runtime 只消费已固定的软件包，不在执行节点时读取 Registry 的 `master` 分支。
-
-更完整的边界说明见 [`docs/repository-boundaries.md`](docs/repository-boundaries.md)。
-
-## 核心产物
-
-| 文件 | 用途 |
-|---|---|
-| [`skill-registry.yaml`](skill-registry.yaml) | Skill 权威注册表与生命周期状态 |
-| [`tool-registry.yaml`](tool-registry.yaml) | Tool 权威注册表、风险和调用关系 |
-| [`catalog/catalog.snapshot.json`](catalog/catalog.snapshot.json) | 提供给 Workflow Factory 的版本化能力目录 |
-| [`contracts/system-definition.json`](contracts/system-definition.json) | 两仓共享的系统总定义权威副本 |
-| [`reports/summary.json`](reports/summary.json) | 当前治理分数与健康状态摘要 |
-
-Catalog 中每项资产都包含版本、状态、风险等级和 SHA-256 摘要。编译器只能解析 Catalog 中存在的资产。
-
-## 治理流水线
-
-```text
-Phase 0   Capability Planning
-          判断能力应该是 Skill、Tool，还是父 Skill 内部步骤
-                          │
-               ┌──────────┴──────────┐
-               ▼                     ▼
-Phase 1S   Skill Authoring       Phase 1T   Tool Authoring
-               │                     │
-Phase 2S   Skill Validator       Phase 2T   Tool Validator
-               │                     │
-Phase 3    写入两类 Registry，并保持 draft/submitted 状态
-               │                     │
-Phase 4S   Skill Admission       Phase 4T   Tool Admission
-               └──────────┬──────────┘
-                          ▼
-Phase 5    State Guard + Governance Audit
-                          ▼
-Phase 6    发布只含 approved/restricted 的 Capability Catalog
-```
-
-关键原则：
-
-- 面向用户、包含业务判断和多步骤协作的完整意图，通常建模为 Skill。
-- 单一、确定、可复用且有稳定输入输出 Schema 的原子操作，通常建模为 Tool。
-- 只服务一个父流程、没有独立治理价值的步骤，不注册为全局资产。
-- Tool 与 Skill 都必须经过 Authoring Gate 和 Admission Gate，避免 Skill explosion 变成 Tool explosion。
+`reports/summary.json` 当前为 `WARNING`，治理快照记录了 25 个历史复审过期项。2026-08-29 的本地全量门禁还识别出 4 个证券分析 draft Skill 引用了尚未注册的 `data-pipeline-mcp:run_script` 和 `file-system-mcp:list_files`。这些 Skill 保持 `draft` 并被 Catalog 隔离，不影响当前 35+15 个已发布资产。
 
 ## 仓库结构
 
